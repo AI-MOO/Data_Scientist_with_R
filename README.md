@@ -6,8 +6,8 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 
 | Sr. No | Course                                                               |Status|Featured|
 |:------:|----------------------------------------------------------------------------|:--:|:--:|
-| 01.     | [Introduction to R]()|⏳||
-| 02.     | [Intermediate R]()|| |
+| 01.     | [Introduction to R]()|✅||
+| 02.     | [Intermediate R]()|⏳| |
 | 03.     | [Introduction to the Tidyverse]()|| |
 | 04.     | [Data Manipulation with dplyr]()|| |
 | 05.     | [Joining Data with dplyr]()|| |
