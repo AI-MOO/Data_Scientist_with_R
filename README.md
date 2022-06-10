@@ -3,6 +3,7 @@
 Description : Data Scientist with R Career Track on DataCamp.
 Gain the career-building R skills you need to succeed as a data scientist. No prior coding experience required.
 
+<div align="center">
 
 | Sr. No | Course                                                               |Status|Featured|
 |:------:|----------------------------------------------------------------------------|:--:|:--:|
@@ -12,3 +13,5 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 | 04.     | [Data Manipulation with dplyr](/04_Data_Manipulation_with_dplyr)|✅| |
 | 05.     | [Joining Data with dplyr](/05_Joining_Data_with_dplyr)|⏳| |
 | 06.     | [Introduction to Data Visualization with ggplot2]()|| |
+
+</div>
