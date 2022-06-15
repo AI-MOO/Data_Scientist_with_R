@@ -1,0 +1,143 @@
+country,lifeExp,continent
+Swaziland,39.6,Africa
+Mozambique,42.1,Africa
+Zambia,42.4,Africa
+Sierra Leone,42.6,Africa
+Lesotho,42.6,Africa
+Angola,42.7,Africa
+Zimbabwe,43.5,Africa
+Afghanistan,43.8,Asia
+Central African Republic,44.7,Africa
+Liberia,45.7,Africa
+Rwanda,46.2,Africa
+Guinea-Bissau,46.4,Africa
+"Congo, Dem. Rep.",46.5,Africa
+Nigeria,46.9,Africa
+Somalia,48.2,Africa
+Malawi,48.3,Africa
+Cote d'Ivoire,48.3,Africa
+South Africa,49.3,Africa
+Burundi,49.6,Africa
+Cameroon,50.4,Africa
+Chad,50.7,Africa
+Botswana,50.7,Africa
+Uganda,51.5,Africa
+Equatorial Guinea,51.6,Africa
+Burkina Faso,52.3,Africa
+Tanzania,52.5,Africa
+Namibia,52.9,Africa
+Ethiopia,52.9,Africa
+Kenya,54.1,Africa
+Mali,54.5,Africa
+Djibouti,54.8,Africa
+"Congo, Rep.",55.3,Africa
+Guinea,56,Africa
+Benin,56.7,Africa
+Gabon,56.7,Africa
+Niger,56.9,Africa
+Eritrea,58,Africa
+Togo,58.4,Africa
+Sudan,58.6,Africa
+Madagascar,59.4,Africa
+Gambia,59.4,Africa
+Iraq,59.5,Asia
+Cambodia,59.7,Asia
+Ghana,60,Africa
+Haiti,60.9,Americas
+Myanmar,62.1,Asia
+"Yemen, Rep.",62.7,Asia
+Senegal,63.1,Africa
+Nepal,63.8,Asia
+Bangladesh,64.1,Asia
+Mauritania,64.2,Africa
+India,64.7,Asia
+Comoros,65.2,Africa
+Pakistan,65.5,Asia
+Sao Tome and Principe,65.5,Africa
+Bolivia,65.6,Americas
+Mongolia,66.8,Asia
+"Korea, Dem. Rep.",67.3,Asia
+Trinidad and Tobago,69.8,Americas
+Honduras,70.2,Americas
+Guatemala,70.3,Americas
+Thailand,70.6,Asia
+Indonesia,70.6,Asia
+Iran,71,Asia
+Morocco,71.2,Africa
+Egypt,71.3,Africa
+Peru,71.4,Americas
+Philippines,71.7,Asia
+Paraguay,71.8,Americas
+Turkey,71.8,Europe
+El Salvador,71.9,Americas
+Lebanon,72,Asia
+Dominican Republic,72.2,Americas
+Algeria,72.3,Africa
+Brazil,72.4,Americas
+Sri Lanka,72.4,Asia
+Romania,72.5,Europe
+Jordan,72.5,Asia
+Jamaica,72.6,Americas
+Saudi Arabia,72.8,Asia
+Mauritius,72.8,Africa
+Colombia,72.9,Americas
+Nicaragua,72.9,Americas
+China,73,Asia
+Bulgaria,73,Europe
+Hungary,73.3,Europe
+West Bank and Gaza,73.4,Asia
+Venezuela,73.7,Americas
+Tunisia,73.9,Africa
+Libya,74,Africa
+Serbia,74,Europe
+Syria,74.1,Asia
+Malaysia,74.2,Asia
+Vietnam,74.2,Asia
+Montenegro,74.5,Europe
+Slovak Republic,74.7,Europe
+Bosnia and Herzegovina,74.9,Europe
+Ecuador,75,Americas
+Argentina,75.3,Americas
+Panama,75.5,Americas
+Poland,75.6,Europe
+Bahrain,75.6,Asia
+Oman,75.6,Asia
+Croatia,75.7,Europe
+Mexico,76.2,Americas
+Uruguay,76.4,Americas
+Albania,76.4,Europe
+Reunion,76.4,Africa
+Czech Republic,76.5,Europe
+Kuwait,77.6,Asia
+Slovenia,77.9,Europe
+Portugal,78.1,Europe
+United States,78.2,Americas
+Cuba,78.3,Americas
+Denmark,78.3,Europe
+Taiwan,78.4,Asia
+Chile,78.6,Americas
+"Korea, Rep.",78.6,Asia
+Puerto Rico,78.7,Americas
+Costa Rica,78.8,Americas
+Ireland,78.9,Europe
+Finland,79.3,Europe
+Germany,79.4,Europe
+United Kingdom,79.4,Europe
+Belgium,79.4,Europe
+Greece,79.5,Europe
+Netherlands,79.8,Europe
+Austria,79.8,Europe
+Singapore,80,Asia
+Norway,80.2,Europe
+New Zealand,80.2,Oceania
+Italy,80.5,Europe
+Canada,80.7,Americas
+France,80.7,Europe
+Israel,80.7,Asia
+Sweden,80.9,Europe
+Spain,80.9,Europe
+Australia,81.2,Oceania
+Switzerland,81.7,Europe
+Iceland,81.8,Europe
+"Hong Kong, China",82.2,Asia
+Japan,82.6,Asia
