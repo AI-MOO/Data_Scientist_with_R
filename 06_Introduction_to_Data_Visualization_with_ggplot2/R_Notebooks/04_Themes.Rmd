@@ -170,7 +170,7 @@ The default unit is `"pt"` (points), which scales well with text. Other options 
 `plt_mpg_vs_wt_by_cyl` is available. The panel and legend are wrapped in blue boxes so you can see how they change.
 
 ```{r}
-mtcars <- read.csv("..\\00_Datasets\\mtcars.csv", header=TRUE)
+mtcars <- read.csv("..\\..\\00_Datasets\\mtcars.csv", header=TRUE)
 str(mtcars)
 
 ```
@@ -472,7 +472,7 @@ plt_prop_unemployed_over_time +
 library(dplyr)
 library(ggplot2)
 
-gm2007 <- read.csv("..\\00_Datasets\\gm2007.csv", header=TRUE)
+gm2007 <- read.csv("..\\..\\00_Datasets\\gm2007.csv", header=TRUE)
 str(gm2007)
 ```
 
@@ -557,7 +557,7 @@ The following values have been calculated for you to assist with adding embellis
 Our previous plot has been assigned to `plt_country_vs_lifeExp`.
 
 ```{r}
-gm2007_full <- read.csv("..\\00_Datasets\\gm2007_full.csv", header=TRUE)
+gm2007_full <- read.csv("..\\..\\00_Datasets\\gm2007_full.csv", header=TRUE)
 str(gm2007_full)
 ```
 
