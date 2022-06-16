@@ -1,0 +1,287 @@
+# Section 02: Coordinates
+
+### `01-Zooming In`
+
+In the video, you saw different ways of using the coordinates layer to zoom in. In this exercise, we'll compare zooming by changing scales and by changing coordinates.
+
+The big difference is that the scale functions change the underlying dataset, which affects calculations made by computed geoms (like histograms or smooth trend lines), whereas coordinate functions make no changes to the dataset.
+
+A scatter plot using `mtcars` with a LOESS smoothed trend line is provided. Take a look at this before updating it.
+
+```{r}
+library(tidyverse)
+mtcars <- read.csv("..\\..\\00_Datasets\\mtcars_v2.csv", header=TRUE)
+```
+
+```{r}
+# Run the code, view the plot, then update it
+ggplot(mtcars, aes(x = wt, y = hp, color = fam)) +
+  geom_point() +
+  geom_smooth() 
+  # Add a continuous x scale from 3 to 6
+  
+```
+
+-   Update the plot by adding (`+`) a continuous x scale with `limits` from `3` to `6`. *Spoiler: this will cause a problem!*
+
+    ```{r}
+    # Run the code, view the plot, then update it
+    ggplot(mtcars, aes(x = wt, y = hp, color = fam)) +
+      geom_point() +
+      geom_smooth() + 
+      # Add a continuous x scale from 3 to 6
+      scale_x_continuous(limits=c(3,6))
+    ```
+
+    -   Update the plot by adding a Cartesian coordinate system with x limits, `xlim`, from `3` to `6`.
+
+        ```{r}
+        ggplot(mtcars, aes(x = wt, y = hp, color = fam)) +
+          geom_point() +
+          geom_smooth() +
+          # Add Cartesian coordinates with x limits from 3 to 6
+          coord_cartesian(xlim= c(3,6))
+        ```
+
+        ### **`02-Aspect ratio I: 1:1 ratios`**
+
+        We can set the aspect ratio of a plot with `coord_fixed()`, which uses `ratio = 1` as a default. A 1:1 aspect ratio is most appropriate when two continuous variables are on the same scale, as with the `iris` dataset.
+
+        All variables are measured in centimeters, so it only makes sense that one unit on the plot should be the same physical distance on each axis. This gives a more truthful depiction of the relationship between the two variables since the aspect ratio can change the angle of our smoothing line. This would give an erroneous impression of the data. Of course the underlying linear models don't change, but our perception can be influenced by the angle drawn.
+
+        A plot using the `iris` dataset, of sepal width vs. sepal length colored by species, is shown in the viewer.
+
+Add a fixed coordinate layer to force a 1:1 aspect ratio.
+
+```{r}
+library(tidyverse)
+library(datasets)
+data(iris)
+```
+
+```{r}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # Fix the coordinate ratio
+  coord_fixed(ratio = 1)
+```
+
+### **`02-Aspect ratio II: setting ratios`**
+
+When values are not on the same scale it can be a bit tricky to set an appropriate aspect ratio. A classic William Cleveland (inventor of dot plots) example is the `sunspots` data set. We have 3200 observations from 1750 to 2016.
+
+`sun_plot` is a plot *without* any set aspect ratio. It fills up the graphics device.
+
+To make aspect ratios clear, we've drawn an orange box that is 75 units high and 75 *years* wide. Using a 1:1 aspect ratio would make the box square. That aspect ratio would make things harder to see the oscillations: it is better to force a wider ratio.
+
+```{r}
+#install.packages("zoo")
+#install.packages("reshape2")
+```
+
+```{r}
+library(zoo)
+library(reshape2)
+
+sunspots.m <- data.frame(
+year = index(sunspot.month),
+value = reshape2::melt(sunspot.month)$value)
+```
+
+```{r}
+sun_plot <- ggplot(sunspots.m, aes(x = year, y = value )) +
+  geom_line(color = "#87CEEB") +
+  coord_fixed() # default to 1:1 aspect ratio
+
+sun_plot
+```
+
+-   Fix the coordinates to a 1:1 aspect ratio.
+
+```{r}
+# Fix the aspect ratio to 1:1
+sun_plot +
+  coord_fixed(ratio = 1)
+```
+
+The `y` axis is now unreadably small. Make it bigger!
+
+-   Change the aspect `ratio` to 20:1. This is the aspect ratio recommended by Cleveland to help make the trend among oscillations easiest to see.
+
+```{r}
+# Change the aspect ratio to 20:1
+sun_plot +
+  #coord_fixed(ratio = 20)
+  coord_fixed(ratio = 0.05)
+
+```
+
+```{r}
+# Change the aspect ratio to 20:1
+sun_plot +
+  #coord_fixed(ratio = 20)
+  coord_fixed(ratio = 0.2)
+```
+
+### **`03-Expand and clip`**
+
+The `coord_*()` layer functions offer two useful arguments that work well together: `expand` and `clip`.
+
+-   `expand` sets a buffer margin around the plot, so data and axes don't overlap. Setting `expand` to `0` draws the axes to the limits of the data.
+
+-   `clip` decides whether plot elements that would lie outside the plot panel are displayed or ignored ("clipped").
+
+When done properly this can make a great visual effect! We'll use `theme_classic()` and modify the axis lines in this example.
+
+### `Questions`
+
+-   Add Cartesian coordinates with zero expansion, to remove all buffer margins on both the x and y axes.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point(size = 2) +
+  # Add Cartesian coordinates with zero expansion
+  theme_classic()
+
+
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point(size = 2) +
+  # Add Cartesian coordinates with zero expansion
+  coord_cartesian(expand = 0) +
+  theme_classic()
+
+```
+
+Setting `expand` to `0` caused points at the edge of the plot panel to be cut off.
+
+-   Set the `clip` argument to `"off"` to prevent this.
+
+-   Remove the axis lines by setting the `axis.line` argument to `element_blank()` in the `theme()` layer function.
+
+    ```{r}
+    ggplot(mtcars, aes(wt, mpg)) +
+      geom_point(size = 2) +
+      # Turn clipping off
+      coord_cartesian(expand = 0, clip = "off") +
+      theme_classic() +
+      # Remove axis lines
+      theme(axis.line = element_blank())
+    ```
+
+    ### **04-Log-transforming scales**
+
+    Using `scale_y_log10()` and `scale_x_log10()` is equivalent to transforming our actual dataset *before* getting to `ggplot2`.
+
+    Using `coord_trans()`, setting `x = "log10"` and/or `y = "log10"` arguments, transforms the data *after* statistics have been calculated. The plot will look the same as with using `scale_*_log10()`, but the scales will be different, meaning that we'll see the original values on our log10 transformed axes. This can be useful since log scales can be somewhat unintuitive.
+
+    Let's see this in action with positively skewed data - the brain and body weight of 51 mammals from the `msleep` dataset.
+
+    ```{r}
+    str(msleep)
+    ```
+
+    ```{r}
+    # Produce a scatter plot of brainwt vs. bodywt
+    ggplot(msleep, aes(bodywt, brainwt)) +
+      geom_point() +
+      ggtitle("Raw Values")
+    ```
+
+Add the `scale_x_log10()` and `scale_y_log10()` layers with default values to transform the data before plotting.
+
+```{r}
+# Add scale_*_*() functions
+ggplot(msleep, aes(bodywt, brainwt)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  ggtitle("Scale_ functions")
+```
+
+-   Use `coord_trans()` to apply a `"log10"` transformation to both the `x` and `y` scales.
+
+```{r}
+# Perform a log10 coordinate system transformation
+ggplot(msleep, aes(bodywt, brainwt)) +
+  geom_point() +
+  coord_trans(x = "log10", 
+              y = "log10")
+```
+
+### `04-Adding stats to transformed scales`
+
+```{r}
+# Plot with a scale_*_*() function:
+ggplot(msleep, aes(bodywt, brainwt)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # Add a log10 x scale
+  scale_x_log10() +
+  # Add a log10 y scale
+  scale_y_log10() +
+  ggtitle("Scale functions")
+```
+
+-   Add a log10 coordinate transformation for both the x and y axes.
+
+-   *Do you notice the difference between the two plots?*
+
+```{r}
+# Plot with transformed coordinates
+ggplot(msleep, aes(bodywt, brainwt)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # Add a log10 coordinate transformation for x and y axes
+  coord_trans(x = "log10", 
+              y = "log10")
+
+```
+
+Loopy lines! The smooth trend line is calculated after scale transformations but not coordinate transformations, so the second plot doesn't make sense. Be careful when using the `coord_trans()` function!
+
+### **05-Useful double axes**
+
+Double x and y-axes are a contentious topic in data visualization. We'll revisit that discussion at the end of chapter 4. Here, I want to review a great use case where double axes actually do add value to a plot.
+
+Our goal plot is displayed in the viewer. The two axes are the raw temperature values on a Fahrenheit scale and the transformed values on a Celsius scale.
+
+You can imagine a similar scenario for Log-transformed and original values, miles and kilometers, or pounds and kilograms. A scale that is unintuitive for many people can be made easier by adding a transformation as a double axis.
+
+#### `Questions:`
+
+-   Begin with a standard line plot, of `Temp` described by `Date` in the `airquality` dataset.
+
+
+    \
+
+
+
+    \
+
+
+
+    \
+
+
+
+
+
+    \
+
+
+
+    \
+
+
+\
+
+\
+
+
+
+
+
+\
+
+
