@@ -155,7 +155,6 @@ plt_prop_unemployed_over_time +
     # Set the plot title font face to italic and font size to 16
     plot.title = element_text(size = 16, face = "italic")
   )
-
 ```
 
 ### **`03-Modifying whitespace`**
