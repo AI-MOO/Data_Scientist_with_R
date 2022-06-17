@@ -1,0 +1,370 @@
+# Section 03: Facets
+
+### **`01-Facet layer basics`**
+
+Faceting splits the data up into groups, according to a categorical variable, then plots each group in its own panel. For splitting the data by one or two categorical variables, `facet_grid()` is best.
+
+Given categorical variables `A` and `B`, the code pattern is
+
+    plot +
+      facet_grid(rows = vars(A), cols = vars(B))
+
+This draws a panel for each pairwise combination of the values of `A` and `B`.
+
+Here, we'll use the `mtcars` data set to practice. Although `cyl` and `am` are not encoded as factor variables in the data set, `ggplot2` will coerce variables to factors when used in facets.
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+mtcars <- read.csv("..\\..\\00_Datasets\\mtcars_v2.csv", header=TRUE)
+head(mtcars, 3)
+```
+
+-   Facet the plot in a grid, with each `am` value in its own row.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) + 
+  geom_point() +
+  # Facet rows by am
+  facet_grid(rows = vars(am))
+```
+
+-   Facet the plot in a grid, with each `cyl` value in its own column.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) + 
+  geom_point() +
+  # Facet columns by cyl
+  facet_grid(cols = vars(cyl))
+
+```
+
+-   Facet the plot in a grid, with each `am` value in its own row and each `cyl` value in its own column.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) + 
+  geom_point() +
+  # Facet rows by am and columns by cyl
+  facet_grid(rows = vars(am), cols = vars(cyl))
+```
+
+### **`02-Many variables`**
+
+-   Map `fcyl_fam` onto the a `color` aesthetic.
+
+-   Add a `scale_color_brewer()` layer and set `"Paired"` as the `palette`.
+
+```{r}
+# See the interaction column
+mtcars$fcyl_fam
+
+# Color the points by fcyl_fam
+ggplot(mtcars, aes(x = wt, y = mpg, color = fcyl_fam)) +
+  geom_point() +
+  # Use a paired color palette
+  scale_color_brewer(palette = "Paired")
+```
+
+-   Map `disp`, the displacement volume from each cylinder, onto the `size` aesthetic.
+
+```{r}
+# Update the plot to map disp to size
+ggplot(mtcars, aes(x = wt, y = mpg, color = fcyl_fam, size = disp)) +
+  geom_point() +
+  scale_color_brewer(palette = "Paired")
+```
+
+-   Add a `facet_grid()` layer, faceting the plot according to `gear` on rows and `vs` on columns.
+
+```{r}
+# Update the plot
+ggplot(mtcars, aes(x = wt, y = mpg, color = fcyl_fam, size = disp)) +
+  geom_point() +
+  scale_color_brewer(palette = "Paired") +
+  # Grid facet on gear and vs
+  facet_grid(rows = vars(gear), cols = vars(vs))
+```
+
+### **`03-Formula notation`**
+
+As well as the `vars()` notation for specifying which variables should be used to split the dataset into facets, there is also a traditional formula notation. The three cases are shown in the table.
+
+    | Modern notation                            | Formula notation  |
+    |--------------------------------------------|-------------------|
+    | facet_grid(rows = vars(A))                 | facet_grid(A ~ .) |
+    | facet_grid(cols = vars(B))                 | facet_grid(. ~ B) |
+    | facet_grid(rows = vars(A), cols = vars(B)) | facet_grid(A ~ B) |
+
+`mpg_by_wt` is available again. Rework the previous plots, this time using formula notation.
+
+-   Facet the plot in a grid, with each `am` value in its own row.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) + 
+  geom_point() +
+  # Facet rows by am using formula notation
+  facet_grid(am ~ .)
+```
+
+-   Facet the plot in a grid, with each `cyl` value in its own column.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) + 
+  geom_point() +
+  # Facet columns by cyl using formula notation
+  facet_grid(. ~ cyl)
+```
+
+-   Facet the plot in a grid, with each `am` value in its own row and each `cyl` value in its own column.
+
+```{r}
+ggplot(mtcars, aes(wt, mpg)) + 
+  geom_point() +
+  # Facet rows by am and columns by cyl using formula notation
+  facet_grid(am ~ cyl)
+```
+
+### 
+**`04-Labeling facets`**
+
+If your factor levels are not clear, your facet labels may be confusing. You can assign proper labels in your original data *before* plotting (see next exercise), or you can use the `labeller` argument in the facet layer.
+
+The default value is
+
+-   `label_value`: Default, displays only the value
+
+Common alternatives are:
+
+-   `label_both`: Displays both the value and the variable name
+
+-   `label_context`: Displays only the values or both the values and variables depending on whether multiple factors are faceted
+
+#### `Questions`
+
+-   Add a `facet_grid()` layer and facet `cols` according to the `cyl` using `vars()`. There is no labeling.
+
+-   Apply `label_both` to the `labeller` argument and check the output.
+
+```{r}
+# Plot wt by mpg
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  # Displaying both the values and the variables
+  facet_grid(cols = vars(cyl), labeller = label_both)
+```
+
+-   Apply `label_context` to the `labeller` argument and check the output.
+
+```{r}
+# Plot wt by mpg
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  # Label context
+  facet_grid(cols = vars(cyl), labeller = label_context)
+```
+
+-   In addition to `label_context`, let's facet by one more variable: `vs`.
+
+```{r}
+# Plot wt by mpg
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  # Two variables
+  facet_grid(cols = vars(vs, cyl), labeller = label_context)
+```
+
+### **`05-Setting order`**
+
+If you want to change the order of your facets, it's best to properly define your factor variables *before* plotting.
+
+Let's see this in action with the `mtcars` transmission variable `am`. In this case, `0` = "automatic" and `1` = "manual".
+
+Here, we'll make `am` a factor variable and relabel the numbers to proper names. The default order is alphabetical. To rearrange them we'll call `fct_rev()` from the `forcats` package to reverse the order.
+
+-   Explicitly label the `0` and `1` values of the `am` column as `"automatic"` and `"manual"`, respectively.
+
+```{r}
+# Make factor, set proper labels explictly
+mtcars$fam <- factor(mtcars$am, labels = c(`0` = "automatic",
+                                           `1` = "manual"))
+
+# Default order is alphabetical
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  facet_grid(cols = vars(fam))
+```
+
+-   Define a specific order using separate `levels` and `labels` arguments. Recall that `1` is `"manual"` and `0` is `"automatic"`.
+
+```{r}
+# Make factor, set proper labels explictly, and
+# manually set the label order
+mtcars$fam <- factor(mtcars$am,
+                     levels = c(1, 0),
+                     labels = c("manual", "automatic"))
+
+# View again
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  facet_grid(cols = vars(fam))
+```
+
+### **`06-Variable plotting spaces I: continuous variables`**
+
+By default every facet of a plot has the same axes. If the data ranges vary wildly between facets, it can be clearer if each facet has its own scale. This is achieved with the `scales` argument to `facet_grid()`.
+
+-   `"fixed"` (default): axes are shared between facets.
+
+-   `free`: each facet has its own axes.
+
+-   `free_x`: each facet has its own x-axis, but the y-axis is shared.
+
+-   `free_y`: each facet has its own y-axis, but the x-axis is shared.
+
+When faceting by columns, `"free_y"` has no effect, but we can adjust the x-axis. In contrast, when faceting by rows, `"free_x"` has no effect, but we can adjust the y-axis.
+
+-   Update the plot to facet columns by `cyl`.
+
+-   Update the faceting to free the x-axis scales.
+
+-   Facet **rows** by `cyl` (rather than columns).
+
+-   Free the **y**-axis scales (instead of x).
+
+```{r}
+# Update the plot to facet columns by cyl
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() + 
+  # Facet columns by cyl 
+  facet_grid(cols = vars(cyl))
+
+# Update the faceting to free the x-axis scales.
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() + 
+  # Update the faceting to free the x-axis scales
+  facet_grid(cols = vars(cyl), scales = "free_x")
+
+
+# Facet rows by cyl (rather than columns).
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() + 
+  # Swap cols for rows; free the y-axis scales
+  facet_grid(rows = vars(cyl), scales = "free_y")
+```
+
+### **`07-Variable plotting spaces II: categorical variables`**
+
+When you have a categorical variable with many levels which are not all present in each sub-group of another variable, it's usually desirable to drop the unused levels.
+
+By default, each facet of a plot is the same size. This behavior can be changed with the `spaces` argument, which works in the same way as `scales`: `"free_x"` allows different sized facets on the x-axis, `"free_y"`, allows different sized facets on the y-axis, `"free"` allows different sizes in both directions.
+
+-   Facet the plot by rows according to `gear` using `vars()`. Notice that *every* car is listed in *every* facet, resulting in many lines without data.
+
+```{r}
+ggplot(mtcars, aes(x = mpg, y = car, color = fam)) +
+  geom_point() +
+  # Facet rows by gear
+  facet_grid(rows = vars(gear))
+```
+
+-   To remove blank lines, set the `scales` and `space` arguments in `facet_grid()` to `free_y`.
+
+```{r}
+ggplot(mtcars, aes(x = mpg, y = car, color = fam)) +
+  geom_point() +
+  # Free the y scales and space
+  facet_grid(rows = vars(gear),
+             scales = "free_y",
+             space = "free_y")
+```
+
+### **`08- Wrapping for many levels`**
+
+Add a facet_wrap() layer and specify:
+
+-   The `year` variable with an argument using the `vars()` function,
+
+```{r}
+Vocab <- read.csv("..\\..\\00_Datasets\\Vocab.csv", header=TRUE)
+
+```
+
+```{r}
+ggplot(Vocab, aes(x = education, y = vocabulary)) +
+  stat_smooth(method = "lm", se = FALSE) +
+  # Create facets, wrapping by year, using vars()
+  facet_wrap(vars(year))
+```
+
+-   Add a `facet_wrap()` layer and specify the `year` variable with a formula notation (`~`).
+
+```{r}
+ggplot(Vocab, aes(x = education, y = vocabulary)) +
+  stat_smooth(method = "lm", se = FALSE) +
+  # Create facets, wrapping by year, using a formula
+  facet_wrap(~ year)
+```
+
+Add a `facet_wrap()` layer and specify:
+
+-   Formula notation as before, and `ncol` set to `11`.
+
+```{r}
+ggplot(Vocab, aes(x = education, y = vocabulary)) +
+  stat_smooth(method = "lm", se = FALSE) +
+  # Update the facet layout, using 11 columns
+  facet_wrap(~ year, ncol = 11)
+```
+
+### **`09-Margin plots`**
+
+Facets are great for seeing subsets in a variable, but sometimes you want to see *both* those subsets *and* all values in a variable.
+
+Here, the `margins` argument to `facet_grid()` is your friend.
+
+-   `FALSE` (default): no margins.
+
+-   `TRUE`: add margins to every variable being faceted by.
+
+-   `c("variable1", "variable2")`: only add margins to the variables listed.
+
+To make it easier to follow the facets, we've created two factor variables with proper labels --- `fam` for the transmission type, and `fvs` for the engine type, respectively.
+
+*Zoom the graphics window to better view your plots.*
+
+-   Update the plot to facet the rows by `fvs` and `fam`, and columns by `gear`.
+
+-   Add all possible margins to the plot.
+
+```{r}
+str(mtcars)
+```
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point() +
+  # Facet rows by fvs and cols by fam
+  facet_grid(rows = vars(fvs, fam), cols = vars(gear), margins = TRUE)
+```
+
+-   Update the facets to only show margins on `"fam"`.
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point() +
+  # Update the facets to only show margins on gear and fvs
+  facet_grid(rows = vars(fvs, fam), cols = vars(gear), margins = "fam")
+```
+
+-   Update the facets to only show margins on `"gear"` and `"fvs"`.
+
+    ```{r}
+    ggplot(mtcars, aes(x = wt, y = mpg)) + 
+      geom_point() +
+      # Update the facets to only show margins on gear and fvs
+      facet_grid(rows = vars(fvs, fam), cols = vars(gear), margins = c("gear", "fvs"))
+    ```
+
+    ### `The End`
