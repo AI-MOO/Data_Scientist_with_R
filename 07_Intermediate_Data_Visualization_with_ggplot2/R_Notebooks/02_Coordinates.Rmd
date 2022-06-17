@@ -11,6 +11,7 @@ A scatter plot using `mtcars` with a LOESS smoothed trend line is provided. Take
 ```{r}
 library(tidyverse)
 mtcars <- read.csv("..\\..\\00_Datasets\\mtcars_v2.csv", header=TRUE)
+mtcars
 ```
 
 ```{r}
@@ -33,23 +34,23 @@ ggplot(mtcars, aes(x = wt, y = hp, color = fam)) +
       scale_x_continuous(limits=c(3,6))
     ```
 
-    -   Update the plot by adding a Cartesian coordinate system with x limits, `xlim`, from `3` to `6`.
+Update the plot by adding a Cartesian coordinate system with x limits, `xlim`, from `3` to `6`.
 
-        ```{r}
-        ggplot(mtcars, aes(x = wt, y = hp, color = fam)) +
-          geom_point() +
-          geom_smooth() +
-          # Add Cartesian coordinates with x limits from 3 to 6
-          coord_cartesian(xlim= c(3,6))
-        ```
+```{r}
+ggplot(mtcars, aes(x = wt, y = hp, color = fam)) +
+  geom_point() +
+  geom_smooth() +
+  # Add Cartesian coordinates with x limits from 3 to 6
+  coord_cartesian(xlim= c(3,6))
+```
 
-        ### **`02-Aspect ratio I: 1:1 ratios`**
+### **`02-Aspect ratio I: 1:1 ratios`**
 
-        We can set the aspect ratio of a plot with `coord_fixed()`, which uses `ratio = 1` as a default. A 1:1 aspect ratio is most appropriate when two continuous variables are on the same scale, as with the `iris` dataset.
+We can set the aspect ratio of a plot with `coord_fixed()`, which uses `ratio = 1` as a default. A 1:1 aspect ratio is most appropriate when two continuous variables are on the same scale, as with the `iris` dataset.
 
-        All variables are measured in centimeters, so it only makes sense that one unit on the plot should be the same physical distance on each axis. This gives a more truthful depiction of the relationship between the two variables since the aspect ratio can change the angle of our smoothing line. This would give an erroneous impression of the data. Of course the underlying linear models don't change, but our perception can be influenced by the angle drawn.
+All variables are measured in centimeters, so it only makes sense that one unit on the plot should be the same physical distance on each axis. This gives a more truthful depiction of the relationship between the two variables since the aspect ratio can change the angle of our smoothing line. This would give an erroneous impression of the data. Of course the underlying linear models don't change, but our perception can be influenced by the angle drawn.
 
-        A plot using the `iris` dataset, of sepal width vs. sepal length colored by species, is shown in the viewer.
+A plot using the `iris` dataset, of sepal width vs. sepal length colored by species, is shown in the viewer.
 
 Add a fixed coordinate layer to force a 1:1 aspect ratio.
 
@@ -67,7 +68,7 @@ ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
   coord_fixed(ratio = 1)
 ```
 
-### **`02-Aspect ratio II: setting ratios`**
+### **`03-Aspect ratio II: setting ratios`**
 
 When values are not on the same scale it can be a bit tricky to set an appropriate aspect ratio. A classic William Cleveland (inventor of dot plots) example is the `sunspots` data set. We have 3200 observations from 1750 to 2016.
 
@@ -124,7 +125,7 @@ sun_plot +
   coord_fixed(ratio = 0.2)
 ```
 
-### **`03-Expand and clip`**
+### **`04-Expand and clip`**
 
 The `coord_*()` layer functions offer two useful arguments that work well together: `expand` and `clip`.
 
@@ -134,7 +135,7 @@ The `coord_*()` layer functions offer two useful arguments that work well togeth
 
 When done properly this can make a great visual effect! We'll use `theme_classic()` and modify the axis lines in this example.
 
-### `Questions`
+#### `Questions`
 
 -   Add Cartesian coordinates with zero expansion, to remove all buffer margins on both the x and y axes.
 
@@ -169,7 +170,7 @@ Setting `expand` to `0` caused points at the edge of the plot panel to be cut of
       theme(axis.line = element_blank())
     ```
 
-    ### **04-Log-transforming scales**
+    ### **`05-Log-transforming scales`**
 
     Using `scale_y_log10()` and `scale_x_log10()` is equivalent to transforming our actual dataset *before* getting to `ggplot2`.
 
@@ -209,7 +210,7 @@ ggplot(msleep, aes(bodywt, brainwt)) +
               y = "log10")
 ```
 
-### `04-Adding stats to transformed scales`
+### `05-Adding stats to transformed scales`
 
 ```{r}
 # Plot with a scale_*_*() function:
@@ -240,7 +241,7 @@ ggplot(msleep, aes(bodywt, brainwt)) +
 
 Loopy lines! The smooth trend line is calculated after scale transformations but not coordinate transformations, so the second plot doesn't make sense. Be careful when using the `coord_trans()` function!
 
-### **05-Useful double axes**
+### **`06-Useful double axes`**
 
 Double x and y-axes are a contentious topic in data visualization. We'll revisit that discussion at the end of chapter 4. Here, I want to review a great use case where double axes actually do add value to a plot.
 
@@ -250,38 +251,185 @@ You can imagine a similar scenario for Log-transformed and original values, mile
 
 #### `Questions:`
 
--   Begin with a standard line plot, of `Temp` described by `Date` in the `airquality` dataset.
+Begin with a standard line plot, of `Temp` described by `Date` in the `airquality` dataset.
+
+```{r}
+airquality <- read.csv("..\\..\\00_Datasets\\airquality.csv", header=TRUE)
+airquality$Date <- as.Date(airquality$Date, format = "%m/%d/%Y")
+```
+
+```{r}
+# Using airquality, plot Temp vs. Date
+ggplot(airquality, aes(x = Date,y = Temp)) +
+  # Add a line layer
+  geom_line() +
+  labs(x = "Date (1973)", y = "Fahrenheit")
+```
+
+```{r}
+# Define breaks (Fahrenheit)
+y_breaks <- c(59, 68, 77, 86, 95, 104)
+
+# Convert y_breaks from Fahrenheit to Celsius
+y_labels <- (y_breaks - 32) * 5/9
+
+# Create a secondary x-axis
+secondary_y_axis <- sec_axis(
+  # Use identity transformation
+  trans = identity,
+  name = "Celsius",
+  # Define breaks and labels as above
+  breaks = y_breaks,
+  labels = y_labels
+)
+
+# Examine the object
+secondary_y_axis
+```
+
+-   Add your secondary y-axis to the `sec.axis` argument of `scale_y_continuous()`.
+
+```{r}
+# From previous step
+y_breaks <- c(59, 68, 77, 86, 95, 104)
+y_labels <- (y_breaks - 32) * 5 / 9
+secondary_y_axis <- sec_axis(
+  trans = identity,
+  name = "Celsius",
+  breaks = y_breaks,
+  labels = y_labels
+)
+
+# Update the plot
+ggplot(airquality, aes(Date, Temp)) +
+  geom_line() +
+  # Add the secondary y-axis 
+  scale_y_continuous( sec.axis = secondary_y_axis) +
+  labs(x = "Date (1973)", y = "Fahrenheit")
+```
+
+### **`07-Flipping axes I`**
+
+-   Create a side-by-side ("dodged") bar chart of `fam`, filled according to `fcyl`.
+
+```{r}
+# Plot fcyl bars, filled by fam
+ggplot(mtcars, aes(x = fcyl, fill = fam)) +
+  # Place bars side by side
+  geom_bar(position = "dodge")
+```
+
+-   To get horizontal bars, add a `coord_flip()` function.
+
+```{r}
+ggplot(mtcars, aes(fcyl, fill = fam)) +
+  geom_bar(position = "dodge") +
+  # Flip the x and y coordinates
+  coord_flip()
+```
+
+-   Partially overlapping bars are popular with "infoviz" in magazines. Update the `position` argument to use `position_dodge()` with a width of `0.5`.
+
+```{r}
+ggplot(mtcars, aes(fcyl, fill = fam)) +
+  # Set a dodge width of 0.5 for partially overlapping bars
+  geom_bar(position = position_dodge(width = 0.5)) +
+  coord_flip()
+```
+
+### **`08-Flipping axes II`**
+
+-   Create a scatter plot of `wt` versus `car` using the `mtcars` dataset. We'll flip the axes in the next step.
+
+-   It would be easier to read if `car` was mapped to the y axis. Flip the coordinates. *Notice that the labels also get flipped!*
+
+```{r}
+ggplot(mtcars, aes(car, wt)) +
+  geom_point() +
+  labs(x = "car", y = "weight")
 
 
-    \
+# Flip the axes to set car to the y axis
+ggplot(mtcars, aes(car, wt)) +
+  geom_point() +
+  labs(x = "car", y = "weight") +
+  coord_flip()
+```
+
+### **`09-Pie charts`**
+
+The `coord_polar()` function converts a planar x-y Cartesian plot to polar coordinates. This can be useful if you are producing pie charts.
+
+-   *Run the code to see the stacked bar plot.*
+
+-   Add (`+`) a polar coordinate system, mapping the angle to the `y` variable by setting `theta` to `"y"`.
+
+```{r}
+# Run the code, view the plot, then update it
+ggplot(mtcars, aes(x = 1, fill = factor(fcyl))) +
+  geom_bar()
 
 
-
-    \
-
-
-
-    \
-
+# Run the code, view the plot, then update it
+ggplot(mtcars, aes(x = 1, fill = factor(fcyl))) +
+  geom_bar() +
+  # Add a polar coordinate system
+  coord_polar(theta = "y")
 
 
+```
 
+-   Reduce the `width` of the bars to `0.1`.
 
-    \
+-   Make it a ring plot by adding a continuous x scale with limits from `0.5` to `1.5`.
 
+```{r}
+ggplot(mtcars, aes(x = 1, fill = factor(fcyl))) +
+  # Reduce the bar width to 0.1
+  geom_bar(width = 0.1) +
+  coord_polar(theta = "y") +
+  # Add a continuous x scale from 0.5 to 1.5
+  scale_x_continuous(limits = c(0.5, 1.5))
+```
 
+### **`10-Wind rose plots`**
 
-    \
+Polar coordinate plots are well-suited to scales like compass direction or time of day. A popular example is the "wind rose".
 
+The `wind` dataset is taken from the `openair` package and contains hourly measurements for windspeed (`ws`) and direction (`wd`) from London in 2003. Both variables are factors.
 
-\
+```{r}
+wind <- read.table("..\\..\\00_datasets\\wind.txt", sep="\t", header=TRUE)
+head(wind)
+```
 
-\
+-   Make a classic bar plot mapping `wd` onto the `x` aesthetic and `ws` onto `fill`.
 
+-   Use a `geom_bar()` layer, since we want to aggregate over all date values, and set the `width` argument to 1, to eliminate any spaces between the bars.
 
+```{r}
+# Using wind, plot wd filled by ws
+ggplot(wind, aes(x = wd, fill = ws)) +
+  # Add a bar layer with width 1
+  geom_bar(width = 1)
+```
 
+-   Convert the Cartesian coordinate space into a polar coordinate space with `coord_polar()`.
 
+```{r}
+# Convert to polar coordinates:
+ggplot(wind, aes(wd, fill = ws)) +
+  geom_bar(width = 1) +
+  coord_polar()
+```
 
-\
+-   Set the `start` argument to `-pi/16` to position North at the top of the plot.
 
+```{r}
+# Convert to polar coordinates:
+ggplot(wind, aes(wd, fill = ws)) +
+  geom_bar(width = 1) +
+  coord_polar(start = -pi/16)
+```
 
+### `The End` 
