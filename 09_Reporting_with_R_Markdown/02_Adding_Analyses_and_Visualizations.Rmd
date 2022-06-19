@@ -370,6 +370,7 @@ ggplot(brazil_investment_projects_2018, aes(x = date_disclosed, y = total_invest
 ```
 
 ### 
+
 **`09-Adding figure captions`**
 
 ---
@@ -391,12 +392,12 @@ investment_annual_summary <- read_csv("https://assets.datacamp.com/production/re
 investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
 ```
 
-
-## Datasets 
+## Datasets
 
 ### Investment Annual Summary
 
 The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
 ```{r investment-annual-summary, out.width = '85%', fig.cap = 'Figure 1.1 The Investment Annual Summary for each region for 2012 to 2018'}
 ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
   geom_line() +
@@ -410,6 +411,7 @@ ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, 
 ### Investment Projects in Brazil
 
 The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts.
+
 ```{r brazil-investment-projects, out.width = '95%', fig.cap = 'Figure 1.2 The Investment Services Projects in Brazil from 2012 to 2018'}
 brazil_investment_projects <- investment_services_projects %>%
   filter(country == "Brazil") 
@@ -439,6 +441,3 @@ ggplot(brazil_investment_projects_2018, aes(x = date_disclosed, y = total_invest
     y = "Total IFC Investment in Dollars in Millions"
   ) 
 ```
-
-
-
