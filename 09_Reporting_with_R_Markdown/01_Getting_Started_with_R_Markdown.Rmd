@@ -1,0 +1,100 @@
+---
+title: "01_Getting_Started_with_R_Markdown"
+output:
+  html_document: default
+  pdf_document: default
+date: '2022-06-19'
+---
+
+# Section 01: **Getting Started with R Markdown**
+
+### `01-Creating your first R Markdown file`
+
+-   Add the investment_annual_summary dataset to the code chunk in your report.
+
+```{r data, include = FALSE}
+library(readr)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+```
+
+```{r}
+investment_annual_summary
+```
+
+### `02-Adding code chunks to your file`
+
+-   Add a new code chunk to the Markdown file, starting at line `14`.
+
+-   Within the code chunk, type the names of the `investment_annual_summary` and `investment_services_projects` datasets to print them in the report.
+
+```{r}
+library(readr)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/78b002735b6f620df7f2767e63b76aaca317bf8d/investment_services_projects.csv")
+```
+
+```{r}
+investment_annual_summary
+investment_services_projects
+```
+
+### **`03-Adding sections to your report`**
+
+-   Add a header called Datasets to line `14` of the report, using two hashes.
+
+-   Add headers to lines `16` and `23` of the report to specify each of the dataset names, Investment Annual Summary and Investment Services Projects, using three hashes.
+
+-   Add the dataset names to the sentences in lines `18` and `25` of the report and format them as inline code.
+
+```{r data, include = FALSE}
+library(readr)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/78b002735b6f620df7f2767e63b76aaca317bf8d/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
+```{r}
+investment_annual_summary
+```
+
+### Investment Services Projects
+
+The `investment_services_projects` dataset provides information about each investment project from the 2012 to 2018 fiscal years. Information listed includes the project name, company name, sector, project status, and investment amounts.
+
+```{r}
+investment_services_projects 
+```
+
+### **`04-Editing the YAML header`**
+
+-   Add the `author` field to the YAML header beneath the title and add your name.
+
+-   Add the `date` field below the author information using the `Sys.Date()` function.
+
+---
+title: "Investment Report"
+author: "Mohamad Osman"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+### **`05-Formatting the date`**
+
+-   Modify the date in the YAML header using the `Sys.time()` function so that the date displays as the decimal day, the full name of the month, and the four digit year, for example: 08 April 2020.
+
+---
+title: "Investment Report"
+author: "Add your name"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+### `The End`
