@@ -1,0 +1,646 @@
+---
+title: "Customizing the Report"
+author: "Mohamad Osman"
+date: '2022-06-20'
+output: html_document
+---
+
+# Section 04: Customizing the Report
+
+### `01-Adding the table of contents`
+
+---
+title: "Investment Report"
+output: 
+  html_document:
+    toc: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+### `02-Specifying headers and number sectioning`
+
+-   Below the `toc` field, specify a header depth of `2` for the table of contents using `toc_depth`.
+
+-   Below the `toc_depth` field, add numbered sections to the document using `number_sections`.
+
+-   Modify the headers in the document by removing one hash from each header, so that the largest header starts with a single hash and the section numbering will start with a 1.
+
+---
+title: "Investment Report"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true 
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+# Datasets
+
+## Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
+```{r investment-annual-summary}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+## Investment Projects in Brazil
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r brazil-investment-projects}
+brazil_investment_projects <- investment_services_projects %>%
+  filter(country == "Brazil") 
+
+ggplot(brazil_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+## Investment Projects in Brazil in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `brazil_investment_projects_2018`. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r brazil-investment-projects-2018}
+brazil_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == "Brazil",
+         date_disclosed >= "2017-07-01",
+         date_disclosed <= "2018-06-30") 
+
+ggplot(brazil_investment_projects_2018, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil in 2018",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  ) 
+```
+
+### **`03-Adding table of contents options`**
+
+-   Below the `toc` field, add `toc_float` and a colon at the end of the field.
+
+-   On a new line, add another indentation and the `collapsed` field, so that the full table of contents remains visible throughout the report.
+
+-   Add another line and add the `smooth_scroll` field so that page scrolls are not animated.
+
+---
+title: "Investment Report"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+### **`04-Adding a parameter to the report`**
+
+-   Below the `date` field in the YAML header, add a section for parameters using `params`, add a `country` parameter, and specify `Brazil` as the country within the `country` parameter.
+
+-   Review the `filter()` for `"Brazil"` throughout the document, and replace it with a reference to the `country` parameter.
+
+-   In the `brazil-investment-projects` code chunk, rename the code chunk to `country-investment-projects` and rename the `brazil_investment_projects` object to `country_investment_projects`.
+
+-   In the `brazil-investment-projects-2018` code chunk, rename the code chunk to `country-investment-projects-2018` and rename the `brazil_investment_projects_2018` object and any references in the text to it as `country_investment_projects_2018`.
+
+-   Remove "in Brazil" from the plot titles in the report.
+
+---
+title: "Investment Report"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Brazil
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
+```{r investment-annual-summary}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+### Investment Projects in Country
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-investment-projects}
+country_investment_projects <- investment_services_projects %>%
+  filter(country == params$country) 
+
+ggplot(country_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in Country in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `brazil_investment_projects_2018`. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-investment-projects-2018}
+country_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == params$country,
+         date_disclosed >= "2017-07-01",
+         date_disclosed <= "2018-06-30") 
+
+ggplot(country_investment_projects_2018, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in 2018",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  ) 
+```
+
+### **`05-Creating a new report using a parameter`**
+
+-   Replace `Brazil` in the document headers with a reference to the `country` parameter.
+
+-   Add the `country` parameter to the `"Investment Report"` title field of the YAML header so that, once the file is knit, the report title will render as "Investment Report for Projects in Bangladesh".
+
+-   Using the `country` parameter, create a new Investment Report file for Bangladesh.
+
+---
+title: "Investment Report for Projects in `r params$country`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Bangladesh 
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
+```{r investment-annual-summary}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+### Investment Projects in `r params$country`
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-investment-projects}
+country_investment_projects <- investment_services_projects %>%
+  filter(country == params$country) 
+
+ggplot(country_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in `r params$country` in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `country_investment_projects_2018`. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-investment-projects-2018}
+country_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == params$country,
+         date_disclosed >= "2017-07-01",
+         date_disclosed <= "2018-06-30")
+
+ggplot(country_investment_projects_2018, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in 2018",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### **`06-Adding multiple parameters to the report`**
+
+-   Add an `fy` parameter for the fiscal year and list `2018` as the fiscal year.
+
+-   Add parameters for the `year_start` and `year_end` dates, using `2017-07-01` for the `year_start` and `2018-06-30` for the `year_end` of the 2018 fiscal year.
+
+-   Replace date references in the `filter()` on lines `64` and `65` with references to the `year_start` and `year_end` parameters.
+
+-   In the `country-investment-projects-2018` code chunk, rename the code chunk to `country-annual-investment-projects` and object name and object name references in the text to `country_annual_investment_projects`.
+
+---
+title: "Investment Report for Projects in `r params$country`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Brazil
+  year_start: 2017-07-01
+  year_end: 2018-06-30
+  fy: 2018
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
+```{r investment-annual-summary}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+### Investment Projects in `r params$country`
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-investment-projects}
+country_investment_projects <- investment_services_projects %>%
+  filter(country == params$country) 
+
+ggplot(country_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in `r params$country` in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `country_annual_investment_projects`. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-annual-investment-projects}
+country_annual_investment_projects <- investment_services_projects %>%
+  filter(country == params$country,
+         date_disclosed >= params$year_start,
+         date_disclosed <= params$year_end) 
+
+ggplot(country_annual_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### **`7-Creating a new report using multiple parameters`**
+
+-   Replace "2018" in the header on line `59` and the text on line `60` with references to the fiscal year parameter.
+
+-   Using the `country` parameter, create an Investment Report for Bangladesh.
+
+-   Modify the `year_start`, `year_end`, and `fy` parameters so that the Investment Report you create focuses on data from the 2014 fiscal year.
+
+---
+title: "Investment Report for Projects in `r params$country`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Bangladesh
+  year_start: 2013-07-01
+  year_end: 2014-06-30
+  fy: 2014
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2013 to 2014.
+
+```{r investment-annual-summary}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+### Investment Projects in `r params$country`
+
+The `investment_services_projects` dataset provides information about each investment project from 2013 to 2014. Information listed includes the project name, company name, sector, project status, and investment amounts. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-investment-projects}
+country_investment_projects <- investment_services_projects %>%
+  filter(country == params$country) 
+
+ggplot(country_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in `r params$country` in `r params$fy`
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the `r params$fy` fiscal year, and is referred to as `country_annual_investment_projects`. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r country-annual-investment-projects}
+country_annual_investment_projects <- investment_services_projects %>%
+  filter(country == params$country,
+         date_disclosed >= params$year_start,
+         date_disclosed <= params$year_end) 
+
+ggplot(country_annual_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  ) 
+```
+
+### **08-Customizing the report style**
+
+-   Within the `<style>` and `</style>` boundaries, add `body` and curly braces to modify the document background and `pre` and curly braces to modify the code chunks.
+
+-   Within the curly braces for `body` add `#708090` for the text color using `color`, `Calibri` for the `font-family`, and `#F5F5F5` for the `background-color`.
+
+-   Within the curly braces for `pre`, specify `#708090` for the `color`, and `#F8F8FF` for the `background-color`.
+
+```{r}
+---
+title: "Investment Report for Projects in `r params$country`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Brazil
+  year_start: 2017-07-01
+  year_end: 2018-06-30
+  fy: 2018
+---
+
+<style>
+body {
+  color: #708090;
+  font-family: Calibri;
+  background-color: #F5F5F5;
+}
+pre {
+  color: #708090;
+  background-color: #F8F8FF;
+}
+</style>
+```
+
+### **`09-Customizing the header and table of contents`**
+
+-   Within the `<style>` and `</style>` boundaries, above the `body` section, add sections for the `#TOC` and `#header`.
+
+-   In the curly braces for `#TOC`, add `#708090` for the text color, `Calibri` for the font, `16px` for the `font-size`, and `#708090` for the `border-color`.
+
+-   In the curly braces for `#header`, add `#F08080` for the text color, `#F5F5F5` for the background, `opacity` of `0.6`, `Calibri` for the font, and `20px` for the `font-size`.
+
+```{r}
+---
+title: "Investment Report for Projects in `r params$country`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Brazil
+  year_start: 2017-07-01
+  year_end: 2018-06-30
+  fy: 2018
+---
+
+<style>
+#TOC {
+  color: #708090;
+  font-family: Calibri;
+  font-size: 16px;
+  border-color: #708090;
+}
+
+#header{
+  color: #F08080;
+  background-color: #F5F5F5;
+  opacity: 0.6;
+  font-family: Calibri;
+  font-size: 20px;
+}
+
+body {
+  color: #708090;
+  font-family: Calibri;
+  background-color: #F5F5F5;
+}
+pre {
+  color: #708090;
+  background-color: #F8F8FF;
+}
+</style>
+```
+
+### **`10-Customizing the title, author, and date`**
+
+-   Replace the `#header` name with `h1.title`, so that these settings apply to the title instead of the header of the document.
+
+-   Add sections for the author and date, using `h4.author` and `h4.date` to refer to each section.
+
+-   For the author and date sections, add `#708090` for the text color, `Calibri` for the font, and `#F5F5F5` for the background color.
+
+```{r}
+<style>
+#TOC {
+  color: #708090;
+  font-family: Calibri;
+  font-size: 16px; 
+  border-color: #708090;
+}
+h1.title {
+  color: #F08080;
+  background-color: #F5F5F5;
+  opacity: 0.6;
+  font-family: Calibri;
+  font-size: 20px;
+}
+
+h4.author {
+  color: #708090;
+  font-family: Calibri;
+  background-color: #F5F5F5;
+}
+
+h4.date {
+  color: #708090;
+  font-family: Calibri;
+  background-color: #F5F5F5;
+}
+
+
+body {
+  color: #708090;
+  font-family: Calibri;
+  background-color: #F5F5F5;
+}
+pre {
+  color: #708090;
+  background-color: #F8F8FF;
+}
+</style>
+```
+
+### **11- Referencing the CSS file**
+
+Rather than adding styles to each Markdown file within the file, you can create and reference a Cascading Style Sheet (CSS) file each time you create a new file that contains particular styles and fonts.
+
+In this exercise, the styles you've specified have been added to a CSS file called `styles.css`. You'll reference this file in the YAML header instead of specifying the styles within the Markdown file.
+
+-   Add a `css` field to the YAML header after the `html_document` field before the `toc` field.
+
+-   List the name of the CSS file, `styles.css`, that contains the styles you've specified for the Markdown file.
+
+```{r}
+---
+title: "Investment Report for Projects in `r params$country`"
+output: 
+  html_document:
+    css: styles.css
+    toc: true
+    toc_float: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+params:
+  country: Brazil
+  year_start: 2017-07-01
+  year_end: 2018-06-30
+  fy: 2018
+---
+```
+
+### `The End`
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
