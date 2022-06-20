@@ -1,0 +1,342 @@
+---
+title: "Improving the Report"
+author: "Mohamad Osman"
+date: '2022-06-20'
+output: html_document
+---
+
+# Section 03: **Improving the Report**
+
+### `01-Creating a bulleted list`
+
+-   Add a bulleted list to the report, starting at line `27`, of each of the regions included in the data: East Asia and the Pacific, Europe and Central Asia, Latin America and the Caribbean, Middle East and North Africa, South Asia, and Sub-Saharan Africa.
+
+---
+title: "Investment Report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_region_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/52f5414f6504e0503e86eb1043afa9b3d157fab2/investment_region_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each of the following regions for each fiscal year, from 2012 to 2018:
+
+-   East Asia and the Pacific
+-   Europe and Central Asia
+-   Latin America and the Caribbean
+-   Middle East and North Africa
+-   South Asia
+-   Sub-Saharan Africa.
+
+### **`02-Creating a numbered list`**
+
+Modify the bulleted list from the previous exercise that starts at line `27` to create a numbered list of each of the regions included in the data.
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each of the following regions for each fiscal year, from 2012 to 2018:
+
+1.  East Asia and the Pacific\
+2.  Europe and Central Asia\
+3.  Latin America and the Caribbean
+4.  Middle East and North Africa\
+5.  South Asia\
+6.  Sub-Saharan Africa
+
+### **`03-Adding a table`**
+
+-   Load the `knitr` package in the data code chunk, after the `ggplot2` package on line `15`.
+
+-   Create a table of the `investment_region_summary` data in the `tables` code chunk that starts on line `44`, with column names `Region` and `Dollars in Millions` and center alignment for both columns.
+
+-   Add the following caption to the table: `"Table 1.1 The total investment summary for each region for the 2012 to 2018 fiscal years."`
+
+---
+title: "Investment Report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(knitr) 
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_region_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/52f5414f6504e0503e86eb1043afa9b3d157fab2/investment_region_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each of the following regions for each fiscal year, from 2012 to 2018:
+
+1.  East Asia and the Pacific\
+2.  Europe and Central Asia\
+3.  Latin America and the Caribbean
+4.  Middle East and North Africa\
+5.  South Asia\
+6.  Sub-Saharan Africa
+
+```{r investment-annual-summary, out.width = '85%', fig.cap = 'Figure 1.1 The Investment Annual Summary for each region for 2012 to 2018.'}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+```{r tables}
+kable(investment_region_summary, col.names = c("Region", "Dollars in Millions"), align = c("cc"), caption = "Table 1.1 The total investment summary for each region for the 2012 to 2018 fiscal years.")
+```
+
+### Investment Projects in Brazil
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts.
+
+```{r brazil-investment-projects, out.width = '95%', fig.cap = 'Figure 1.2 The Investment Services Projects in Brazil from 2012 to 2018.'}
+brazil_investment_projects <- investment_services_projects %>%
+  filter(country == "Brazil") 
+
+ggplot(brazil_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in Brazil in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `brazil_investment_projects_2018`.
+
+```{r brazil-investment-projects-2018, out.width = '95%', fig.cap = 'Figure 1.3 The Investment Services Projects in Brazil in 2018.'}
+brazil_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == "Brazil",
+         date_disclosed >= "2017-07-01",
+         date_disclosed <= "2018-06-30") 
+
+ggplot(brazil_investment_projects_2018, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil in 2018",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  ) 
+```
+
+### **`04-Collapsing blocks in the knit report`**
+
+Collapsing blocks in the knit report.
+
+Using collapse, modify each code chunk that renders a plot with a warning, so that the code and output are not split into multiple blocks in the final report.
+
+---
+title: "Investment Report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center')
+```
+
+```{r data, include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_region_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/52f5414f6504e0503e86eb1043afa9b3d157fab2/investment_region_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each of the following regions for each fiscal year, from 2012 to 2018:
+
+1.  East Asia and the Pacific\
+2.  Europe and Central Asia\
+3.  Latin America and the Caribbean
+4.  Middle East and North Africa\
+5.  South Asia\
+6.  Sub-Saharan Africa
+
+```{r investment-annual-summary, out.width = '85%', fig.cap = 'Figure 1.1 The Investment Annual Summary for each region for 2012 to 2018.'}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+```{r tables, collapse = TRUE}
+kable(investment_region_summary, col.names = c("Region", "Dollars in Millions"), align = "cc", caption = "Table 1.1 The total investment summary for each region for the 2012 to 2018 fiscal years.")
+```
+
+### Investment Projects in Brazil
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts.
+
+```{r brazil-investment-projects, out.width = '95%', fig.cap = 'Figure 1.2 The Investment Services Projects in Brazil from 2012 to 2018.',collapse = TRUE}
+brazil_investment_projects <- investment_services_projects %>%
+  filter(country == "Brazil") 
+
+ggplot(brazil_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in Brazil in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `brazil_investment_projects_2018`.
+
+```{r brazil-investment-projects-2018, out.width = '95%', fig.cap = 'Figure 1.3 The Investment Services Projects in Brazil in 2018.', collapse = TRUE}
+brazil_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == "Brazil",
+         date_disclosed >= "2017-07-01",
+         date_disclosed <= "2018-06-30") 
+
+ggplot(brazil_investment_projects_2018, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil in 2018",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  ) 
+```
+
+### **05-Modifying the report using include and echo**
+
+-   Using `echo`, add to the global chunk options of the report to exclude the code from all code chunks from appearing in the knit report.
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = FALSE)
+```
+
+### **`06-Excluding messages`**
+
+-   Remove the `include` option from the `data` chunk, which prevents the code and results from appearing in the report.
+
+-   Add to the `data` chunk to exclude messages from this chunk from the report.
+
+```{r data, message = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+### **`07-Excluding warnings`**
+
+-   Using the `warning` option, add to the code chunks that render a plot with a warning, so that the warning messages no longer appear in the knit file.
+
+---
+title: "Investment Report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center')
+```
+
+```{r data, message = FALSE, warning = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+investment_annual_summary <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/d0251f26117bbcf0ea96ac276555b9003f4f7372/investment_annual_summary.csv")
+investment_services_projects <- read_csv("https://assets.datacamp.com/production/repositories/5756/datasets/bcb2e39ecbe521f4b414a21e35f7b8b5c50aec64/investment_services_projects.csv")
+```
+
+## Datasets
+
+### Investment Annual Summary
+
+The `investment_annual_summary` dataset provides a summary of the dollars in millions provided to each region for each fiscal year, from 2012 to 2018.
+
+```{r investment-annual-summary, out.width = '85%', fig.cap = 'Figure 1.1 The Investment Annual Summary for each region for 2012 to 2018.'}
+ggplot(investment_annual_summary, aes(x = fiscal_year, y = dollars_in_millions, color = region)) +
+  geom_line() +
+  labs(
+    title = "Investment Annual Summary",
+    x = "Fiscal Year",
+    y = "Dollars in Millions"
+  )
+```
+
+### Investment Projects in Brazil
+
+The `investment_services_projects` dataset provides information about each investment project from 2012 to 2018. Information listed includes the project name, company name, sector, project status, and investment amounts. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r brazil-investment-projects, out.width = '95%', fig.cap = 'Figure 1.2 The Investment Services Projects in Brazil from 2012 to 2018.', warning = FALSE}
+brazil_investment_projects <- investment_services_projects %>%
+  filter(country == "Brazil") 
+
+ggplot(brazil_investment_projects, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  )
+```
+
+### Investment Projects in Brazil in 2018
+
+The `investment_services_projects` dataset was filtered below to focus on information about each investment project from the 2018 fiscal year, and is referred to as `brazil_investment_projects_2018`. Projects that do not have an associated investment amount are excluded from the plot.
+
+```{r brazil-investment-projects-2018, out.width = '95%', fig.cap = 'Figure 1.3 The Investment Services Projects in Brazil in 2018.', warning = FALSE}
+brazil_investment_projects_2018 <- investment_services_projects %>%
+  filter(country == "Brazil",
+         date_disclosed >= "2017-07-01",
+         date_disclosed <= "2018-06-30") 
+
+ggplot(brazil_investment_projects_2018, aes(x = date_disclosed, y = total_investment, color = status)) +
+  geom_point() +
+  labs(
+    title = "Investment Services Projects in Brazil in 2018",
+    x = "Date Disclosed",
+    y = "Total IFC Investment in Dollars in Millions"
+  ) 
+```

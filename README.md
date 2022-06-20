@@ -15,7 +15,7 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 | 06.     | [Introduction to Data Visualization with ggplot2](/06_Introduction_to_Data_Visualization_with_ggplot2)|✅| |
 | 07.     | [Intermediate Data Visualization with ggplot2](/07_Intermediate_Data_Visualization_with_ggplot2)|✅| |
 | 08.     | [Data Manipulation with R](/08_Data_Manipulation_with_R)|✅| |
-| 09.     | [Reporting with R Markdown]()|⏳| |
+| 09.     | [Reporting with R Markdown](/09_Reporting_with_R_Markdown)|✅| |
 | 10.     | [Introduction to Importing Data in R]()|⏳| |
 | 11.     | [Intermediate Importing Data in R]()|| |
 | 12.     | [Cleaning Data in R]()|| |
