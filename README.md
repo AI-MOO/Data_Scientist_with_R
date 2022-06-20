@@ -17,6 +17,18 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 | 08.     | [Data Manipulation with R](/08_Data_Manipulation_with_R)|✅| |
 | 09.     | [Reporting with R Markdown]()|⏳| |
 | 10.     | [Introduction to Importing Data in R]()|⏳| |
-
-
+| 11.     | [Intermediate Importing Data in R]()|| |
+| 12.     | [Cleaning Data in R]()|| |
+| 13.     | [Working with Dates and Times in R]()|| |
+| 14.     | [Importing & Cleaning Data with R]()|| |
+| 15.     | [Introduction to Writing Functions in R]()|| |
+| 16.     | [R Programming]()|| |
+| 17.     | [Exploratory Data Analysis in R]()|| |
+| 18.     | [Case Study: Exploratory Data Analysis in R]()|| |
+| 19.     | [Introduction to Statistics in R]()|| |
+| 20.     | [Introduction to Regression in R]()|| |
+| 21.     | [Intermediate Regression in R]()|| |
+| 22.     | [Supervised Learning in R: Classification]()|| |
+| 23.     | [Supervised Learning in R: Regression]()|| |
+| 24.     | [Unsupervised Learning in R]()|| |
 </div>
