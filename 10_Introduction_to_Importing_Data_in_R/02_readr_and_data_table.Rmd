@@ -1,0 +1,198 @@
+---
+title: "readr & data.table"
+author: "Mohamad Osman"
+date: '2022-06-21'
+output: html_document
+---
+
+# Section 02: **readr & data.table**
+
+### `01-read_csv`
+
+-   Load the `readr` package with `library()`. You **do not** need to install the package, it is already installed on DataCamp's servers.
+
+-   Import `"potatoes.csv"` using `read_csv()`. Assign the resulting data frame to the variable `potatoes`.
+
+```{r}
+potatoes_path <- file.path("..","00_Datasets","potatoes.csv")
+```
+
+```{r}
+# Load the readr package
+library(readr)
+
+# Import potatoes.csv with read_csv(): potatoes
+potatoes <- read_csv(potatoes_path)
+head(potatoes, 3)
+```
+
+### **`02-read_tsv`**
+
+```{r}
+# potatos.txt file 
+potatoes_path <- file.path("..","00_Datasets","potatoes.txt")
+
+# readr is already loaded
+
+# Column names
+properties <- c("area", "temp", "size", "storage", "method",
+                "texture", "flavor", "moistness")
+
+# Import potatoes.txt: potatoes
+potatoes <- read_tsv(potatoes_path, col_names = properties)
+
+# Call head() on potatoes
+head(potatoes)
+```
+
+### **`03-read_delim`**
+
+-   Import all the data in `"potatoes.txt"` using `read_delim()`; store the resulting data frame in `potatoes`.
+
+-   Print out `potatoes`.
+
+```{r}
+# readr is already loaded
+
+# Column names
+properties <- c("area", "temp", "size", "storage", "method",
+                "texture", "flavor", "moistness")
+
+# Import potatoes.txt using read_delim(): potatoes
+potatoes <- read_delim(potatoes_path, col_names = properties)
+
+# Print out potatoes
+potatoes
+
+```
+
+### **`04-skip and n_max`**
+
+-   Finish the first `read_tsv()` call to import observations 7, 8, 9, 10 and 11 from `potatoes.txt`
+
+```{r}
+# readr is already loaded
+
+# Column names
+properties <- c("area", "temp", "size", "storage", "method",
+                "texture", "flavor", "moistness")
+
+# Import 5 observations from potatoes.txt: potatoes_fragment
+potatoes_fragment <- read_tsv(potatoes_path, skip = 6, n_max = 5, col_names = properties)
+
+potatoes_fragment
+```
+
+### **`05-col_types`**
+
+-   In the second `read_tsv()` call, edit the `col_types` argument to import *all* columns as characters (`c`). Store the resulting data frame in `potatoes_char`.
+
+-   Print out the structure of `potatoes_char` and verify whether all column types are `chr`, short for `character`
+
+-   where each character denotes the class of the column: `c`haracter, `d`ouble, `i`nteger and `l`ogical. `_` skips the column as a whole.
+
+```{r}
+# readr is already loaded
+
+# Column names
+properties <- c("area", "temp", "size", "storage", "method",
+                "texture", "flavor", "moistness")
+
+# Import all data, but force all columns to be character: potatoes_char
+potatoes_char <- read_tsv(potatoes_path, col_types = "cccccccc", col_names = properties)
+
+# Print out structure of potatoes_char
+str(potatoes_char)
+```
+
+### **`06-col_types with collectors`**
+
+Another way of setting the types of the imported columns is using **collectors**. Collector functions can be passed in a `list()` to the `col_types` argument of `read_` functions to tell them how to interpret values in a column.
+
+For a complete list of collector functions, you can take a look at the `collector` documentation. For this exercise you will need two collector functions:
+
+-   `col_integer()`: the column should be interpreted as an integer.
+
+-   `col_factor(levels, ordered = FALSE)`: the column should be interpreted as a factor with `levels`
+
+#### 
+
+`Questions`
+
+-   `hotdogs` is created for you without setting the column types. Inspect its summary using the `summary()` function.
+
+-   Two collector functions are defined for you: `fac` and `int`. Have a look at them, do you understand what they're collecting?
+
+-   In the second `read_tsv()` call, edit the `col_types` argument: Pass a `list()` with the elements `fac`, `int` and `int`, so the first column is imported as a factor, and the second and third column as integers.
+
+-   Create a `summary()` of `hotdogs_factor`. Compare this to the summary of `hotdogs`.
+
+```{r}
+# readr is already loaded
+hotdogs_path <- file.path("..","00_Datasets","hotdogs.txt")
+
+
+# Import without col_types
+hotdogs <- read_tsv(hotdogs_path, col_names = c("type", "calories", "sodium"))
+
+# Display the summary of hotdogs
+summary(hotdogs)
+
+# The collectors you will need to import the data
+fac <- col_factor(levels = c("Beef", "Meat", "Poultry"))
+int <- col_integer()
+
+# Edit the col_types argument to import the data correctly: hotdogs_factor
+hotdogs_factor <- read_tsv(hotdogs_path,
+                           col_names = c("type", "calories", "sodium"),
+                           col_types = list(fac, int, int))
+
+# Display the summary of hotdogs_factor
+summary(hotdogs_factor)
+```
+
+### **`07-fread`**
+
+You still remember how to use `read.table()`, right? Well, `fread()` is a function that does the same job with very similar arguments. It is extremely easy to use and blazingly fast! Often, simply specifying the path to the file is enough to successfully import your data.
+
+```{r}
+# file path 
+potatoes_path <- file.path("..","00_Datasets","potatoes.csv")
+
+# load the data.table package using library()
+#install.packages("data.table")
+library(data.table)
+
+# Import potatoes.csv with fread(): potatoes
+potatoes <- fread(potatoes_path)
+
+# Print out potatoes
+potatoes
+```
+
+### **`08-fread: more advanced use`**
+
+Now that you know the basics about `fread()`, you should know about two arguments of the function: `drop` and `select`, to drop or select variables of interest.
+
+Suppose you have a dataset that contains 5 variables and you want to keep the first and fifth variable, named "a" and "e". The following options will all do the trick:
+
+    fread("path/to/file.txt", drop = 2:4)
+    fread("path/to/file.txt", select = c(1, 5))
+    fread("path/to/file.txt", drop = c("b", "c", "d"))
+    fread("path/to/file.txt", select = c("a", "e"))
+
+-   Using `fread()` and `select` or `drop` as arguments, only import the `texture` and `moistness` columns of the flat file. They correspond to the columns 6 and 8 in `"potatoes.csv"`. Store the result in a variable `potatoes`.
+
+-   `plot()` 2 columns of the `potatoes` data frame: `texture` on the x-axis, `moistness` on the y-axis. Use the dollar sign notation twice. Feel free to name your axes and plot.
+
+    ```{r}
+    # fread is already loaded
+
+    # Import columns 6 and 8 of potatoes.csv: potatoes
+    potatoes <- fread(potatoes_path, select = c("texture", "moistness"))
+
+    # Plot texture (x) and moistness (y) of potatoes
+    plot(x = potatoes$texture, y = potatoes$moistness)
+    ```
+
+    ### `The End`
