@@ -1,0 +1,239 @@
+---
+title: "Importing Excel data"
+author: "Mohamad Osman"
+date: '2022-06-21'
+output: html_document
+---
+
+# **Section 03: Importing Excel data**
+
+### **`01-List the sheets of an Excel file`**
+
+-   Load the `readxl` package using `library()`. It's already installed on DataCamp's servers.
+
+-   Use `excel_sheets()` to print out the names of the sheets in `urbanpop.xlsx`.
+
+```{r}
+# Load the readxl package
+library(readxl)
+urbanpop_xlsx_path = file.path("..", "00_Datasets", "urbanpop.xlsx")
+
+# Print the names of all worksheets
+excel_sheets(urbanpop_xlsx_path)
+```
+
+### **`02-Import an Excel sheet`**
+
+    data <- read_excel("data.xlsx", sheet = "my_sheet")
+
+-   The code to import the first and second sheets is already included. Can you add a command to also import the third sheet, and store the resulting data frame in `pop_3`?
+
+-   Store the data frames `pop_1`, `pop_2` and `pop_3` in a list, that you call `pop_list`.
+
+-   Display the structure of `pop_list`.
+
+```{r}
+# The readxl package is already loaded
+
+# Read the sheets, one by one
+pop_1 <- read_excel(urbanpop_xlsx_path, sheet = 1)
+pop_2 <- read_excel(urbanpop_xlsx_path, sheet = 2)
+pop_3 <- read_excel(urbanpop_xlsx_path, sheet = 3)
+
+# Put pop_1, pop_2 and pop_3 in a list: pop_list
+pop_list <- list(pop_1, pop_2, pop_3)
+
+# Display the structure of pop_list
+str(pop_list)
+```
+
+### 
+`03-Reading a workbook`
+
+In the previous exercise you generated a list of three Excel sheets that you imported. However, loading in every sheet manually and then merging them in a list can be quite tedious. Luckily, you can automate this with `lapply()`. If you have no experience with `lapply()`, feel free to take Chapter 4 of the Intermediate R course.
+
+Have a look at the example code below:
+
+    my_workbook <- lapply(excel_sheets("data.xlsx"),
+                          read_excel,
+                          path = "data.xlsx")
+
+-   Use `lapply()` in combination with `excel_sheets()` and `read_excel()` to read all the Excel sheets in `"urbanpop.xlsx"`. Name the resulting list `pop_list`.
+
+-   Print the structure of `pop_list`.
+
+```{r}
+# The readxl package is already loaded
+
+# Read all Excel sheets with lapply(): pop_list
+pop_list <- lapply(excel_sheets(urbanpop_xlsx_path),
+                      read_excel,
+                      path = urbanpop_xlsx_path)
+
+# Display the structure of pop_list
+str(pop_list)
+```
+
+### 
+`04-The col_names argument`
+
+-   Import the *first* Excel sheet of `"urbanpop_nonames.xlsx"` and store the result in `pop_a`. Have R set the column names of the resulting data frame itself.
+
+-   Import the first Excel sheet of `urbanpop_nonames.xlsx`; this time, use the `cols` vector that has already been prepared for you to specify the column names. Store the resulting data frame in `pop_b`.
+
+-   Print out the summary of `pop_a`.
+
+-   Print out the summary of `pop_b`. Can you spot the difference with the other summary?
+
+```{r}
+# The readxl package is already loaded
+urbanpop_nonames_path = file.path("..", "00_Datasets", "urbanpop_nonames.xlsx")
+
+
+# Import the first Excel sheet of urbanpop_nonames.xlsx (R gives names): pop_a
+pop_a <- read_excel(urbanpop_nonames_path, sheet = 1, col_names = FALSE)
+
+# Import the first Excel sheet of urbanpop_nonames.xlsx (specify col_names): pop_b
+cols <- c("country", paste0("year_", 1960:1966))
+pop_b <- read_excel(urbanpop_nonames_path, sheet = 1, col_names  = cols)
+
+
+# Print the summary of pop_a
+summary(pop_a)
+
+# Print the summary of pop_b
+summary(pop_b)
+```
+
+### **`05-The skip argument`**
+
+Another argument that can be very useful when reading in Excel files that are less tidy, is `skip`. With `skip`, you can tell R to ignore a specified number of rows inside the Excel sheets you're trying to pull data from. Have a look at this example:
+
+    read_excel("data.xlsx", skip = 15)
+
+-   Import the *second* sheet of `"urbanpop.xlsx"`, but skip the first 21 rows. Make sure to set `col_names = FALSE`. Store the resulting data frame in a variable `urbanpop_sel`.
+
+-   Select the first observation from `urbanpop_sel` and print it out.
+
+```{r}
+# The readxl package is already loaded
+urbanpop_path = file.path("..", "00_Datasets", "urbanpop.xlsx")
+
+
+# Import the second sheet of urbanpop.xlsx, skipping the first 21 rows: urbanpop_sel
+urbanpop_sel <- read_excel(urbanpop_path, sheet = 2,
+            col_names = FALSE, skip = 21)
+
+# Print out the first observation from urbanpop_sel
+urbanpop_sel[1,]
+
+```
+
+### **`06-Import a local file`**
+
+In this part of the chapter you'll learn how to import `.xls` files using the `gdata` package. Similar to the `readxl` package, you can import single Excel sheets from Excel sheets to start your analysis in R.
+
+You'll be working with the `urbanpop.xls` ([**view**](http://s3.amazonaws.com/assets.datacamp.com/production/course_1477/datasets/urbanpop.xls)) dataset, the `.xls` version of the Excel file you've been working with before. It's available in your current working directory.
+
+-   Load the `gdata` package with `library()`. `gdata` and Perl are already installed on DataCamp's Servers.
+
+-   Import the second sheet, named `"1967-1974"`, of `"urbanpop.xls"` with `read.xls()`. Store the resulting data frame as `urban_pop`.
+
+-   Print the first 11 observations of `urban_pop` with `head()`.
+
+```{r}
+# File path 
+urbanpop_path = file.path("..", "00_Datasets", "urbanpop.xls")
+perl_path = "C:/Strawberry/perl/bin/perl.exe"
+
+# Load the gdata package
+#install.packages("gdata")
+library(gdata)
+
+# Import the second sheet of urbanpop.xls: urban_pop
+urban_pop <- read.xls(urbanpop_path, sheet = "1967-1974", perl = perl_path)
+
+# Print the first 11 observations using head()
+head(urban_pop, 11)
+```
+
+### **`07-read.xls() wraps around read.table()`**
+
+-   Finish the `read.xls()` call that reads data from the second sheet of `urbanpop.xls`: skip the first 50 rows of the sheet. Make sure to set `header` appropriately and that the country names are not imported as factors.
+
+-   Print the first 10 observations of `urban_pop` with `head()`.
+
+```{r}
+# The gdata package is alreaded loaded
+
+# Column names for urban_pop
+columns <- c("country", paste0("year_", 1967:1974))
+
+# Finish the read.xls call
+urban_pop <- read.xls(urbanpop_path, sheet = 2,
+                      skip = 50, header = FALSE, stringsAsFactors = FALSE,
+                      col.names = columns, perl = perl_path)
+
+# Print first 10 observation of urban_pop
+head(urban_pop, 10)
+```
+
+### **`08-Work that Excel data!`**
+
+-   Add code to read the data from the third sheet in `"urbanpop.xls"`. You want to end up with three data frames: `urban_sheet1`, `urban_sheet2` and `urban_sheet3`.
+
+-   Extend the `cbind()` call so that it also includes `urban_sheet3`. Make sure the first column of `urban_sheet2` and `urban_sheet3` are removed, so you don't have duplicate columns. Store the result in `urban`.
+
+-   Use `na.omit()` on the `urban` data frame to remove all rows that contain `NA` values. Store the cleaned data frame as `urban_clean`.
+
+-   Print a summary of `urban_clean` and assert that there are no more `NA` values.
+
+```{r}
+# Add code to import data from all three sheets in urbanpop.xls
+path <- urbanpop_path
+urban_sheet1 <- read.xls(path, sheet = 1, stringsAsFactors = FALSE, perl = perl_path)
+urban_sheet2 <- read.xls(path, sheet = 2, stringsAsFactors = FALSE, perl = perl_path)
+urban_sheet3 <- read.xls(path, sheet = 3, stringsAsFactors = FALSE, perl = perl_path)
+
+# Extend the cbind() call to include urban_sheet3: urban
+urban <- cbind(urban_sheet1, urban_sheet2[-1], urban_sheet3[-1])
+
+# Remove all rows with NAs from urban: urban_clean
+urban_clean <- na.omit(urban)
+
+# Print out a summary of urban_clean
+summary(urban_clean)
+```
+
+\
+
+\
+
+
+
+\
+
+
+
+
+
+
+
+\
+
+
+\
+
+
+
+\
+
+
+
+\
+
+
+
+\
+
+
