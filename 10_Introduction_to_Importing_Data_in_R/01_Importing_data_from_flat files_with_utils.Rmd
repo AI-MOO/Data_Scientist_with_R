@@ -1,0 +1,136 @@
+---
+title: "Importing data from flat files with utils"
+author: "Mohamad Osman"
+date: '2022-06-21'
+output: html_document
+---
+
+### **`01-read.csv`**
+
+-   Use `read.csv()` to import `"swimming_pools.csv"` as a data frame with the name `pools`.
+
+-   Print the structure of `pools` using `str()`.
+
+```{r}
+swimming_pools_path <- file.path("..","00_Datasets","swimming_pools.csv")
+swimming_pools_path
+```
+
+```{r}
+# Import swimming_pools.csv: pools
+pools <- read.csv(swimming_pools_path)
+
+# Print the structure of pools
+str(pools)
+```
+
+### **`02-stringsAsFactors`**
+
+-   Use `read.csv()` to import the data in `"swimming_pools.csv"` as a data frame called `pools`; make sure that strings are imported as characters, not as factors.
+
+-   Using `str()`, display the structure of the dataset and check that you indeed get character vectors instead of factors.
+
+```{r}
+# Import swimming_pools.csv correctly: pools
+pools <- read.csv(swimming_pools_path, stringsAsFactors = FALSE)
+
+# Check the structure of pools
+str(pools)
+```
+
+### 
+**`03-read.delim`**
+
+-   Import the data in `"hotdogs.txt"` with `read.delim()`. Call the resulting data frame `hotdogs`. The variable names are **not** on the first line, so make sure to set the `header` argument appropriately.
+
+-   Call `summary()` on `hotdogs`. This will print out some summary statistics about all variables in the data frame.
+
+```{r}
+
+hotdogs_path <- file.path("..","00_Datasets","hotdogs.txt")
+
+# Import hotdogs.txt: hotdogs
+hotdogs <- read.delim(hotdogs_path, sep = "\t", header = FALSE,
+                      stringsAsFactors = FALSE)
+
+# Summarize hotdogs
+summary(hotdogs)
+```
+
+### **`04-read.table`**
+
+-   Finish the `read.table()` call that's been prepared for you. Use the `path` variable, and make sure to set `sep` correctly.
+
+-   Call `head()` on `hotdogs`; this will print the first 6 observations in the data frame.
+
+```{r}
+# Path to the hotdogs.txt file: path
+hotdogs_path <- file.path("..", "00_Datasets", "hotdogs.txt")
+
+# Import the hotdogs.txt file: hotdogs
+hotdogs <- read.table(hotdogs_path, 
+                      sep = '\t', 
+                      col.names = c("type", "calories", "sodium"))
+
+# Call head() on hotdogs
+head(hotdogs)
+```
+
+### **`05-Arguments`**
+
+-   Finish the `read.delim()` call to import the data in `"hotdogs.txt"`. It's a tab-delimited file without names in the first row.
+
+-   The code that selects the observation with the lowest calorie count and stores it in the variable `lily` is already available. It uses the function `which.min()`, that returns the index the smallest value in a vector.
+
+-   Do a similar thing for Tom: select the observation with the *most sodium* and store it in `tom`. Use `which.max()` this time.
+
+-   Finally, print both the observations `lily` and `tom`.
+
+```{r}
+# Finish the read.delim() call
+hotdogs <- read.delim(hotdogs_path, header = FALSE, col.names = c("type", "calories", "sodium"))
+
+# Select the hot dog with the least calories: lily
+lily <- hotdogs[which.min(hotdogs$calories), ]
+
+# Select the observation with the most sodium: tom
+tom <- hotdogs[which.max(hotdogs$sodium),]
+
+# Print lily and tom
+print(lily)
+print(tom)
+
+```
+
+### 
+**`06-Column classes`**
+
+-   The `read.delim()` call from before is already included and creates the `hotdogs` data frame. Go ahead and display the structure of `hotdogs`.
+
+-   **Edit** the second `read.delim()` call. Assign the correct vector to the `colClasses` argument. `NA` should be replaced with a character vector: `c("factor", "NULL", "numeric")`.
+
+-   Display the structure of `hotdogs2` and look for the difference.
+
+```{r}
+# Previous call to import hotdogs.txt
+hotdogs <- read.delim(hotdogs_path, header = FALSE, col.names = c("type", "calories", "sodium"))
+
+# Display structure of hotdogs
+str(hotdogs)
+
+# Edit the colClasses argument to import the data correctly: hotdogs2
+hotdogs2 <- read.delim(hotdogs_path, header = FALSE, 
+                       col.names = c("type", "calories", "sodium"),
+                       colClasses = c("factor", "NULL", "numeric"))
+
+
+# Display structure of hotdogs2
+str(hotdogs2)
+```
+
+```{r}
+head(hotdogs,3)
+head(hotdogs2,3)
+```
+
+### `The END`
