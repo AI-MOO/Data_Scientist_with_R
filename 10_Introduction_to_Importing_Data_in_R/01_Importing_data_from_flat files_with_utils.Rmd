@@ -2,7 +2,9 @@
 title: "Importing data from flat files with utils"
 author: "Mohamad Osman"
 date: '2022-06-21'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ### **`01-read.csv`**
@@ -38,8 +40,7 @@ pools <- read.csv(swimming_pools_path, stringsAsFactors = FALSE)
 str(pools)
 ```
 
-### 
-**`03-read.delim`**
+### **`03-read.delim`**
 
 -   Import the data in `"hotdogs.txt"` with `read.delim()`. Call the resulting data frame `hotdogs`. The variable names are **not** on the first line, so make sure to set the `header` argument appropriately.
 
@@ -102,8 +103,7 @@ print(tom)
 
 ```
 
-### 
-**`06-Column classes`**
+### **`06-Column classes`**
 
 -   The `read.delim()` call from before is already included and creates the `hotdogs` data frame. Go ahead and display the structure of `hotdogs`.
 
