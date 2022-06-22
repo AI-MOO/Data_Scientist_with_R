@@ -1,0 +1,231 @@
+---
+title: "Reproducible Excel work with XLConnect"
+author: "Mohamad Osman"
+date: '2022-06-22'
+output: html_document
+---
+
+# **Section 04: Reproducible Excel work with XLConnect**
+
+### **`01-Connect to a workbook`**
+
+-   Load the `XLConnect` package using `library()`; it is already installed on DataCamp's servers.
+
+-   Use `loadWorkbook()` to build a connection to the `"urbanpop.xlsx"` file in R. Call the workbook `my_book`.
+
+-   Print out the class of `my_book`. What does this tell you?
+
+```{r}
+# urbanpop.xlsx is available in your working directory
+urbanpop_path <- file.path("..", "00_Datasets", "urbanpop.xlsx")
+
+# Load the XLConnect package
+# > install.packages("XLConnect", dependencies=TRUE)
+library(XLConnect)
+
+# Build connection to urbanpop.xlsx: my_book
+my_book <- XLConnect::loadWorkbook(urbanpop_path)
+
+# Print out the class of my_book
+class(my_book)
+```
+
+### **`02-List and read Excel sheets`**
+
+-   Print out the sheets of the Excel file that `my_book` links to.
+
+-   Import the second sheet in `my_book` as a data frame. Print it out.
+
+```{r}
+# XLConnect is already available
+
+# Build connection to urbanpop.xlsx
+my_book <- loadWorkbook(urbanpop_path)
+
+# List the sheets in my_book
+getSheets(my_book)
+
+# Import the second sheet in my_book
+readWorksheet(my_book, sheet = 2 )
+
+
+```
+
+### **`03-Customize readWorksheet`**
+
+-   Extend the `readWorksheet()` command with the `startCol` and `endCol` arguments to only import the columns 3, 4, and 5 of the second sheet.
+
+-   `urbanpop_sel` no longer contains information about the countries now. Can you write another `readWorksheet()` command that imports only the first column from the second sheet? Store the resulting data frame as `countries`.
+
+-   Use `cbind()` to paste together `countries` and `urbanpop_sel`, in this order. Store the result as `selection`.
+
+```{r}
+# XLConnect is already available
+
+# Build connection to urbanpop.xlsx
+my_book <- loadWorkbook(urbanpop_path)
+
+# Import columns 3, 4, and 5 from second sheet in my_book: urbanpop_sel
+urbanpop_sel <- readWorksheet(my_book, sheet = 2,
+                              startCol = 3 , endCol = 5)
+
+# Import first column from second sheet in my_book: countries
+countries <- readWorksheet(my_book, sheet = 2,
+                           startCol = 1 , endCol = 1)
+
+# cbind() urbanpop_sel and countries together: selection
+selection <- cbind(countries, urbanpop_sel)
+selection
+```
+
+### **`04-Add worksheet`**
+
+-   Use `createSheet()`, to create a new sheet in `my_book`, named `"data_summary"`.
+
+-   Use `getSheets()` to verify that `my_book` now represents an Excel file with four sheets.
+
+```{r}
+# XLConnect is already available
+
+# Build connection to urbanpop.xlsx
+my_book <- loadWorkbook(urbanpop_path)
+
+# Add a worksheet to my_book, named "data_summary"
+createSheet(my_book, name = "data_summary")
+
+# Use getSheets() on my_book
+getSheets(my_book)
+```
+
+### **`05-Populate worksheet`**
+
+-   Use `writeWorksheet()` to populate the `"data_summary"` sheet with the `summ` data frame.
+
+-   Call `saveWorkbook()` to store the adapted Excel workbook as a new file, `"summary.xlsx"`.
+
+```{r}
+# XLConnect is already available
+in_xlsx_file <- file.path("..", "00_Datasets", "urbanpop.xlsx")
+out_xlsx_file <- file.path("..", "00_Datasets", "summary.xlsx")
+
+# Build connection to urbanpop.xlsx
+my_book <- loadWorkbook(in_xlsx_file)
+
+# Add a worksheet to my_book, named "data_summary"
+createSheet(my_book, "data_summary")
+
+# Create data frame: summ
+sheets <- getSheets(my_book)[1:3]
+dims <- sapply(sheets, function(x) dim(readWorksheet(my_book, sheet = x)), USE.NAMES = FALSE)
+summ <- data.frame(sheets = sheets,
+                   nrows = dims[1, ],
+                   ncols = dims[2, ])
+
+# Add data in summ to "data_summary" sheet
+writeWorksheet(my_book, summ, sheet = "data_summary")
+
+# Save workbook as summary.xlsx
+saveWorkbook(my_book, out_xlsx_file)
+```
+
+### **`06-Renaming sheets`**
+
+-   Use `renameSheet()` to rename the fourth sheet to `"summary"`.
+
+-   Next, call `getSheets()` on `my_book` to print out the sheet names.
+
+-   Finally, make sure to actually save the `my_book` object to a new Excel file, `"renamed.xlsx"`.
+
+```{r}
+# XLConnect is already available
+in_xlsx_file <- file.path("..", "00_Datasets", "urbanpop.xlsx")
+out_xlsx_file <- file.path("..", "00_Datasets", "urbanpop_summary.xlsx")
+
+# Build connection to urbanpop.xlsx
+my_book <- loadWorkbook(in_xlsx_file)
+
+# Add a worksheet to my_book, named "data_summary"
+createSheet(my_book, "data_summary")
+
+# Create data frame: summ
+sheets <- getSheets(my_book)[1:3]
+dims <- sapply(sheets, function(x) dim(readWorksheet(my_book, sheet = x)), USE.NAMES = FALSE)
+summ <- data.frame(sheets = sheets,
+                   nrows = dims[1, ],
+                   ncols = dims[2, ])
+
+# Add data in summ to "data_summary" sheet
+writeWorksheet(my_book, summ, sheet = "data_summary")
+
+# Save workbook as summary.xlsx
+saveWorkbook(my_book, out_xlsx_file)
+```
+
+```{r}
+# Build connection to urbanpop.xlsx: my_book
+urbanpop_summary <- file.path("..", "00_Datasets", "urbanpop_summary.xlsx")
+urbanpop_renamed <- file.path("..", "00_Datasets", "renamed.xlsx")
+
+
+my_book <- loadWorkbook(urbanpop_summary)
+
+# Rename "data_summary" sheet to "summary"
+renameSheet(my_book, "data_summary", "summary")
+
+# Print out sheets of my_book
+getSheets(my_book)
+
+# Save workbook to "renamed.xlsx"
+saveWorkbook(my_book, file = urbanpop_renamed)
+```
+
+### **`07-Removing sheets`**
+
+-   Load the `XLConnect` package.
+
+-   Build a connection to `"renamed.xlsx"`, the Excel file that you've built in the previous exercise; it's available in your working directory. Store this connection as `my_book`.
+
+-   Use `removeSheet()` to remove the fourth sheet from `my_book`. The sheet name is `"summary"`. Recall that `removeSheet()` accepts either the index or the name of the sheet as the second argument.
+
+-   Save the resulting workbook, `my_book`, to a file `"clean.xlsx"`.
+
+```{r}
+# output path
+urbanpop_cleaned <- file.path("..", "00_Datasets", "clean.xlsx")
+
+# Load the XLConnect package
+library(XLConnect)
+
+# Build connection to renamed.xlsx: my_book
+my_book <- loadWorkbook(urbanpop_renamed)
+
+# Remove the fourth sheet
+removeSheet(my_book, sheet = "summary")
+
+# Save workbook to "clean.xlsx"
+saveWorkbook(my_book, urbanpop_cleaned)
+```
+
+### `The End`
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
