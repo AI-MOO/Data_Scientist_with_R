@@ -27,6 +27,7 @@ sales <- read_sas(dest_path)
 
 # Display the structure of sales
 str(sales)
+
 ```
 
 ### **`02-Import STATA data with haven`**
