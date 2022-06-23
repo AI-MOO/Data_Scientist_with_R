@@ -1,0 +1,196 @@
+---
+title: "Importing data from the web (Part 1)"
+author: "Mohamad Osman"
+date: '2022-06-22'
+output: rmarkdown::github_document
+---
+
+# Section 03: **Importing data from the web (Part 1)**
+
+### **`01-Import flat files from the web`**
+
+-   Load the `readr` package. It's already installed on DataCamp's servers.
+
+-   Use `url_csv` to read in the `.csv` file it is pointing to. Use the [**`read_csv()`**](https://cran.r-project.org/web/packages/readr/readr.pdf) function. The `.csv` contains column names in the first row. Save the resulting data frame as `pools`.
+
+-   Similarly, use `url_delim` to read in the online `.txt` file. Use the [**`read_tsv()`**](https://cran.r-project.org/web/packages/readr/readr.pdf) function and store the result as `potatoes`.
+
+-   Print `pools` and `potatoes`. Looks correct?
+
+```{r}
+# Load the readr package
+library(readr)
+
+# Import the csv file: pools
+url_csv <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/swimming_pools.csv"
+pools <- read_csv(url_csv) 
+
+# Import the txt file: potatoes
+url_delim <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/potatoes.txt"
+potatoes <- read_tsv(url_delim)
+
+# Print pools and potatoes
+pools
+potatoes
+```
+
+### **`02-Secure importing`**
+
+In the previous exercises, you have been working with URLs that all start with `http://`. There is, however, a safer alternative to HTTP, namely HTTPS, which stands for HyperText Transfer Protocol Secure. Just remember this: HTTPS is relatively safe, HTTP is not.
+
+Luckily for us, you can use the standard importing functions with `https://` connections since R version 3.2.2.
+
+-   Take a look at the URL in `url_csv`. It uses a secure connection, `https://`.
+
+-   Use [**`read.csv()`**](https://www.rdocumentation.org/packages/utils/functions/read.table) to import the file at `url_csv`. The `.csv` file it is referring to contains column names in the first row. Call it `pools1`.
+
+-   Load the `readr` package. It's already installed on DataCamp's servers.
+
+-   Use [**`read_csv()`**](https://cran.r-project.org/web/packages/readr/readr.pdf) to read in the same `.csv` file in `url_csv`. Call it `pools2`.
+
+-   Print out the structure of `pools1` and `pools2`. Looks like the importing went equally well as with a normal `http` connection!
+
+```{r}
+# https URL to the swimming_pools csv file.
+url_csv <- "https://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/swimming_pools.csv"
+
+# Import the file using read.csv(): pools1
+pools1 <- read.csv(url_csv)
+
+# Load the readr package
+library(readr)
+
+# Import the file using read_csv(): pools2
+pools2 <- read_csv(url_csv)
+
+# Print the structure of pools1 and pools2
+str(pools1)
+str(pools2)
+```
+
+### **`03-Import Excel files from the web`**
+
+-   Load the `readxl` and `gdata` packages. They are already installed on DataCamp's servers.
+
+-   Import the `.xls` file located at the URL `url_xls` using [**`read.xls()`**](https://www.rdocumentation.org/packages/gdata/functions/read.xls) from `gdata`. Store the resulting data frame as `excel_gdata`.
+
+-   You can not use [**`read_excel()`**](https://cran.r-project.org/web/packages/readxl/readxl.pdf) directly with a URL. Complete the following instructions to work around this problem:
+
+-   Use [**`download.file()`**](https://www.rdocumentation.org/packages/utils/functions/download.file) to download the `.xls` file behind the URL and store it locally as `"local_latitude.xls"`.
+
+-   Call [**`read_excel()`**](https://cran.r-project.org/web/packages/readxl/readxl.pdf) to import the local file, `"local_latitude.xls"`. Name the resulting data frame `excel_readxl`.
+
+```{r}
+# Load the readxl and gdata package
+library(readxl)
+library(gdata)
+
+# Specification of url: url_xls
+url_xls <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/latitude.xls"
+
+# Import the .xls file with gdata: excel_gdata
+excel_gdata <- gdata::read.xls(url_xls)
+
+# Download file behind URL, name it local_latitude.xls
+dest_path <- file.path("..", "00_Datasets", "local_latitude.xls")
+download.file(url_xls, dest_path, mode="wb")
+
+
+# Import the local .xls file with readxl: excel_readxl
+excel_readxl <- readxl::read_excel(dest_path)
+excel_readxl
+```
+
+### **`04-Downloading any file, secure or not`**
+
+In the previous exercise you've seen how you can read excel files on the web using the `read_excel` package by first downloading the file with the [**`download.file()`**](https://www.rdocumentation.org/packages/utils/functions/download.file) function.
+
+There's more: with [**`download.file()`**](https://www.rdocumentation.org/packages/utils/functions/download.file) you can download any kind of file from the web, using HTTP and HTTPS: images, executable files, but also `.RData` files. An `RData` file is very efficient format to store R data.
+
+You can load data from an `RData` file using the [**`load()`**](https://www.rdocumentation.org/packages/base/functions/load) function, but this function does not accept a URL string as an argument. In this exercise, you'll first download the `RData` file securely, and then import the local data file.
+
+-   Take a look at the URL in `url_rdata`. It uses a secure connection, `https://`. This URL points to an `RData` file containing a data frame with some metrics on different kinds of wine.
+
+-   Download the file at `url_rdata` using [**`download.file()`**](https://www.rdocumentation.org/packages/utils/functions/download.file). Call the file `"wine_local.RData"` in your working directory.
+
+-   Load the file you created, `wine_local.RData`, using the [**`load()`**](https://www.rdocumentation.org/packages/base/functions/load) function. It takes one argument, the path to the file, which is just the filename in our case. After running this command, the variable `wine` will automatically be available in your workspace.
+
+Print out the [**`summary()`**](https://www.rdocumentation.org/packages/base/functions/summary) of the `wine` dataset.
+
+```{r}
+# https URL to the wine RData file.
+url_rdata <- "https://s3.amazonaws.com/assets.datacamp.com/production/course_1478/datasets/wine.RData"
+
+# Download the wine file to your working directory
+dest_path <- file.path("..", "00_Datasets", "wine_local.RData")
+
+download.file(url_rdata, dest_path)
+
+# Load the wine data into your workspace using load()
+load(dest_path)
+
+# Print out the summary of the wine data
+summary(wine)
+```
+
+### **`05-HTTP? httr! (1)`**
+
+`httr` provides a convenient function, [**`GET()`**](https://www.rdocumentation.org/packages/httr/functions/GET) to execute this GET request. The result is a `response` object, that provides easy access to the status code, content-type and, of course, the actual content.
+
+-   Load the `httr` package. It's already installed on DataCamp's servers.
+
+-   Use [**`GET()`**](https://www.rdocumentation.org/packages/httr/functions/GET) to get the URL stored in `url`. Store the result of this `GET()` call as `resp`.
+
+-   Print the `resp` object. What information does it contain?
+
+-   Get the content of `resp` using [**`content()`**](https://www.rdocumentation.org/packages/httr/functions/content) and set the `as` argument to `"raw"`. Assign the resulting vector to `raw_content`.
+
+-   Print the first values in `raw_content` with [**`head()`**](https://www.rdocumentation.org/packages/utils/functions/head).
+
+```{r}
+# Load the httr package
+library(httr)
+
+# Get the url, save response to resp
+url <- "http://www.example.com/"
+resp <- GET(url)
+
+# Print resp
+print(resp)
+
+# Get the raw content of resp: raw_content
+raw_content <- content(resp, as = "raw")
+
+# Print the head of raw_content
+print(raw_content)
+```
+
+### **`06-HTTP? httr! (2)`**
+
+-   Use [**`GET()`**](https://www.rdocumentation.org/packages/httr/functions/GET) to get the `url` that has already been specified in the sample code. Store the response as `resp`.
+
+-   Print `resp`. What is the content-type?
+
+-   Use [**`content()`**](https://www.rdocumentation.org/packages/httr/functions/content) to get the content of `resp`. Set the `as` argument to `"text"`. Simply print out the result. What do you see?
+
+-   Use [**`content()`**](https://www.rdocumentation.org/packages/httr/functions/content) to get the content of `resp`, but this time do not specify a second argument. R figures out automatically that you're dealing with a JSON, and converts the JSON to a named R list.
+
+```{r}
+# httr is already loaded
+
+# Get the url
+url <- "http://www.omdbapi.com/?apikey=72bc447a&t=Annie+Hall&y=&plot=short&r=json"
+resp <- GET(url)
+
+# Print resp
+print(resp)
+
+# Print content of resp as text
+print(content(resp, as = "text"))
+
+# Print content of resp
+print(content(resp))
+
+```
+
+### `The End`
