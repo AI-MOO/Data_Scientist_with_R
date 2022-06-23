@@ -2,7 +2,7 @@
 title: "Importing data from databases"
 author: "Mohamad Osman"
 date: '2022-06-22'
-output: html_document
+output: rmarkdown::github_document
 ---
 
 # Section 01: Importing data from databases
@@ -135,6 +135,5 @@ dbDisconnect(con)
 ```
 
 ### **`The End`**
- 
 
 \
