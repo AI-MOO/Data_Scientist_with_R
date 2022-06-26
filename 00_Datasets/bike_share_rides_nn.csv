@@ -1,0 +1,61 @@
+ride_id,date,duration_min,station_A_id,station_A_name,station_B_id
+88749,4/1/2017,13.4,6,The Embarcadero at…,343
+76141,4/22/2017,24.2,15,San Francisco Ferr…,8
+89616,4/16/2017,6.35,5,Powell St BART Sta…,81
+39422,4/19/2017,6.88,58,Market St at 10th …,321
+81268,4/9/2017,2.88,5,Powell St BART Sta…,5
+12129,4/29/2017,51,21,Montgomery St BART…,371
+61284,4/30/2017,11.7,3,Powell St BART Sta…,41
+33940,4/26/2017,17.8,67,San Francisco Calt…,5
+71560,4/9/2017,14.7,16,Steuart St at Mark…,116
+78226,4/23/2017,14.7,5,Powell St BART Sta…,55
+46195,4/30/2017,25.5,30,San Francisco Calt…,74
+19873,4/16/2017,12.4,30,San Francisco Calt…,58
+48639,4/17/2017,32.1,15,San Francisco Ferr…,73
+69538,4/13/2017,11.1,58,Market St at 10th …,116
+97029,4/17/2017,7.68,3,Powell St BART Sta…,67
+20345,4/30/2017,4.1,30,San Francisco Calt…,343
+66195,4/25/2017,4.25,81,Berry St at 4th St,104
+71007,4/29/2017,5.25,30,San Francisco Calt…,350
+56316,4/9/2017,7.02,15,San Francisco Ferr…,28
+27732,4/12/2017,8.85,5,Powell St BART Sta…,77
+77424,4/7/2017,3.62,58,Market St at 10th …,43
+25296,4/3/2017,9.4,58,Market St at 10th …,3
+68786,4/28/2017,4.22,15,San Francisco Ferr…,28
+88961,4/24/2017,14.8,3,Powell St BART Sta…,130
+42584,4/26/2017,2.27,15,San Francisco Ferr…,11
+62497,4/16/2017,6.43,6,The Embarcadero at…,17
+21132,4/8/2017,15.3,6,The Embarcadero at…,321
+67020,4/29/2017,4.72,58,Market St at 10th …,76
+67811,4/15/2017,30.8,15,San Francisco Ferr…,79
+48776,4/12/2017,11.5,15,San Francisco Ferr…,30
+63258,4/3/2017,13,81,Berry St at 4th St,20
+56774,4/18/2017,16.6,16,Steuart St at Mark…,19
+87622,4/10/2017,7.85,5,Powell St BART Sta…,80
+28529,4/10/2017,14.5,15,San Francisco Ferr…,81
+81881,4/22/2017,12.7,6,The Embarcadero at…,343
+70668,4/27/2017,11.4,30,San Francisco Calt…,58
+78867,4/12/2017,9.65,81,Berry St at 4th St,22
+54991,4/19/2017,5.07,21,Montgomery St BART…,343
+81589,4/22/2017,5.67,81,Berry St at 4th St,27
+99700,4/3/2017,4.35,21,Montgomery St BART…,49
+61642,4/23/2017,6.67,5,Powell St BART Sta…,67
+32361,4/26/2017,15.6,3,Powell St BART Sta…,86
+91601,4/15/2017,9.5,5,Powell St BART Sta…,76
+43103,4/2/2017,7.6,58,Market St at 10th …,67
+97721,4/8/2017,8.38,15,San Francisco Ferr…,363
+68391,4/29/2017,38.7,6,The Embarcadero at…,355
+34953,4/11/2017,25.4,81,Berry St at 4th St,362
+90558,4/4/2017,16,5,Powell St BART Sta…,5
+91224,4/10/2017,9.25,16,Steuart St at Mark…,50
+10526,4/8/2017,13.6,5,Powell St BART Sta…,36
+30506,4/7/2017,1571,15,San Francisco Ferr…,6
+37527,4/3/2017,1536,81,Berry St at 4th St,321
+83557,4/10/2017,1654,30,San Francisco Calt…,73
+51150,4/5/2017,1545,21,Montgomery St BART…,37
+78828,4/14/2017,1654,15,San Francisco Ferr…,28
+31991,4/28/2017,1463,58,Market St at 10th …,60
+12757,4/19/2017,1443,15,San Francisco Ferr…,3
+73192,4/10/2017,1668,67,San Francisco Calt…,79
+92361,4/30/2017,1628,30,San Francisco Calt…,22
+89498,4/27/2017,1662,6,The Embarcadero at…,90
