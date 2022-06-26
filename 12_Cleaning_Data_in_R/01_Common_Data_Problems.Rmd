@@ -154,7 +154,7 @@ bike_share_rides <- bike_share_rides %>%
 
 
 # Make sure all dates are in the past
-assert_all_are_in_past(bike_share_rides$date)
+#assert_all_are_in_past(bike_share_rides$date)
 
 
 # Filter for rides that occurred before or on today's date
