@@ -1,0 +1,248 @@
+---
+title: "Categorical and Text Data"
+author: "Mohamad Osman"
+date: '2022-06-26'
+output: rmarkdown::github_document
+---
+
+# Section 02: **Categorical and Text Data**
+
+### **`01-Not a member (membership constraints)`**
+
+-   Count the number of occurrences of each `dest_size` in `sfo_survey`.
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+# file path
+sfo_survey_file <- file.path("..", "00_Datasets", "sfo_survey_ch2_1.rds") 
+
+# reading rds file
+sfo_survey <- readRDS(sfo_survey_file)
+
+# Count the number of occurrences of dest_size
+sfo_survey %>%
+  count(dest_size)
+```
+
+-   Use the correct type of filtering join on the `sfo_survey` data frame and the `dest_sizes` data frame to get the rows of `sfo_survey` with invalid `dest_size` values.
+
+-   Get the `id`, `airline`, `destination`, and `dest_size` columns.
+
+```{r}
+# Create a truth table for validation 
+dest_size <- c("Small", "Medium", "Large", "Hub")
+passengers_per_day <- c("0-20K", "20K-70K", "70K-100K", "100K+")
+
+dest_sizes <- data.frame(dest_size, passengers_per_day, stringsAsFactors = FALSE)
+
+```
+
+```{r}
+# Find bad dest_size rows
+sfo_survey %>% 
+  # Join with dest_sizes data frame to get bad dest_size rows
+  anti_join(dest_sizes) %>%
+  # Select id, airline, destination, and dest_size cols
+  select(id, airline, destination, dest_size)
+```
+
+-   Use the correct filtering join on `sfo_survey` and `dest_sizes` to get the rows of `sfo_survey` that have a valid `dest_size`.
+
+-   Count the number of times that each `dest_size` occurs to make sure there are no invalid values left behind
+
+```{r}
+# Remove bad dest_size rows
+sfo_survey %>% 
+  # Join with dest_sizes
+  semi_join(dest_sizes) %>%
+  # Count the number of each dest_size
+  count(dest_size)
+```
+
+### **`02-Identifying inconsistency`**
+
+In this exercise, you'll continue working with the `sfo_survey` dataset. You'll examine the `dest_size` column again as well as the `cleanliness` column and determine what kind of issues, if any, these two categorical variables face.
+
+`dplyr` and is loaded and `sfo_survey` is available.
+
+-   Count the number of occurrences of each category of the `dest_size` variable of `sfo_survey`.
+
+```{r}
+# Count dest_size
+sfo_survey %>%
+  count(dest_size)
+```
+
+The categories in `dest_size` have inconsistent white space.
+
+-   Count the number of occurrences of each category of the `cleanliness` variable of `sfo_survey`.
+
+```{r}
+# Count dest_size
+sfo_survey %>%
+  count(dest_size)
+
+# Count cleanliness
+sfo_survey %>%
+  count(cleanliness)
+```
+
+### **`03-Correcting inconsistency`**
+
+-   Add a column to `sfo_survey` called `dest_size_trimmed` that contains the values in the `dest_size` column with all leading and trailing whitespace removed.
+
+-   Add another column called `cleanliness_lower` that contains the values in the `cleanliness` column converted to all lowercase.
+
+-   Count the number of occurrences of each category in `dest_size_trimmed`.
+
+-   Count the number of occurrences of each category in `cleanliness_lower`.
+
+```{r}
+# Add new columns to sfo_survey
+sfo_survey <- sfo_survey %>%
+  # dest_size_trimmed: dest_size without whitespace
+  mutate(dest_size_trimmed = str_trim(dest_size),
+         # cleanliness_lower: cleanliness converted to lowercase
+         cleanliness_lower = str_to_lower(cleanliness))
+
+# Count values of dest_size_trimmed
+sfo_survey %>%
+  count(dest_size_trimmed)
+
+# Count values of cleanliness_lower
+sfo_survey %>%
+  count(cleanliness_lower)
+```
+
+### **`04-Collapsing categories`**
+
+-   Count the categories of `dest_region`.
+
+```{r}
+# Count categories of dest_region
+sfo_survey %>%
+  count(dest_region)
+```
+
+`"EU"`, `"eur"`, and `"Europ"` need to be collapsed to `"Europe"`.
+
+-   Create a vector called `europe_categories` containing the three values of `dest_region` that need to be collapsed.
+
+-   Add a new column to `sfo_survey` called `dest_region_collapsed` that contains the values from the `dest_region` column, except the categories stored in `europe_categories` should be collapsed to `Europe`.
+
+-   Count the categories of `dest_region_collapsed`.
+
+```{r}
+library(forcats)
+
+# Count categories of dest_region
+sfo_survey %>%
+  count(dest_region)
+
+# Categories to map to Europe
+europe_categories <- c("EU", "eur", "Europ")
+
+# Add a new col dest_region_collapsed
+sfo_survey %>%
+  # Map all categories in europe_categories to Europe
+  mutate(dest_region_collapsed = fct_collapse(dest_region, 
+                                     Europe = europe_categories)) %>%
+  # Count categories of dest_region_collapsed
+  count(dest_region_collapsed)
+```
+
+### **`05-Detecting inconsistent text data`**
+
+`dplyr` and `stringr` are loaded, and `sfo_survey` is available.
+
+-   Filter for rows with phone numbers that contain `"-"`s.
+
+-   Filter for rows with phone numbers that contain `"("`, or `")"`. Remember to use `fixed()` when searching for parentheses.
+
+```{r}
+library(stringr)
+
+# file path
+sfo_survey_file <- file.path("..", "00_Datasets", "sfo_survey_phone.csv") 
+
+# reading rds file
+sfo_survey <- read.csv(sfo_survey_file)
+```
+
+```{r}
+# Filter for rows with "-" in the phone column
+sfo_survey %>%
+  filter(str_detect(phone, "-"))
+```
+
+-   Filter for rows with phone numbers that contain `"("`, or `")"`. Remember to use `fixed()` when searching for parentheses.
+
+```{r}
+# Filter for rows with "(" or ")" in the phone column
+sfo_survey %>%
+  filter(str_detect(phone, fixed("(")) | str_detect(phone, fixed(")")))
+
+```
+
+### **`06-Replacing and removing`**
+
+-   Remove opening and closing parentheses from the `phone` column. Store this as a variable called `phone_no_parens`. Remember to use `fixed()`!
+
+-   Add a new column to `sfo_survey` called `phone_no_parens` that contains the contents of `phone_no_parens`.
+
+-   Create a new column of `sfo_survey` called `phone_clean` containing the values of `phone_no_parens` with all hyphens replaced with spaces.
+
+```{r}
+# Remove parentheses from phone column
+phone_no_parens <- sfo_survey$phone %>%
+  # Remove "("s
+  str_remove_all(fixed("(")) %>%
+  # Remove ")"s
+  str_remove_all(fixed(")"))
+
+# Add phone_no_parens as column
+sfo_survey %>%
+  mutate(phone_no_parens = phone_no_parens,
+  # Replace all hyphens in phone_no_parens with spaces
+         phone_clean = str_replace_all(phone_no_parens, "-", " "))
+```
+
+### **`07-Invalid phone numbers`**
+
+-   Examine the invalid `phone` numbers by filtering for numbers whose length is not equal to 12.
+
+-   Remove the rows with invalid numbers by filtering for numbers with a length of exactly 12.
+
+```{r}
+# Check out the invalid numbers
+sfo_survey %>%
+  filter(str_length(phone) != 12)
+
+# Remove rows with invalid numbers
+sfo_survey %>%
+  filter(str_length(phone) == 12)
+
+```
+
+### `The End`
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+
+
+
+
+
+ 
