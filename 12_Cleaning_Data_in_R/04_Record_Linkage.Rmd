@@ -1,0 +1,46 @@
+---
+title: "Record Linkage"
+author: "Mohamad Osman"
+date: '2022-06-27'
+output: rmarkdown::github_document
+---
+
+# Section 04: Record Linkage
+
+### **`01-Small distance, small difference`**
+
+-   Calculate the Damerau-Levenshtein distance between `"las angelos"` and `"los angeles"`.
+
+```{r}
+library("stringdist")
+```
+
+```{r}
+# Calculate Damerau-Levenshtein distance
+stringdist("las angelos", "los angeles", method = "dl")
+```
+
+-   Calculate the Longest Common Substring (LCS) distance between `"las angelos"` and `"los angeles"`.
+
+```{r}
+# Calculate LCS distance
+stringdist("las angelos", "los angeles", method = "lcs")
+
+```
+
+-   Calculate the Jaccard distance between `"las angelos"` and `"los angeles"`.
+
+```{r}
+# Calculate Jaccard distance
+stringdist("las angelos", "los angeles", method = "jaccard")
+```
+
+Why is the LCS distance higher than the Damerau-Levenshtein distance between `"las angelos"` and `"los angeles"`?
+
+- LCS distance only uses insertion and deletion, so it takes more operations to change a string to another.
+
+\
+
+\
+
+
