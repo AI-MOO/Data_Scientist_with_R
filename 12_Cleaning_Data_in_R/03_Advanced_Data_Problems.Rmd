@@ -5,4 +5,259 @@ date: '2022-06-26'
 output: rmarkdown::github_document
 ---
 
-### `Section 03: Advanced Data Problems`
+# `Section 03: Advanced Data Problems`
+
+### `01-Date uniformity`
+
+-   Take a look at the head of `accounts` to get a sense of the data you're working with.
+
+```{r}
+# file path 
+accounts_file = file.path("..", "00_Datasets", "ch3_1_accounts.rds")
+
+accounts <- readRDS(accounts_file)
+```
+
+-   Take a look at the head of `accounts` to get a sense of the data you're working with.
+
+```{r}
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+# Check out the accounts data frame
+head(accounts)
+```
+
+```{r}
+# Check out the accounts data frame
+head(accounts)
+
+# Define the date formats
+formats <- c("%Y-%m-%d", "%B %d, %Y")
+
+# Convert dates to the same format
+accounts %>%
+  mutate(date_opened_clean = parse_date_time(accounts$date_opened, formats))
+```
+
+-   Create a scatter plot with `date_opened` on the x-axis and `total` on the y-axis.
+
+```{r}
+accounts <- accounts %>%
+  mutate(date_opened = parse_date_time(date_opened, formats))
+```
+
+```{r}
+# Scatter plot of opening date and total amount
+accounts %>%
+  ggplot(aes(x = date_opened, y = total)) +
+  geom_point()
+```
+
+```{r}
+accounts_file_path <- file.path("..", "00_Datasets", "account_offices.csv")
+account_offices <- read.csv(accounts_file_path)
+```
+
+```{r}
+# Scatter plot of opening date and total amount
+accounts %>%
+  ggplot(aes(x = date_opened, y = total)) +
+  geom_point()
+
+# Left join accounts and account_offices by id
+accounts %>%
+  left_join(account_offices, by = c("id"))
+```
+
+### **`02-Currency uniformity`**
+
+The formula to convert yen to dollars is `USD = JPY / 104`.
+
+`dplyr` and `ggplot2` are loaded and the `accounts` and `account_offices` data frames are available.
+
+-   Convert the `total`s from the Tokyo office from yen to dollars, and keep the `total` from the New York office in dollars. Store this as a new column called `total_usd`.
+
+-   Create a scatter plot of your new uniform data using `date_opened` on the x-axis and `total_usd` on the y-axis.
+
+```{r}
+# Scatter plot of opening date and total amount
+accounts %>%
+  ggplot(aes(x = date_opened, y = total)) +
+  geom_point()
+
+# Left join accounts to account_offices by id
+accounts %>%
+  left_join(account_offices, by = "id") %>%
+  # Convert totals from the Tokyo office to USD
+  mutate(total_usd = ifelse(office == "Tokyo", total/104, total)) %>%
+  # Scatter plot of opening date vs total_usd
+  ggplot(aes(x = date_opened, y = total_usd)) +
+  geom_point()
+```
+
+### 
+**`03-Validating totals`**
+
+-   Create a new column called `theoretical_total` that contains the sum of the amounts in each fund.
+
+-   Find the accounts where the `total` doesn't match the `theoretical_total`
+
+```{r}
+file_path = file.path("..", "00_Datasets", "accounts_with_funds.csv")
+accounts <- read.csv(file_path)
+```
+
+```{r}
+# Find invalid totals
+accounts %>%
+  # theoretical_total: sum of the three funds
+  mutate(theoretical_total = fund_A + fund_B + fund_C) %>%
+  # Find accounts where total doesn't match theoretical_total
+  filter(total != theoretical_total)
+```
+
+### **`04-Validating age`**
+
+-   Create a new column called `theoretical_age` that contains the age of each account based on the `date_opened`.
+
+-   Find the accounts where the `acct_age` doesn't match the `theoretical_age`.
+
+```{r}
+# read the csv file.
+file_path = file.path("..", "00_Datasets", "accounts_with_ages.csv")
+accounts <- read.csv(file_path)
+accounts
+# change the format of the date opended. 
+accounts <- accounts %>%
+  mutate(date_opened = parse_date_time(date_opened, "%m/%d/$Y"))
+
+# Find invalid acct_age
+accounts %>%
+  # theoretical_age: age of acct based on date_opened
+  mutate(theoretical_age = floor(as.numeric(date_opened %--% today(), "years"))) %>%
+  # Filter for rows where acct_age is different from theoretical_age
+  filter(theoretical_age != acct_age)
+```
+
+### **`05-Visualizing missing data`**
+
+-   Visualize the missing values in `accounts` by column using a function from the `visdat` package.
+
+```{r}
+library(visdat)
+```
+
+```{r}
+# read account 
+account_m_file <- file.path("..", "00_Datasets", "accounts_missing_values.csv")
+accounts <- read.csv(account_m_file)
+
+# Visualize the missing values by column
+vis_miss(accounts)
+```
+
+-   Add a logical column to `accounts` called `missing_inv` that indicates whether each row is missing the `inv_amount` or not.
+
+-   Group by `missing_inv`.
+
+-   Calculate the mean age for each group of `missing_inv`.
+
+```{r}
+# Visualize the missing values by column
+vis_miss(accounts)
+
+accounts %>%
+  # missing_inv: Is inv_amount missing?
+  mutate(missing_inv = is.na(inv_amount)) %>%
+  # Group by missing_inv
+  group_by(missing_inv) %>%
+  # Calculate mean age for each missing_inv group
+  summarize(avg_age = mean(age))
+```
+
+-   Sort `accounts` by `age`.
+
+-   Visualize missing data by column.
+
+```{r}
+# Visualize the missing values by column
+vis_miss(accounts)
+
+accounts %>%
+  # missing_inv: Is inv_amount missing?
+  mutate(missing_inv = is.na(inv_amount)) %>%
+  # Group by missing_inv
+  group_by(missing_inv) %>%
+  # Calculate mean age for each missing_inv group
+  summarize(avg_age = mean(age))
+
+# Sort by age and visualize missing vals
+#accounts %>%
+  #arrange(age)%>%
+  #vis_miss(is.na(accounts)))
+```
+
+### **06-Treating missing data**
+
+In this exercise, you're working with another version of the `accounts` data that contains missing values for both the `cust_id` and `acct_amount` columns.
+
+You want to figure out how many unique customers the bank has, as well as the average amount held by customers. You know that rows with missing `cust_id` don't really help you, and that on average, the `acct_amount` is usually 5 times the amount of `inv_amount`.
+
+In this exercise, you will drop rows of `accounts` with missing `cust_id`s, and impute missing values of `inv_amount` with some domain knowledge. `dplyr` and `assertive` are loaded and `accounts` is available.
+
+Filter `accounts` to remove rows with missing `cust_id`s and save as `accounts_clean`.
+
+```{r}
+# read account 
+account_m_file <- file.path("..", "00_Datasets", "accounts_missing_values.csv")
+accounts <- read.csv(account_m_file)
+```
+
+```{r}
+# Create accounts_clean
+accounts_clean <- accounts %>%
+  # Filter to remove rows with missing cust_id
+  filter(!is.na(cust_id))
+
+accounts_clean
+```
+
+-   Create a new column called `acct_amount_filled`, which contains the values of `acct_amount`, except all `NA` values should be replaced with 5 times the amount in `inv_amount`.
+
+```{r}
+# Create accounts_clean
+accounts_clean <- accounts %>%
+  # Filter to remove rows with missing cust_id
+  filter(!is.na(cust_id)) %>%
+  # Add new col acct_amount_filled with replaced NAs
+  mutate(acct_amount_filled = ifelse(is.na(acct_amount), 5 * inv_amount, acct_amount))
+
+accounts_clean
+```
+
+-   Assert that there are no missing values in the `acct_amount_filled` column of `accounts_clean`.
+
+-   Assert that there are no missing values in the `cust_id` column of `accounts_clean`.
+
+```{r}
+library(assertive)
+
+# Create accounts_clean
+accounts_clean <- accounts %>%
+  # Filter to remove rows with missing cust_id
+  filter(!is.na(cust_id)) %>%
+  # Add new col acct_amount_filled with replaced NAs
+  mutate(acct_amount_filled = ifelse(is.na(acct_amount), inv_amount * 5, acct_amount))
+
+# Assert that cust_id has no missing vals
+assert_all_are_not_na(accounts_clean$cust_id)
+
+# Assert that acct_amount_filled has no missing vals
+assert_all_are_not_na(accounts_clean$acct_amount_filled)
+```
+
+### `The End`
