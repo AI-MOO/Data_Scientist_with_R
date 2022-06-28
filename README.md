@@ -7,18 +7,18 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 
 | Sr. No | Course                                                               |Status|Featured|
 |:------:|----------------------------------------------------------------------------|:--:|:--:|
-| 01.     | [Introduction to R](/01_Introduction_to_R)|✅||
+| 01.     | [Introduction to R](/01_Introduction_to_R)|✅|🌟|
 | 02.     | [Intermediate R](/02_Intermediate_R)|✅|🌟|
 | 03.     | [Introduction to the Tidyverse](/03-Introduction_to_the_Tidyverse)|✅| |
-| 04.     | [Data Manipulation with dplyr](/04_Data_Manipulation_with_dplyr)|✅| |
-| 05.     | [Joining Data with dplyr](/05_Joining_Data_with_dplyr)|✅| |
+| 04.     | [Data Manipulation with dplyr](/04_Data_Manipulation_with_dplyr)|✅|🌟|
+| 05.     | [Joining Data with dplyr](/05_Joining_Data_with_dplyr)|✅|🌟|
 | 06.     | [Introduction to Data Visualization with ggplot2](/06_Introduction_to_Data_Visualization_with_ggplot2)|✅| |
 | 07.     | [Intermediate Data Visualization with ggplot2](/07_Intermediate_Data_Visualization_with_ggplot2)|✅| |
 | 08.     | [Data Manipulation with R](/08_Data_Manipulation_with_R)|✅| |
-| 09.     | [Reporting with R Markdown](/09_Reporting_with_R_Markdown)|✅| |
-| 10.     | [Introduction to Importing Data in R](/10_Introduction_to_Importing_Data_in_R)|✅| |
+| 09.     | [Reporting with R Markdown](/09_Reporting_with_R_Markdown)|✅|🌟|
+| 10.     | [Introduction to Importing Data in R](/10_Introduction_to_Importing_Data_in_R)|✅|🌟|
 | 11.     | [Intermediate Importing Data in R](/11_Intermediate_Importing_Data_in_R)|✅| |
-| 12.     | [Cleaning Data in R](/12_Cleaning_Data_in_R)|⏳| |
+| 12.     | [Cleaning Data in R](/12_Cleaning_Data_in_R)|✅|🌟 |
 | 13.     | [Working with Dates and Times in R](/13_Working_with_Dates_and_Times_in_R)|⏳| |
 | 14.     | [Importing & Cleaning Data with R](/14_Importing_and_Cleaning_Data_with_R)|⏳| |
 | 15.     | [Introduction to Writing Functions in R](/15_Introduction_to_Writing_Functions_in_R)|⏳| |
