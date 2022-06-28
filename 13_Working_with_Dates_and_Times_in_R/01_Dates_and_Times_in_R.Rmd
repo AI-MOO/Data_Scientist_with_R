@@ -1,0 +1,206 @@
+---
+title: "Dates and Times in R"
+author: "Mohamad Osman"
+date: '2022-06-28'
+output: rmarkdown::github_document
+---
+
+# Section 01: Dates and Times in R
+
+### **`01-Recognizing ISO 8601 dates`**
+
+-   Which of the following is the correct way to specify the *4th of October 2004* according to `ISO 8601`?
+
+    `Ans: 2004-10-04`
+
+### **`02-Specifying dates`**
+
+```{r}
+x = "2013-04-03"
+```
+
+We've stored the string `"2013-04-03"` in a variable called `x`.
+
+-   Use `str()` to look at the structure of `x` and confirm it's just a character string.
+
+-   Convert `x` to a date using `as.Date()`.
+
+-   Use `str()` to look at the structure of `x_date` and confirm it's a `Date`.
+
+-   Now use `as.Date()` to store the date *April 10, 2014*.
+
+```{r}
+# The date R 3.0.0 was released
+x <- "2013-04-03"
+
+# Examine structure of x
+str(x)
+
+# Use as.Date() to interpret x as a date
+x_date <- as.Date(x)
+
+# Examine structure of x_date
+str(x_date)
+
+# Store April 10 2014 as a Date
+april_10_2014 <- as.Date("2014-04-10")
+april_10_2014
+```
+
+### **`03-Automatic import`**
+
+-   Use `read_csv()` to read in the CSV file `rversions.csv` as `releases`.
+
+-   Use `str()` to examine the structure of the `date` column. *Notice it's already a `Date` object*.
+
+-   We've loaded `anytime` and created an object called `sep_10_2009`. Use the `anytime()` function to parse `sep_10_2009`.
+
+```{r}
+# Load the readr package
+library(readr)
+
+# Use read_csv() to import rversions.csv
+rversions_path <- file.path("..", "00_Datasets", "rversions.csv")
+releases <- read.csv(rversions_path)
+
+# Examine the structure of the date column
+str(releases$date)
+
+# Load the anytime package
+library(anytime)
+
+# Various ways of writing Sep 10 2009
+sep_10_2009 <- c("September 10 2009", "2009-09-10", "10 Sep 2009", "09-10-2009")
+
+# Use anytime() to parse sep_10_2009
+anytime(sep_10_2009)
+```
+
+### **`04-Plotting`**
+
+-   Make a plot of releases over time by setting the `x` argument of the `aes()` function to the `date` column.
+
+-   Zoom in to the period from 2010 to 2014 by specifying limits from `"2010-01-01"` to `"2014-01-01"`. *Notice these strings need to be wrapped in `as.Date()` to be interpreted as `Date` objects.*
+
+-   Adjust the axis labeling by specifying `date_breaks` of `"10 years"` and `date_labels` of `"%Y"`.
+
+```{r}
+releases$date <- as.Date(releases$date)
+str(releases)
+```
+
+```{r}
+library(ggplot2)
+
+# Set the x axis to the date column
+ggplot(releases, aes(x = date, y = type)) +
+  geom_line(aes(group = 1, color = factor(major)))
+
+# Limit the axis to between 2010-01-01 and 2014-01-01
+ggplot(releases, aes(x = date, y = type)) +
+  geom_line(aes(group = 1, color = factor(major))) +
+  xlim(as.Date("2010-01-01"), as.Date("2014-01-01"))
+
+# Specify breaks every ten years and labels with "%Y"
+ggplot(releases, aes(x = date, y = type)) +
+  geom_line(aes(group = 1, color = factor(major))) +
+  scale_x_date(date_breaks = "10 years", date_labels = "%Y")
+```
+
+### 05-**Arithmetic and logical operators**
+
+-   Find the date of the most recent release by calling `max()` on the date column in `releases`.
+
+-   Find the rows in `releases` that have the most recent date, by specifying the comparison `date == last_release_date` in [**`filter()`**](https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/filter)
+
+-   Print `last_release` to see which release this was.
+
+-   Calculate how long it has been since the most recent release by subtracting `last_release_date` from `Sys.Date()`
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+# Find the largest date
+last_release_date <- max(releases$date)
+
+# Filter row for last release
+last_release <- filter(releases, date == last_release_date)
+
+# Print last_release
+last_release
+
+# How long since last release?
+Sys.Date() - last_release_date
+```
+
+### **`06-Getting datetimes into R`**
+
+-   Use `as.POSIXct()` and an appropriate string to input the datetime corresponding to Oct 1st 2010 at 12:12:00.
+
+-   Enter the same datetime again, but now specify the timezone as `"America/Los_Angeles"`.
+
+-   Use `read_csv()` to read in `rversions.csv` again.
+
+-   Examine the structure of the `datetime` column to verify `read_csv()` has correctly interpreted it as a datetime.
+
+```{r}
+# Use as.POSIXct to enter the datetime 
+as.POSIXct("2010-10-01 12:12:00")
+
+# Use as.POSIXct again but set the timezone to `"America/Los_Angeles"`
+as.POSIXct("2010-10-01 12:12:00", tz = "America/Los_Angeles")
+
+# Use read_csv to import rversions.csv
+# already read
+releases$datetime <- as.POSIXct(releases$datetime)
+
+
+# Examine structure of datetime column
+str(releases$datetime)
+```
+
+### **`07-Datetimes behave nicely too`**
+
+-   Use `read_csv()` to import `cran-logs_2015-04-17.csv`.
+
+-   Print `logs` to see the information we have on each download.
+
+-   Store the R 3.2.0 release time as a `POSIXct` object.
+
+-   Find out when the first request for 3.2.0 was made by filtering for values in the `datetime` column that are greater than `release_time`.
+
+-   Finally see how downloads increase by creating histograms of download time for 3.2.0 and the previous version 3.1.3. We've provided most of the code, you just need to specify the `x` aesthetic to be the `datetime` column.
+
+```{r}
+# Use read_csv() to import rversions.csv
+rversions_path <- file.path("..", "00_Datasets", "rversions.csv")
+releases <- read.csv(rversions_path)
+```
+
+```{r}
+# Import "cran-logs_2015-04-17.csv" with read_csv()
+logs_path <- file.path("..", "00_Datasets", "cran-logs_2015-04-17.csv")
+
+logs <- read_csv(logs_path)
+
+# Print logs
+print(logs)
+
+# Store the release time as a POSIXct object
+release_time <- as.POSIXct("2015-04-16 07:13:33", tz = "UTC")
+
+# When is the first download of 3.2.0?
+logs %>% 
+  filter(datetime > release_time,
+    r_version == "3.2.0")
+
+# Examine histograms of downloads by version
+ggplot(logs, aes(x = datetime)) +
+  geom_histogram(bins = 30) +
+  geom_vline(aes(xintercept = as.numeric(release_time)))+
+  facet_wrap(~ r_version, ncol = 1)
+```
+
+### `The End`
