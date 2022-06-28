@@ -37,10 +37,157 @@ stringdist("las angelos", "los angeles", method = "jaccard")
 
 Why is the LCS distance higher than the Damerau-Levenshtein distance between `"las angelos"` and `"los angeles"`?
 
-- LCS distance only uses insertion and deletion, so it takes more operations to change a string to another.
+\- LCS distance only uses insertion and deletion, so it takes more operations to change a string to another.
 
-\
+### **`02-Fixing typos with string distance`**
 
-\
+```{r}
+# Load packages 
+library(dplyr)
+library(tidyverse)
+library(fuzzyjoin)
+```
 
+```{r}
 
+city_actual <- c("new york", "los angeles", "atlanta", 
+                  "san francisco", "las vegas")
+cities <- data.frame(city_actual)
+cities
+```
+
+```{r}
+
+file_path <- file.path("..", "00_Datasets", "zagat.rds")
+zagat <- readRDS(file_path)
+head(zagat, 3)
+
+```
+
+-   Count the number of each variation of `city` name in `zagat`.
+
+```{r}
+# Count the number of each city variation
+zagat %>%
+  count(city)
+```
+
+-   Left join `zagat` and `cities` based on string distance using the `city` and `city_actual` columns.
+
+-   Select the `name`, `city`, and `city_actual` columns.
+
+```{r}
+# Count the number of each city variation
+zagat %>%
+  count(city)
+
+# Join zagat and cities and look at results
+zagat %>%
+  # Left join based on stringdist using city and city_actual cols
+  stringdist_left_join(cities, by = c("city" = "city_actual")) %>%
+  # Select the name, city, and city_actual cols
+  select(name, city, city_actual)
+```
+
+### **03-Pair blocking**
+
+-   Load the `reclin` package.
+
+-   Generate all possible pairs of records between the `zagat` and `fodors` datasets.
+
+```{r}
+fodors_file <- file.path("..", "00_datasets", "fodors.rds")
+fodors <- readRDS(fodors_file)
+head(fodors)
+```
+
+```{r}
+# Load reclin
+library(reclin)
+
+# Generate all possible pairs
+pair_blocking(zagat, fodors)
+```
+
+-   Use pair blocking to generate only pairs that have matching values in the `city` column.
+
+```{r}
+# Load reclin
+library(reclin)
+
+# Generate pairs with same city
+pair_blocking(zagat, fodors, blocking_var = "city")
+```
+
+-   Compare pairs by `name` using `lcs()` distance
+
+```{r}
+# Generate pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs by name using lcs()
+  compare_pairs(by = "name",
+      default_comparator = lcs())
+```
+
+-   Compare pairs by `name`, `phone`, and `addr` using `jaro_winkler()`.
+
+```{r}
+# Generate pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs by name, phone, addr
+  compare_pairs(c("name", "phone", "addr"),
+     default_comparator =  jaro_winkler())
+```
+
+### **`04-Score then select or select then score?`**
+
+#### The record linkage process into the correct order: 
+
+-   `clean the datasets.`
+
+-   `Generate pairs of records.`
+
+-   `Compare separate columns of each pair.`
+
+-   `Score pairs using summing or probability.`
+
+-   `Select pairs that are matches based on their score.`
+
+-   `Link the datasets together.`
+
+### **05- Putting it together**
+
+During this chapter, you've cleaned up the `city` column of `zagat` using string similarity, as well as generated and compared pairs of restaurants from `zagat` and `fodors`. The end is near - all that's left to do is score and select pairs and link the data together, and you'll be able to begin your analysis in no time!
+
+`reclin` and `dplyr` are loaded and `zagat` and `fodors` are available.
+
+-   Score the pairs of records probabilistically.
+
+```{r}
+# Create pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs
+  compare_pairs(by = c("name", "addr"), default_comparator = jaro_winkler())%>%
+  score_simsum()%>%
+
+  # Score pairs
+  score_problink()
+```
+
+-   Select the pairs that are considered matches.
+
+-   Link the two data frames together.
+
+```{r}
+# Create pairs
+pair_blocking(zagat, fodors, blocking_var = "city") %>%
+  # Compare pairs
+  compare_pairs(by = c("name", "addr"), default_comparator = jaro_winkler()) %>%
+  # Score pairs
+  score_problink() %>%
+  # Select pairs
+  select_n_to_m() %>%
+  link()
+```
+
+### `The End`
