@@ -20,6 +20,11 @@ For each date the ISO 8601 format is displayed as a comment after it, to help yo
 -   Choose the correct function to parse `z`.
 
 ```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
 library(lubridate)
 
 # Parse x 
@@ -143,4 +148,211 @@ ggplot(akl_hourly, aes(x = datetime, y = temperature)) +
   geom_line()
 ```
 
-\
+### **05-What can you extract?**
+
+As you saw in the video, components of a datetime can be extracted by `lubridate` functions with the same name like [**`year()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/year), [**`month()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/month), [**`day()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/day), [**`hour()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/hour), [**`minute()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/minute) and [**`second()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/second). They all work the same way just pass in a datetime or vector of datetimes.
+
+There are also a few useful functions that return other aspects of a datetime like if it occurs in the morning [**`am()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/am), during daylight savings [**`dst()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/dst), in a [**`leap_year()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/leap_year), or which [**`quarter()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/quarter) or `semester()` it occurs in.
+
+```{r}
+# POSIXct release time 
+file_path <- file.path("..", "00_Datasets", "release_time.txt")
+release_time_df <- read.table(file_path, sep = ',')
+release_time <- as.POSIXct(release_time_df$V1)
+str(release_time)
+```
+
+-   Examine the `head()` of `release_time` to verify this is a vector of datetimes.
+
+-   Extract the month from `release_time` and examine the first few with `head()`.
+
+-   To see which months have most releases, extract the month then pipe to `table()`.
+
+-   Repeat, to see which years have the most releases.
+
+-   Do releases happen in the morning (UTC)? Find out if the hour of a release is less than `12` and summarise with `mean()`.
+
+-   Alternatively use `am()` to find out how often releases happen in the morning.
+
+```{r}
+# Examine the head() of release_time
+head(release_time)
+
+# Examine the head() of the months of release_time
+head(month(release_time))
+
+# Extract the month of releases 
+month(release_time) %>% table()
+
+# Extract the year of releases
+year(release_time) %>% table()
+
+# How often is the hour before 12 (noon)?
+mean(hour(release_time) < 12)
+
+# How often is the release in am?
+mean(am(release_time))
+```
+
+### **`06-Adding useful labels`**
+
+Sometimes it's nicer (especially for plotting or tables) to have named months. Both the [**`month()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/month) and `wday()` (day of the week) functions have additional arguments `label` and `abbr` to achieve just that. Set `label = TRUE` to have the output labelled with month (or weekday) names, and `abbr = FALSE` for those names to be written in full rather than **abbr**eviated.
+
+`releases` is now a data frame with a column called `datetime` with the release time.
+
+-   First, see what `wday()` does without labeling, by calling it on the `datetime` column of `releases` and tabulating the result. *Do you know if `1` is Sunday or Monday?*
+
+-   Repeat above, but now use labels by specifying the `label` argument. *Better, right?*
+
+-   Now store the labelled weekdays in a new column called `wday`.
+
+-   Create a barchart of releases by weekday, facetted by the type of release.
+
+```{r}
+url_csv <- "https://assets.datacamp.com/production/repositories/1435/datasets/603b5835e87ce55c22221491406854cecf213898/rversions.csv"
+releases <- read_csv(url_csv)
+head(releases,3)
+```
+
+```{r}
+library(ggplot2)
+
+# Use wday() to tabulate release by day of the week
+wday(releases$datetime) %>% table()
+
+# Add label = TRUE to make table more readable
+wday(releases$datetime, label = TRUE) %>% table()
+
+# Create column wday to hold labelled week days
+releases$wday <- wday(releases$datetime, label = TRUE)
+
+# Plot barchart of weekday by type of release
+ggplot(releases, aes(wday)) +
+  geom_bar() +
+  facet_wrap(~ type, ncol = 1, scale = "free_y")
+```
+
+### **`07-Extracting for plotting`**
+
+-   Use [**`mutate()`**](https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/mutate) to create three new columns: `year`, `yday` and `month` that respectively hold the same components of the `date` column. Don't forget to label the months with their names.
+
+-   Create a plot of `yday` on the x-axis, `max_temp` of the y-axis where lines are grouped by `year`. *Each year is a line on this plot, with the x-axis running from Jan 1 to Dec 31.*
+
+-   To take an alternate look, create a [**ridgeline plot**](https://blog.revolutionanalytics.com/2017/07/joyplots.html)(formerly known as a joyplot) with `max_temp` on the x-axis, `month` on the y-axis, using `geom_density_ridges()` from the `ggridges` package.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(ggridges)
+
+# Add columns for year, yday and month
+akl_daily <- akl_daily %>%
+  mutate(
+    year = year(date),
+    yday = yday(date),
+    month = month(date, label = TRUE))
+
+# Plot max_temp by yday for all years
+ggplot(akl_daily, aes(x = yday, y = max_temp)) +
+  geom_line(aes(group = year), alpha = 0.5)
+
+# Examine distribution of max_temp by month
+ggplot(akl_daily, aes(x = max_temp, y = month, height = ..density..)) + geom_density_ridges(stat = "density")
+```
+
+### **08-Extracting for filtering and summarizing**
+
+-   Create new columns for the hour and month of the observation from `datetime`. Make sure you label the month.
+
+-   Filter to just daytime observations, where the hour is greater than or equal to `8` and less than or equal to `22`.
+
+-   Group the observations first by `month`, then by `date`, and summarise by using [**`any()`**](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/any) on the `rainy` column. *This results in one value per day*
+
+-   Summarise again by summing `any_rain`. *This results in one value per month*
+
+```{r}
+# Create new columns hour, month and rainy
+akl_hourly <- akl_hourly %>%
+  mutate(
+    hour = hour(datetime),
+    month = month(datetime, label = TRUE),
+    rainy = weather == "Precipitation"
+  )
+
+# Filter for hours between 8am and 10pm (inclusive)
+akl_day <- akl_hourly %>% 
+  filter(hour >= 8, hour <= 22)
+
+# Summarise for each date if there is any rain
+rainy_days <- akl_day %>% 
+  group_by(month, date) %>%
+  summarise(
+    any_rain = any(rainy)
+  )
+
+# Summarise for each month, the number of days with rain
+rainy_days %>% 
+  summarise(
+    days_rainy = sum(any_rain)
+  )
+```
+
+### **09-Practice rounding**
+
+As you saw in the video, [**`round_date()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/round_date) rounds a date to the nearest value, `floor_date()` rounds down, and `ceiling_date()` rounds up.
+
+All three take a `unit` argument which specifies the resolution of rounding. You can specify `"second"`, `"minute"`, `"hour"`, `"day"`, `"week"`, `"month"`, `"bimonth"`, `"quarter"`, `"halfyear"`, or `"year"`. Or, you can specify any multiple of those units, e.g. `"5 years"`, `"3 minutes"` etc.
+
+Try them out with the release datetime of R 3.4.1.
+
+-   Choose the right function and units to round `r_3_4_1` down to the nearest day.
+
+-   Choose the right function and units to round `r_3_4_1` to the nearest 5 minutes.
+
+-   Choose the right function and units to round `r_3_4_1` up to the nearest week.
+
+-   Find the time elapsed on the day of release at the time of release by subtracting `r_3_4_1` rounded down to the day from `r_3_4_1`.
+
+```{r}
+r_3_4_1 <- ymd_hms("2016-05-03 07:13:28 UTC")
+
+# Round down to day
+floor_date(r_3_4_1, unit = "day")
+
+# Round to nearest 5 minutes
+round_date(r_3_4_1, unit = "5 minutes")
+
+# Round up to week
+ceiling_date(r_3_4_1, unit = "week")
+
+# Subtract r_3_4_1 rounded down to day
+r_3_4_1 - floor_date(r_3_4_1, unit = "day")
+```
+
+### **10-Rounding with the weather data**
+
+-   Create a new column called `day_hour` that is `datetime` rounded down to the nearest hour.
+
+-   Use `count()` on `day_hour` to count how many observations there are in each hour. *What looks like the most common value?*
+
+-   Extend the pipeline, so that after counting, you filter for observations where `n` is not equal to `2`.
+
+```{r}
+# Create day_hour, datetime rounded down to hour
+akl_hourly <- akl_hourly %>%
+  mutate(
+    day_hour = floor_date(datetime, unit = "hour")
+  )
+
+# Count observations per hour  
+akl_hourly %>% 
+  count(day_hour) 
+
+# Find day_hours with n != 2  
+akl_hourly %>% 
+  count(day_hour) %>%
+  filter(n != 2) %>% 
+  arrange(desc(n))
+```
+
+### `The End`
