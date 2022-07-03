@@ -1,0 +1,65 @@
+---
+title: "Arithmetic with Dates and Times"
+author: "Mohamad Osman"
+date: '2022-06-29'
+output: rmarkdown::github_document
+---
+
+# Section 03: Arithmetic with Dates and Times
+
+### `01-How long has it been?`
+
+To get finer control over a difference between datetimes use the `base` function [**`difftime()`**](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/difftime). For example instead of `time1 - time2`, you use `difftime(time1, time2)`.
+
+[**`difftime()`**](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/difftime) takes an argument `units` which specifies the units for the difference. Your options are `"secs"`, `"mins"`, `"hours"`, `"days"`, or `"weeks"`.
+
+To practice you'll find the time since the first man stepped on the moon. You'll also see the `lubridate` functions `today()` and [**`now()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/now) which when called with no arguments return the current date and time in your system's timezone.
+
+-   Apollo 11 landed on July 20, 1969. Use `difftime()` to find the number of days between `today()` and `date_landing`.
+
+-   Neil Armstrong stepped onto the surface at 02:56:15 UTC. Use `difftime()` to find the number of seconds between `now()` and `moment_step`.
+
+```{r}
+# The date of landing and moment of step
+date_landing <- mdy("July 20, 1969")
+moment_step <- mdy_hms("July 20, 1969, 02:56:15", tz = "UTC")
+
+# How many days since the first man on the moon?
+difftime(today(), date_landing, units = "days")
+
+# How many seconds since the first man on the moon?
+difftime( now(), moment_step, units = "secs")
+
+
+```
+
+### **`02-How many seconds are in a day?`**
+
+How many seconds are in a day? There are 24 hours in a day, 60 minutes in an hour, and 60 seconds in a minute, so there should be `24*60*60` = `86400` seconds, right?
+
+Not always! In this exercise you'll see a counter example, can you figure out what is going on?
+
+We've put code to define three times in your script - noon on March 11th, March 12th, and March 13th in 2017 in the US Pacific timezone.
+
+-   Find the difference in time between `mar_13` and `mar_12` in seconds. *This should match your intuition*.
+
+-   Now, find the difference in time between `mar_12` and `mar_11` in seconds. *Surprised?*
+
+```{r}
+# Three dates
+mar_11 <- ymd_hms("2017-03-11 12:00:00", 
+  tz = "America/Los_Angeles")
+mar_12 <- ymd_hms("2017-03-12 12:00:00", 
+  tz = "America/Los_Angeles")
+mar_13 <- ymd_hms("2017-03-13 12:00:00", 
+  tz = "America/Los_Angeles")
+
+# Difference between mar_13 and mar_12 in seconds
+difftime(mar_13, mar_12, units = "secs")
+
+# Difference between mar_12 and mar_11 in seconds
+difftime(mar_12, mar_11, units = "secs")
+
+```
+
+Good work. Why would a day only have 82800 seconds? At 2am on Mar 12th 2017, Daylight Savings started in the Pacific timezone. That means a whole hour of seconds gets skipped between noon on the 11th and noon on the 12th.
