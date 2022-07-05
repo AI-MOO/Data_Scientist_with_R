@@ -1,0 +1,26 @@
+---
+title: "Problems in practice"
+author: "Mohamad Osman"
+date: '2022-07-04'
+output: rmarkdown::github_document
+---
+
+# **Section 04: Problems in practice**
+
+### **`01-Setting the timezone`**
+
+If you import a datetime and it has the wrong timezone, you can set it with [**`force_tz()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/force_tz). Pass in the datetime as the first argument and the appropriate timezone to the `tzone` argument. Remember the timezone needs to be one from `OlsonNames()`.
+
+I've put the times as listed on the FIFA website for games 2 and 3 in the group stage for New Zealand in your code.
+
+-   Game 2 was played in Edmonton. Use `force_tz()` to set the timezone of game 2 to `"America/Edmonton"`.
+
+-   Game 3 was played in Winnipeg. Use `force_tz()` to set the timezone of game 3 to `"America/Winnipeg"`.
+
+-   Find out how long the team had to rest between the two games, by using `as.period()` on the interval between `game2_local` and `game3_local`.
+
+```{r}
+
+```
+
+\
