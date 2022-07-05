@@ -1,0 +1,341 @@
+---
+title: "All about arguments"
+author: "Mohamad Osman"
+date: '2022-07-05'
+output: rmarkdown::github_document
+---
+
+# Section 02: All about arguments
+
+### **`01-Numeric defaults`**
+
+`cut_by_quantile()` converts a numeric vector into a categorical variable where quantiles define the cut points. This is a useful function, but at the moment you have to specify five arguments to make it work. This is too much thinking and typing.
+
+By specifying default arguments, you can make it easier to use. Let's start with `n`, which specifies how many categories to cut `x` into.
+
+A numeric vector of the number of visits to Snake River is provided as `n_visits`.
+
+-   Update the definition of `cut_by_quantile()` so that the `n` argument defaults to `5`.
+
+-   Remove the `n` argument from the call to `cut_by_quantile()`.
+
+```{r}
+library(dplyr)
+library(tidyverse)
+
+file_path <- file.path("..", "00_Datasets", "snake_river_visits.rds")
+snake_river_visits <- readRDS(file_path)
+n_visits <- snake_river_visits$n_visits
+```
+
+```{r}
+# Set the default for n to 5
+cut_by_quantile <- function(x, n = 5, na.rm, labels, interval_type) {
+  probs <- seq(0, 1, length.out = n + 1)
+  qtiles <- quantile(x, probs, na.rm = na.rm, names = FALSE)
+  right <- switch(interval_type, "(lo, hi]" = TRUE, "[lo, hi)" = FALSE)
+  cut(x, qtiles, labels = labels, right = right, include.lowest = TRUE)
+}
+
+# Remove the n argument from the call
+cut_by_quantile(
+  n_visits, 
+  na.rm = FALSE, 
+  labels = c("very low", "low", "medium", "high", "very high"),
+  interval_type = "(lo, hi]"
+)
+```
+
+### **`03-Logical defaults`**
+
+-   Update the definition of `cut_by_quantile()` so that the `na.rm` argument defaults to `FALSE`.
+
+-   Remove the `na.rm` argument from the call to `cut_by_quantile()`.
+
+```{r}
+# Set the default for na.rm to FALSE
+cut_by_quantile <- function(x, n = 5, na.rm = FALSE, labels, interval_type) {
+  probs <- seq(0, 1, length.out = n + 1)
+  qtiles <- quantile(x, probs, na.rm = na.rm, names = FALSE)
+  right <- switch(interval_type, "(lo, hi]" = TRUE, "[lo, hi)" = FALSE)
+  cut(x, qtiles, labels = labels, right = right, include.lowest = TRUE)
+}
+
+# Remove the na.rm argument from the call
+cut_by_quantile(
+  n_visits, 
+  labels = c("very low", "low", "medium", "high", "very high"),
+  interval_type = "(lo, hi]"
+)
+```
+
+### **`03-NULL defaults`**
+
+The `cut()` function used by `cut_by_quantile()` can automatically provide sensible labels for each category. The code to generate these labels is [**pretty complicated**](https://github.com/wch/r-source/blob/29a9e663a2352843a6ea26b259725b0b97d0e4bd/src/library/base/R/cut.R#L42-L60), so rather than appearing in the function signature directly, its `labels` argument defaults to `NULL`, and the calculation details are shown on the [**`?cut`**](https://www.rdocumentation.org/packages/base/topics/cut) help page.
+
+-   Update the definition of `cut_by_quantile()` so that the `labels` argument defaults to `NULL`.
+
+-   Remove the `labels` argument from the call to `cut_by_quantile()`.
+
+```{r}
+# Set the default for labels to NULL
+cut_by_quantile <- function(x, n = 5, na.rm = FALSE, labels = NULL, interval_type) {
+  probs <- seq(0, 1, length.out = n + 1)
+  qtiles <- quantile(x, probs, na.rm = na.rm, names = FALSE)
+  right <- switch(interval_type, "(lo, hi]" = TRUE, "[lo, hi)" = FALSE)
+  cut(x, qtiles, labels = labels, right = right, include.lowest = TRUE)
+}
+
+# Remove the labels argument from the call
+cut_by_quantile(
+  n_visits,
+  interval_type = "(lo, hi]"
+)
+```
+
+### **`04-Categorical defaults`**
+
+When cutting up a numeric vector, you need to worry about what happens if a value lands exactly on a boundary. You can either put this value into a category of the lower interval or the higher interval. That is, you can choose your intervals to include values at the top boundary but not the bottom (in mathematical terminology, "open on the left, closed on the right", or `(lo, hi]`). Or you can choose the opposite ("closed on the left, open on the right", or `[lo, hi)`). `cut_by_quantile()` should allow these two choices.
+
+The pattern for categorical defaults is:
+
+    function(cat_arg = c("choice1", "choice2")) {
+      cat_arg <- match.arg(cat_arg)
+    }
+
+**Free hint**: In the console, type `head(rank)` to see the start of `rank()`'s definition, and look at the `ties.method` argument.
+
+-   Update the signature of `cut_by_quantile()` so that the `interval_type` argument can be `"(lo, hi]"` or `"[lo, hi)"`. *Note the space after each comma.*
+
+-   Update the body of `cut_by_quantile()` to match the `interval_type` argument.
+
+-   Remove the `interval_type` argument from the call to `cut_by_quantile()`.
+
+```{r}
+# Set the categories for interval_type to "(lo, hi]" and "[lo, hi)"
+cut_by_quantile <- function(x, n = 5, na.rm = FALSE, labels = NULL, 
+                            interval_type = c("(lo, hi]", "[lo, hi)")) {
+  # Match the interval_type argument
+  interval_type <- match.arg(interval_type)
+  probs <- seq(0, 1, length.out = n + 1)
+  qtiles <- quantile(x, probs, na.rm = na.rm, names = FALSE)
+  right <- switch(interval_type, "(lo, hi]" = TRUE, "[lo, hi)" = FALSE)
+  cut(x, qtiles, labels = labels, right = right, include.lowest = TRUE)
+}
+
+# Remove the interval_type argument from the call
+cut_by_quantile(n_visits)
+```
+
+### **`05-Harmonic mean`**
+
+The harmonic mean is the reciprocal of the arithmetic mean of the reciprocal of the data. That is
+
+harmonic_mean(x)=1/arithmetic_mean(1/x)
+
+The harmonic mean is often used to average ratio data. You'll be using it on the price/earnings ratio of stocks in the Standard and Poor's 500 index, provided as `std_and_poor500`. Price/earnings ratio is a measure of how expensive a stock is.
+
+The `dplyr` package is loaded.
+
+```{r}
+file_path <- file.path("..", "00_Datasets", 
+                       "std_and_poor500_with_pe_2019-06-21.rds")
+
+std_and_poor500 <- readRDS(file_path)
+```
+
+-   *Look at `std_and_poor500` (you'll need this later).* Write a function, `get_reciprocal`, to get the reciprocal of an input `x`. Its only argument should be `x`, and it should return one over `x`.
+
+-   Write a function, `calc_harmonic_mean()`, that calculates the harmonic mean of its only input, `x`.
+
+-   Using `std_and_poor500`, group by `sector`, and summarize to calculate the harmonic mean of the price/earning ratios in the `pe_ratio` column.
+
+```{r}
+# From previous steps
+get_reciprocal <- function(x) {
+  1 / x
+}
+calc_harmonic_mean <- function(x) {
+  x %>%
+    get_reciprocal() %>%
+    mean() %>%
+    get_reciprocal()
+}
+
+std_and_poor500 %>% 
+  # Group by sector
+  group_by(sector) %>% 
+  # Summarize, calculating harmonic mean of P/E ratio
+  summarize(hmean_pe_ratio = calc_harmonic_mean(pe_ratio))
+```
+
+### 06-**Dealing with missing values**
+
+-   Modify the signature and body of `calc_harmonic_mean()` so it has an `na.rm` argument, defaulting to false, that gets passed to `mean()`.
+
+```{r}
+# Add an na.rm arg with a default, and pass it to mean()
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+```
+
+-   Using `std_and_poor500`, group by `sector`, and summarize to calculate the harmonic mean of the price/earning ratios in the `pe_ratio` column, removing missing values.
+
+```{r}
+# From previous step
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+
+std_and_poor500 %>% 
+  # Group by sector
+  group_by(sector) %>% 
+  # Summarize, calculating harmonic mean of P/E ratio
+  summarize(hmean_pe_ratio = calc_harmonic_mean(pe_ratio, na.rm = TRUE))
+```
+
+### **`07-Passing arguments with ...`**
+
+-   Replace the `na.rm` argument with `...` in the signature and body of `calc_harmonic_mean()`.
+
+```{r}
+# Swap na.rm arg for ... in signature and body
+calc_harmonic_mean <- function(x, ...) {
+  x %>%
+    get_reciprocal() %>%
+    mean(...) %>%
+    get_reciprocal()
+}
+
+calc_harmonic_mean(x = c(1, NA, 3, NA, 5), na.rm = TRUE)
+```
+
+-   Using `std_and_poor500`, group by `sector`, and summarize to calculate the harmonic mean of the price/earning ratios in the `pe_ratio` column, removing missing values.
+
+```{r}
+calc_harmonic_mean <- function(x, ...) {
+  x %>%
+    get_reciprocal() %>%
+    mean(...) %>%
+    get_reciprocal()
+}
+
+std_and_poor500 %>% 
+  # Group by sector
+  group_by(sector) %>% 
+  # Summarize, calculating harmonic mean of P/E ratio
+  summarize(hmean_pe_ratio = calc_harmonic_mean(pe_ratio, , na.rm = TRUE))
+```
+
+### **`08-Throwing errors with bad arguments`**
+
+-   Add a line to the body of `calc_harmonic_mean()` to assert that `x` is numeric.
+
+-   *Look at what happens when you pass a character argument to `calc_harmonic_mean()`.*
+
+```{r}
+library(assertive )
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  # Assert that x is numeric
+  assert_is_numeric(x)
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+
+# See what happens when you pass it strings
+#calc_harmonic_mean(std_and_poor500$sector)
+```
+
+### **`09-Custom error logic`**
+
+-   If any values of `x` are non-positive (ignoring `NA`s) then throw an error.
+
+-   *Look at what happens when you pass a character argument to `calc_harmonic_mean()`.*
+
+```{r}
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  assert_is_numeric(x)
+  # Check if any values of x are non-positive
+  if(any(is_non_positive(x), na.rm = TRUE)) {
+    # Throw an error
+    stop("x contains non-positive values, so the harmonic mean makes no sense.")
+  }
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+
+# See what happens when you pass it negative numbers
+# calc_harmonic_mean(std_and_poor500$pe_ratio - 20, na.rm = TRUE)
+```
+
+### **`10-Fixing function arguments`**
+
+The harmonic mean function is almost complete. However, you still need to provide some checks on the `na.rm` argument. This time, rather than throwing errors when the input is in an incorrect form, you are going to try to fix it.
+
+`na.rm` should be a logical vector with one element (that is, `TRUE`, or `FALSE`).
+
+The `assertive` package is loaded for you.
+
+-   Update `calc_harmonic_mean()` to fix the `na.rm` argument by using `use_first()` to select the first `na.rm` element, and `coerce_to()` to change it to logical.
+
+```{r}
+# Update the function definition to fix the na.rm argument
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  assert_is_numeric(x)
+  if(any(is_non_positive(x), na.rm = TRUE)) {
+    stop("x contains non-positive values, so the harmonic mean makes no sense.")
+  }
+  # Use the first value of na.rm, and coerce to logical
+  na.rm <- coerce_to(use_first(na.rm), target_class = "logical")
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+
+# See what happens when you pass it malformed na.rm
+calc_harmonic_mean(std_and_poor500$pe_ratio, na.rm = 1:5)
+calc_harmonic_mean(std_and_poor500$pe_ratio, na.rm = 0:5)
+```
+
+### `The End` 
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+ 
+
+ 
+
+
+
+ 
+
+ 
+
+
+
+
+ 
+
+
+
+
