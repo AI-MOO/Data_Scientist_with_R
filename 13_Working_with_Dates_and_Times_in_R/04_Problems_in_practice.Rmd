@@ -20,7 +20,128 @@ I've put the times as listed on the FIFA website for games 2 and 3 in the group 
 -   Find out how long the team had to rest between the two games, by using `as.period()` on the interval between `game2_local` and `game3_local`.
 
 ```{r}
+library(lubridate)
+library(dplyr)
+library(readr)
 
 ```
+
+```{r}
+# Game2: CAN vs NZL in Edmonton
+game2 <- mdy_hm("June 11 2015 19:00")
+
+# Game3: CHN vs NZL in Winnipeg
+game3 <- mdy_hm("June 15 2015 18:30")
+
+# Set the timezone to "America/Edmonton"
+game2_local <- force_tz(game2, tzone = "America/Edmonton")
+game2_local
+
+# Set the timezone to "America/Winnipeg"
+game3_local <- force_tz(game3, tzone = "America/Winnipeg")
+game3_local
+
+# How long does the team have to rest?
+as.period(game2_local %--% game3_local)
+```
+
+Great work! Edmonton and Winnipeg are in different timezones, so even though the start times of the games only look 30 minutes apart, they are in fact 1 hour and 30 minutes apart, and the team only has 3 days, 22 hours and 30 minutes to prepare.
+
+### **`02-Viewing in a timezone`**
+
+To view a datetime in another timezone use [**`with_tz()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/with_tz). The syntax of [**`with_tz()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/with_tz) is the same as [**`force_tz()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/force_tz), passing a datetime and set the `tzone` argument to the desired timezone. Unlike [**`force_tz()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/force_tz), [**`with_tz()`**](https://www.rdocumentation.org/packages/lubridate/versions/1.8.0/topics/with_tz) isn't changing the underlying moment of time, just how it is displayed.
+
+For example, the difference between `now()` displayed in the "America/Los_Angeles" timezone and "Pacific/Auckland" timezone is 0:
+
+    now <- now()
+    with_tz(now, "America/Los_Angeles") - 
+      with_tz(now,  "Pacific/Auckland")
+
+Help me figure out when to tune into the games from the previous exercise.
+
+```{r}
+# What time is game2_local in NZ?
+with_tz(game2_local, tzone = "Pacific/Auckland")
+
+# What time is game2_local in Corvallis, Oregon?
+with_tz(game2_local, tzone = "America/Los_Angeles")
+
+# What time is game3_local in NZ?
+with_tz(game3_local, tzone = "Pacific/Auckland")
+```
+
+### **`03-Timezones in the weather data`** 
+
+```{r}
+# Import "akl_weather_hourly_2016.csv"
+akl_weather_h_path <- file.path("..", "00_Datasets", "akl_weather_hourly_2016.csv")
+akl_hourly_raw <- read_csv(akl_weather_h_path)
+
+
+# Use make_date() to combine year, month and mday 
+akl_hourly  <- akl_hourly_raw  %>% 
+  mutate(date = make_date(year = year, month = month, day = mday))
+
+# Parse datetime_string 
+akl_hourly <- akl_hourly  %>% 
+  mutate(
+    datetime_string = paste(date, time, sep = "T"),
+    datetime = parse_date_time(datetime_string, orders = "ymdHMS")
+  )
+
+head(akl_hourly, 5)
+
+```
+
+The data is available in the `akl_hourly` data frame.
+
+-   What timezone are `datetime` and `date_utc` currently in? Examine the head of the `datetime` and `date_utc` columns to find out.
+
+-   Fix `datetime` to have the timezone for `"Pacific/Auckland"`.
+
+-   Reexamine the head of the `datetime` column to check the times have the same clocktime, but are now in the right timezone.
+
+-   Now tabulate up the difference between the `datetime` and `date_utc` columns. *It should be zero if our hypothesis was correct*.
+
+```{r}
+# Examine datetime and date_utc columns
+head(akl_hourly$datetime)
+head(akl_hourly$date_utc)
+  
+# Force datetime to Pacific/Auckland
+akl_hourly <- akl_hourly %>%
+  mutate(
+    datetime = force_tz(datetime, tzone = "Pacific/Auckland"))
+
+# Reexamine datetime
+head(akl_hourly$datetime)
+  
+# Are datetime and date_utc the same moments
+table(akl_hourly$datetime - akl_hourly$date_utc)
+  
+```
+
+### **`04-Times without dates`**
+
+-   Use `read_csv()` to read in `"akl_weather_hourly_2016.csv"`. *`readr` knows about the `hms` class, so if it comes across something that looks like a time it will use it.*
+
+-   In this case the `time` column has been parsed as a time without a date. Take a look at the structure of the `time` column to verify it has the class `hms`.
+
+-   `hms` objects print like times should. Take a look by examining the head of the `time` column.
+
+-   You can use `hms` objects in plots too. Create a plot with `time` on the x-axis, `temperature` on the y-axis, with lines grouped by `date`.
+
+```{r}
+
+```
+
+\
+
+
+
+
+
+
+\
 
 \
