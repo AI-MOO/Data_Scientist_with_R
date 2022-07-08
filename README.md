@@ -21,10 +21,10 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 | 12.     | [Cleaning Data in R](/12_Cleaning_Data_in_R)|✅|🌟 |
 | 13.     | [Working with Dates and Times in R](/13_Working_with_Dates_and_Times_in_R)|✅| |
 | 14.     | [Importing & Cleaning Data with R](/14_Importing_and_Cleaning_Data_with_R)|✅| |
-| 15.     | [Introduction to Writing Functions in R](/15_Introduction_to_Writing_Functions_in_R)|⏳| |
-| 16.     | [R Programming](/16_R_Programming)|⏳| |
-| 17.     | [Exploratory Data Analysis in R](/17_Exploratory_Data_Analysis_in_R)|| |
-| 18.     | [Case Study: Exploratory Data Analysis in R](/18_Case_Study_Exploratory_Data_Analysis_in_R)|| |
+| 15.     | [Introduction to Writing Functions in R](/15_Introduction_to_Writing_Functions_in_R)|✅| |
+| 16.     | [R Programming](/16_R_Programming)|✅| |
+| 17.     | [Exploratory Data Analysis in R](/17_Exploratory_Data_Analysis_in_R)|⏳| |
+| 18.     | [Case Study: Exploratory Data Analysis in R](/18_Case_Study_Exploratory_Data_Analysis_in_R)|⏳| |
 | 19.     | [Introduction to Statistics in R](/19_Introduction_to_Statistics_in_R)|| |
 | 20.     | [Introduction to Regression in R](/20_Introduction_to_Regression_in_R)|| |
 | 21.     | [Intermediate Regression in R](/21_Intermediate_Regression_in_R)|| |
