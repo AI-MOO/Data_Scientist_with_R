@@ -1,0 +1,287 @@
+---
+title: "Case study on grain yields"
+author: "Mohamad Osman"
+date: '2022-07-06'
+output: rmarkdown::github_document
+---
+
+# Section 04: Case study on grain yields
+
+### **`01-Converting areas to metric 1`**
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+In this chapter, you'll be working with [**grain yield data**](https://www.rdocumentation.org/packages/agridat/topics/nass.corn) from the [**United States Department of Agriculture, National Agricultural Statistics Service**](https://quickstats.nass.usda.gov/). Unfortunately, they report all areas in acres. So, the first thing you need to do is write some utility functions to convert areas in acres to areas in hectares.
+
+To solve this exercise, you need to know the following:
+
+1.  There are 4840 square yards in an acre.
+
+2.  There are 36 inches in a yard and one inch is 0.0254 meters.
+
+3.  There are 10000 square meters in a hectare.
+
+```{r}
+# Write a function to convert acres to sq. yards
+acres_to_sq_yards <- function(acres) {
+  4840 * acres
+}
+```
+
+Write a function, `yards_to_meters()`, to convert distances in yards to distances in meters. This should take a single argument, `yards`.
+
+```{r}
+# Write a function to convert yards to meters
+yards_to_meters <- function(yards) {
+
+    36 * yards * 0.0254
+
+}
+```
+
+Write a function, `sq_meters_to_hectares()`, to convert areas in square meters to areas in hectares. This should take a single argument, `sq_meters`.
+
+```{r}
+# Write a function to convert sq. meters to hectares
+sq_meters_to_hectares <- function(sq_meters) {
+    sq_meters/10000 
+
+}
+```
+
+### **`02-Converting areas to metric 2`**
+
+You're almost there with creating a function to convert acres to hectares. You need another utility function to deal with getting from square yards to square meters. Then, you can bring everything together to write the overall acres-to-hectares conversion function. Finally, in the next exercise you'll be calculating area conversions in the denominator of a ratio, so you'll need a harmonic acre-to-hectare conversion function.
+
+Free hints: magrittr's `raise_to_power()` will be useful here. The last step is similar to Chapter 2's [**Harmonic Mean**](https://campus.datacamp.com/courses/introduction-to-function-writing-in-r/all-about-arguments?ex=7).
+
+The three utility functions from the last exercise (`acres_to_sq_yards()`, `yards_to_meters()`, and `sq_meters_to_hectares()`) are available, as is your `get_reciprocal()` from Chapter 2. `magrittr` is loaded.
+
+-   Write a function to convert distance in square yards to square meters. It should take the square root of the input, then convert yards to meters, then square the result.
+
+-   Write a function to convert areas in acres to hectares. The function should convert the input from acres to square yards, then to square meters, then to hectares.
+
+-   Write a function to harmonically convert areas in acres to hectares. The function should get the reciprocal of the input, then convert from acres to hectares, then get the reciprocal again.
+
+```{r}
+library(magrittr)
+# Write a function to convert sq. yards to sq. meters
+sq_yards_to_sq_meters <- function(sq_yards) {
+  sq_yards %>%
+    # Take the square root
+    sqrt() %>%
+    # Convert yards to meters
+    yards_to_meters() %>%
+    # Square it
+    raise_to_power(2)
+}
+
+```
+
+Write a function to convert areas in acres to hectares. The function should convert the input from acres to square yards, then to square meters, then to hectares.
+
+```{r}
+# Load the function from the previous step
+#load_step2()
+
+# Write a function to convert acres to hectares
+acres_to_hectares <- function(arces) {
+  arces %>%
+    # Convert acres to sq yards
+    acres_to_sq_yards() %>%
+    # Convert sq yards to sq meters
+    sq_yards_to_sq_meters() %>%
+    # Convert sq meters to hectares
+    sq_meters_to_hectares()
+
+}
+```
+
+Write a function to harmonically convert areas in acres to hectares. The function should get the reciprocal of the input, then convert from acres to hectares, then get the reciprocal again.
+
+```{r}
+# get reciprocal function
+get_reciprocal <- function(x) {
+  1 / x
+}
+
+# Load the functions from the previous steps
+#load_step3()
+
+# Define a harmonic acres to hectares function
+harmonic_acres_to_hectares <- function(acres) {
+  acres %>% 
+    # Get the reciprocal
+    get_reciprocal() %>%
+    # Convert acres to hectares
+    acres_to_hectares() %>% 
+    # Get the reciprocal again
+    get_reciprocal()
+}
+```
+
+### **`03-Converting yields to metric`**
+
+The yields in the NASS corn data are also given in US units, namely bushels per acre. You'll need to write some more utility functions to convert this unit to the metric unit of kg per hectare.
+
+Bushels historically meant a volume of 8 gallons, but in the context of grain, they are now defined as masses. This mass differs for each grain! To solve this exercise, you need to know these facts.
+
+1.  One pound (lb) is 0.45359237 kilograms (kg).
+
+2.  One bushel is 48 lbs of barley, 56 lbs of corn, or 60 lbs of wheat.
+
+`magrittr` is loaded.
+
+-   Write a function to convert masses in lb to kg. This should take a single argument, `lbs`.
+
+```{r}
+# Write a function to convert lb to kg
+lbs_to_kgs <- function(lbs) {
+    
+    lbs * 0.45359237
+}
+```
+
+-   Write a function to convert masses in bushels to lbs. This should take two arguments, `bushels` and `crop`. It should define a lookup vector of scale factors for each crop (barley, corn, wheat), extract the scale factor for the crop, then multiply this by the number of bushels.
+
+```{r}
+library(magrittr)
+# Write a function to convert bushels to lbs
+bushels_to_lbs <- function(bushels, crop) {
+  # Define a lookup table of scale factors
+  c(barley = 48, corn = 56, wheat = 60) %>%
+    # Extract the value for the crop
+    magrittr::extract(crop) %>%
+    # Multiply by the no. of bushels
+    multiply_by(bushels)
+}
+```
+
+Write a function to convert masses in bushels to kgs. This should take two arguments, `bushels` and `crop`. It should convert the mass in bushels to lbs then to kgs.
+
+```{r}
+# Load fns defined in previous steps
+#load_step3()
+
+# Write a function to convert bushels to kg
+bushels_to_kgs <- function(bushels, crop) {
+  bushels %>%
+    # Convert bushels to lbs for this crop
+    bushels_to_lbs(crop) %>%
+    # Convert lbs to kgs
+    lbs_to_kgs()
+}
+```
+
+Write a function to convert yields in bushels/acre to kg/ha. The arguments should be `bushels_per_acre` and `crop`. Three choices of `crop` should be allowed: `"barley"`, `"corn"`, and `"wheat"`. It should match the `crop` argument, then convert bushels to kgs, then convert harmonic acres to hectares.
+
+```{r}
+# Load fns defined in previous steps
+# load_step4()
+
+# Write a function to convert bushels/acre to kg/ha
+bushels_per_acre_to_kgs_per_hectare <- function(bushels_per_acre, crop = c("barley", "corn", "wheat")) {
+  # Match the crop argument
+  crop <- match.arg(crop)
+  bushels_per_acre %>%
+    # Convert bushels to kgs for this crop
+    bushels_to_kgs(crop) %>%
+    # Convert harmonic acres to ha
+    harmonic_acres_to_hectares()
+}
+```
+
+```{r}
+bushels_per_acre_to_kgs_per_hectare(15, "corn")
+```
+
+### **`04-Applying the unit conversion`**
+
+Now that you've written some functions, it's time to apply them! The NASS `corn` dataset is available, and you can fortify it (jargon for "adding new columns") with metrics areas and yields.
+
+This fortification process can also be turned into a function, so you'll define a function for this, and test it on the NASS `wheat` dataset.
+
+```{r}
+nass_corn_path = file.path("..", "00_Datasets", "nass.corn.rds")
+corn <- readRDS(nass_corn_path)
+head(corn)
+```
+
+```{r}
+# View the corn dataset
+glimpse(corn)
+
+corn %>%
+  # Add some columns
+  mutate(
+    # Convert farmed area from acres to ha
+    farmed_area_ha = acres_to_hectares(farmed_area_acres),
+    # Convert yield from bushels/acre to kg/ha
+    yield_kg_per_ha = bushels_per_acre_to_kgs_per_hectare(
+      yield_bushels_per_acre ,
+      crop = "corn"
+    )
+  )
+```
+
+1.  Wrap the mutation code into a function called `fortify_with_metric_units` that takes two arguments, `data` and `crop` with no defaults. (In the function body, swap `corn` for the `data` argument and pass the function's local `crop` variable to the `crop` argument.)
+
+2.  Use `fortify_with_metric_units()` on the `wheat` dataset.
+
+```{r}
+wheat_path = file.path("..", "00_Datasets", "nass.wheat.rds")
+wheat <- readRDS(wheat_ath)
+```
+
+```{r}
+# Wrap this code into a function
+fortify_with_metric_units <- function(data, crop) {
+  data %>%
+    mutate(
+      farmed_area_ha = acres_to_hectares(farmed_area_acres),
+      yield_kg_per_ha = bushels_per_acre_to_kgs_per_hectare(
+        yield_bushels_per_acre, 
+        crop = crop
+      )
+    )
+}
+
+# Try it on the wheat dataset
+wheat <- fortify_with_metric_units(wheat, "wheat")
+corn <- fortify_with_metric_units(corn, "corn")
+
+```
+
+### **Plotting yields over time** 
+
+Now that the units have been dealt with, it's time to explore the datasets. An obvious question to ask about each crop is, "how do the yields change over time in each US state?" Let's draw a line plot to find out!
+
+`ggplot2` is loaded, and `corn` and `wheat` datasets are available with metric units.
+
+1.  Using the `corn` dataset, plot `yield_kg_per_ha` versus `year`. Add a line layer grouped by `state` and a smooth trend layer.
+
+```{r}
+library(ggplot2)
+
+# Using corn, plot yield (kg/ha) vs. year
+ggplot2::ggplot(corn, aes(year, yield_kg_per_ha)) +
+  # Add a line layer, grouped by state
+  geom_line(aes(group = state)) +
+  # Add a smooth trend layer
+  geom_smooth()
+```
+
+\
+
+
+
+[\
+
+](javascript:void(0))\
+
+
+
+\
