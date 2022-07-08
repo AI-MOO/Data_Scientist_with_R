@@ -10,8 +10,11 @@ output: rmarkdown::github_document
 ### **`01-Converting areas to metric 1`**
 
 ```{r}
+library(ggplot2)
 library(dplyr)
 library(tidyverse)
+library(magrittr)
+library(mgcv)
 ```
 
 In this chapter, you'll be working with [**grain yield data**](https://www.rdocumentation.org/packages/agridat/topics/nass.corn) from the [**United States Department of Agriculture, National Agricultural Statistics Service**](https://quickstats.nass.usda.gov/). Unfortunately, they report all areas in acres. So, the first thing you need to do is write some utility functions to convert areas in acres to areas in hectares.
@@ -67,7 +70,6 @@ The three utility functions from the last exercise (`acres_to_sq_yards()`, `yard
 -   Write a function to harmonically convert areas in acres to hectares. The function should get the reciprocal of the input, then convert from acres to hectares, then get the reciprocal again.
 
 ```{r}
-library(magrittr)
 # Write a function to convert sq. yards to sq. meters
 sq_yards_to_sq_meters <- function(sq_yards) {
   sq_yards %>%
@@ -233,7 +235,7 @@ corn %>%
 
 ```{r}
 wheat_path = file.path("..", "00_Datasets", "nass.wheat.rds")
-wheat <- readRDS(wheat_ath)
+wheat <- readRDS(wheat_path)
 ```
 
 ```{r}
@@ -255,7 +257,7 @@ corn <- fortify_with_metric_units(corn, "corn")
 
 ```
 
-### **Plotting yields over time** 
+### **`05-Plotting yields over time`**
 
 Now that the units have been dealt with, it's time to explore the datasets. An obvious question to ask about each crop is, "how do the yields change over time in each US state?" Let's draw a line plot to find out!
 
@@ -264,8 +266,6 @@ Now that the units have been dealt with, it's time to explore the datasets. An o
 1.  Using the `corn` dataset, plot `yield_kg_per_ha` versus `year`. Add a line layer grouped by `state` and a smooth trend layer.
 
 ```{r}
-library(ggplot2)
-
 # Using corn, plot yield (kg/ha) vs. year
 ggplot2::ggplot(corn, aes(year, yield_kg_per_ha)) +
   # Add a line layer, grouped by state
@@ -274,14 +274,231 @@ ggplot2::ggplot(corn, aes(year, yield_kg_per_ha)) +
   geom_smooth()
 ```
 
+-   Turn the plotting code into a function, `plot_yield_vs_year()`. This should accept a single argument, `data`.
+
+```{r}
+# Wrap this plotting code into a function
+plot_yield_vs_year <- function(data) {
+  ggplot(data, aes(year, yield_kg_per_ha)) +
+    geom_line(aes(group = state)) +
+    geom_smooth()
+}
+
+# Test it on the wheat dataset
+plot_yield_vs_year(wheat)
+```
+
+### **`06-A nation divided`**
+
+The USA has a varied climate, so we might expect yields to differ between states. Rather than trying to reason about 50 states separately, we can use the USA Census Regions to get 9 groups.
+
+The "Corn Belt", where most US corn is grown is in the "West North Central" and "East North Central" regions. The "Wheat Belt" is in the "West South Central" region.
+
+`dplyr` is loaded, the `corn` and `wheat` datasets are available, as is `usa_census_regions`.
+
+-   Inner join `corn` to `usa_census_regions` by `"state"`.
+
+```{r}
+usa_census_file <- file.path("..", "00_Datasets", "usa_census_regions.txt")
+usa_census_regions <- read.delim(usa_census_file, sep = "\t", header = TRUE)
+```
+
+```{r}
+# Inner join the corn dataset to usa_census_regions by state
+head(corn) %>%
+  inner_join(usa_census_regions, by = "state")
+```
+
+-   Turn the code into a function, `fortify_with_census_region()`. This should accept a single argument, `data`.
+
+```{r}
+# Wrap this code into a function
+fortify_with_census_region <- function(data) {
+  data %>%
+    inner_join(usa_census_regions, by = "state")
+}
+
+# Try it on the wheat dataset
+# fortify_with_census_region(wheat)
+head(fortify_with_census_region(wheat))
+```
+
+### 
+
+### `07-Plotting yields over time by region`
+
+So far, you have used a function to plot yields over time for each crop, and you've added a `census_region` column to the crop datasets. Now you are ready to look at how the yields change over time in each region of the USA.
+
+`ggplot2` is loaded. `corn` and `wheat` have been fortified with census regions. `plot_yield_vs_year()` is available.
+
+-   Use the function you wrote to plot yield versus year for the `corn` dataset, then facet the plot, wrapped by `census_region`.
+
+```{r}
+# Plot yield vs. year for the corn dataset
+corn <- corn %>%
+  inner_join(usa_census_regions, by = "state")
+
+plot_yield_vs_year(corn) +
+  # Facet, wrapped by census region
+  facet_wrap(vars(census_region))
+```
+
+-   Turn the code into a function, `plot_yield_vs_year_by_region()`, that should take a single argument, `data`.
+
+```{r}
+wheat <- wheat %>%
+  inner_join(usa_census_regions, by = "state") 
+
+
+# Wrap this code into a function
+plot_yield_vs_year_by_region <- function(data){
+  plot_yield_vs_year(data) +
+    facet_wrap(vars(census_region))
+}
+
+# Try it on the wheat dataset
+plot_yield_vs_year_by_region(wheat)
+```
+
+### **`08-Running a model`**
+
+The smooth trend line you saw in the plots of yield over time use a generalized additive model (GAM) to determine where the line should lie. This sort of model is ideal for fitting nonlinear curves. So we can make predictions about future yields, let's explicitly run the model. The syntax for running this GAM takes the following form.
+
+    gam(response ~ s(explanatory_var1) + explanatory_var2, data = dataset)
+
+Here, `s()` means "make the variable smooth", where smooth very roughly means nonlinear.
+
+`mgcv` and `dplyr` are loaded; the `corn` and `wheat` datasets are available.
+
+-   Run a GAM of `yield_kg_per_ha` versus smoothed year and census region, using the `corn` dataset.
+
+```{r}
+# Run a generalized additive model of yield vs. smoothed year and census region
+corn_model <- gam(yield_kg_per_ha ~ s(year) + census_region, data = corn)
+corn_model
+```
+
+-   Wrap the modeling code into a function, `run_gam_yield_vs_year_by_region`. This should take a single argument, `data`, with no default.
+
+```{r}
+# Wrap the model code into a function
+run_gam_yield_vs_year_by_region <- function(data){
+  gam(yield_kg_per_ha ~ s(year) + census_region, data = data)
+}
+
+# Try it on the wheat dataset
+wheat_model <- run_gam_yield_vs_year_by_region(wheat)
+wheat_model
+```
+
+### **`09-Making yield predictions`**
+
+The fun part of modeling is using the models to make predictions. You can do this using a call to `predict()`, in the following form.
+
+    predict(model, cases_to_predict, type = "response")
+
+`mgcv` and `dplyr` are loaded; GAMs of the corn and wheat datasets are available as `corn_model` and `wheat_model`. A character vector of census regions is stored as `census_regions`.
+
+-   In `predict_this`, set the prediction year to 2050.
+
+-   Predict the yield using `corn_model` and the cases specified in `predict_this`.
+
+-   Mutate `predict_this` to add the prediction vector as a new column named `pred_yield_kg_per_ha`.
+
+```{r}
+
+census_regions <- c("New England", "Mid-Atlantic", "East North Central", "West North Central", "South Atlantic", "East South Central", "West South Central", "Mountain","Pacific")   
+
+# Make predictions in 2050  
+predict_this <- data.frame(
+  year = 2050,
+  census_region = census_regions
+) 
+
+# Predict the yield
+pred_yield_kg_per_ha <- predict(corn_model, predict_this, type = "response")
+
+predict_this %>%
+  # Add the prediction as a column of predict_this 
+  mutate(pred_yield_kg_per_ha = pred_yield_kg_per_ha)
+```
+
+-   Wrap the script into a function, `predict_yields`. It should take two arguments, `model` and `year`, with no defaults. *Remember to update 2050 to the `year` argument.* Try `predict_yields()` on `wheat_model` with `year` set to `2050`.
+
+```{r}
+# Wrap this prediction code into a function
+predict_yields <- function(model, year){
+  predict_this <- data.frame(
+    year = year,
+    census_region = census_regions
+  ) 
+  pred_yield_kg_per_ha <- predict(model, predict_this, type = "response")
+  predict_this %>%
+    mutate(pred_yield_kg_per_ha = pred_yield_kg_per_ha)
+}
+
+# Try it on the wheat dataset
+predict_yields(wheat_model, 2050)
+```
+
+### **`10-Do it all over again`**
+
+Hopefully, by now, you've realized that the real benefit to writing functions is that you can reuse your code easily. Now you are going to rerun the whole analysis from this chapter on a new crop, barley. Since all the infrastructure is in place, that's less effort than it sounds!
+
+Barley prefers a cooler climate compared to corn and wheat and is commonly grown in the US mountain states of Idaho and Montana.
+
+`dplyr` and `ggplot2`, and `mgcv` are loaded; `fortify_with_metric_units()`, `fortify_with_census_region()`, `plot_yield_vs_year_by_region()`, `run_gam_yield_vs_year_by_region()`, and `predict_yields()` are available.
+
+-   Fortify the `barley` data with metric units, then with census regions.
+
+```{r}
+barley_path <- file.path("..", "00_Datasets", "nass.barley.rds")
+barley <- readRDS(barley_path)
+```
+
+```{r}
+fortified_barley <- barley %>% 
+  # Fortify with metric units
+  fortify_with_metric_units("barley") %>%
+  # Fortify with census regions
+  fortify_with_census_region()
+
+# See the result
+glimpse(fortified_barley)
+```
+
+-   Using the fortified barley data, plot the yield versus year by census region.
+
+```{r}
+# Plot yield vs. year by region
+plot_yield_vs_year_by_region(fortified_barley)
+```
+
+-   Using the fortified barley data, run a GAM of yield versus year by census region, then predict the yields in 2050.
+
+```{r}
+fortified_barley %>% 
+  # Run a GAM of yield vs. year by region
+  run_gam_yield_vs_year_by_region()  %>% 
+  # Make predictions of yields in 2050
+  predict_yields(year = 2050)
+```
+
+### `The End` 
+
+ 
+
+ 
+
 \
 
+\
 
+\
+
+\
 
 [\
-
 ](javascript:void(0))\
-
-
 
 \
