@@ -1,0 +1,52 @@
+census_region	state
+New England	Connecticut
+New England	Maine
+New England	Massachusetts
+New England	New Hampshire
+New England	Rhode Island
+New England	Vermont
+Mid-Atlantic	New Jersey
+Mid-Atlantic	New York
+Mid-Atlantic	Pennsylvania
+East North Central	Illinois
+East North Central	Indiana
+East North Central	Michigan
+East North Central	Ohio
+East North Central	Wisconsin
+West North Central	Iowa
+West North Central	Kansas
+West North Central	Minnesota
+West North Central	Missouri
+West North Central	Nebraska
+West North Central	North Dakota
+West North Central	South Dakota
+South Atlantic	Delaware
+South Atlantic	Florida
+South Atlantic	Georgia
+South Atlantic	Maryland
+South Atlantic	North Carolina
+South Atlantic	South Carolina
+South Atlantic	Virginia
+South Atlantic	District of Columbia
+South Atlantic	West Virginia
+East South Central	Alabama
+East South Central	Kentucky
+East South Central	Mississippi
+East South Central	Tennessee
+West South Central	Arkansas
+West South Central	Louisiana
+West South Central	Oklahoma
+West South Central	Texas
+Mountain	Arizona
+Mountain	Colorado
+Mountain	Idaho
+Mountain	Montana
+Mountain	Nevada
+Mountain	New Mexico
+Mountain	Utah
+Mountain	Wyoming
+Pacific	Alaska
+Pacific	California
+Pacific	Hawaii
+Pacific	Oregon
+Pacific	Washington
