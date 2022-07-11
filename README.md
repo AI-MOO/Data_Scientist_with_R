@@ -31,4 +31,5 @@ Gain the career-building R skills you need to succeed as a data scientist. No pr
 | 22.     | [Supervised Learning in R: Classification](/22_Supervised_Learning_in_R_Classification)|| |
 | 23.     | [Supervised Learning in R: Regression](/23_Supervised_Learning_in_R_Regression)|| |
 | 24.     | [Unsupervised Learning in R](/24_Unsupervised_Learning_in_R)|| |
+| 25.     | [Cluster Analysis in R](/25_Cluster_Analysis_in_R)|| |
 </div>
