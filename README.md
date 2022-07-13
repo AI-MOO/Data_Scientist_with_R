@@ -26,8 +26,8 @@ In this track, you’ll learn how this versatile language allows you to import, 
 | 16.     | [R Programming](/16_R_Programming)|✅| |
 | 17.     | [Exploratory Data Analysis in R](/17_Exploratory_Data_Analysis_in_R)|✅| |
 | 18.     | [Case Study: Exploratory Data Analysis in R](/18_Case_Study_Exploratory_Data_Analysis_in_R)|⏳| |
-| 19.     | [Introduction to Statistics in R](/19_Introduction_to_Statistics_in_R)|| |
-| 20.     | [Introduction to Regression in R](/20_Introduction_to_Regression_in_R)|| |
+| 19.     | [Introduction to Statistics in R](/19_Introduction_to_Statistics_in_R)|⏳| |
+| 20.     | [Introduction to Regression in R](/20_Introduction_to_Regression_in_R)|⏳| |
 | 21.     | [Intermediate Regression in R](/21_Intermediate_Regression_in_R)|| |
 | 22.     | [Supervised Learning in R: Classification](/22_Supervised_Learning_in_R_Classification)|| |
 | 23.     | [Supervised Learning in R: Regression](/23_Supervised_Learning_in_R_Regression)|| |
