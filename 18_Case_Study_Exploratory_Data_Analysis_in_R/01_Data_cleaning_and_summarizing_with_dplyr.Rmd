@@ -1,0 +1,219 @@
+---
+title: "Data cleaning and summarizing with dplyr"
+author: "Mohamad Osman"
+date: '2022-07-14'
+output: rmarkdown::github_document
+---
+
+# **`Section 01: Data cleaning and summarizing with dplyr`**
+
+### **`01-Filtering rows`**
+
+The `vote` column in the dataset has a number that represents that country's vote:
+
+-   **1** = Yes
+
+-   **2** = Abstain
+
+-   **3** = No
+
+-   **8** = Not present
+
+-   **9** = Not a member
+
+One step of data cleaning is removing observations (rows) that you're not interested in. In this case, you want to remove "Not present" and "Not a member".
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+votes_file <- file.path("..", "00_Datasets", "votes.rds")
+votes <- readRDS(votes_file)
+```
+
+-   Load the `dplyr` package.
+
+-   Print the `votes` table.
+
+-   Filter out rows where the vote recorded is "not present" or "not a member", leaving cases where it is "yes", "abstain", or "no".
+
+```{r}
+    # Load the dplyr package
+library(dplyr)
+
+# Print the votes dataset
+head(votes)
+
+# Filter for votes that are "yes", "abstain", or "no"
+votes %>%
+    filter(vote <= 3) %>%
+    head()
+```
+
+### **`02-Adding a year column`**
+
+The next step of data cleaning is manipulating your variables (columns) to make them more informative.
+
+In this case, you have a `session` column that is hard to interpret intuitively. But since the UN started voting in 1946, and holds one session per year, you can get the year of a UN resolution by adding 1945 to the `session` number.
+
+```{r}
+# Add another %>% step to add a year column
+votes %>%
+  filter(vote <= 3) %>%
+  mutate(year = session + 1945) %>%
+  head()
+```
+
+### **`03-Adding a country column`**
+
+The country codes in the `ccode` column are what's called [**Correlates of War codes**](https://cow.dss.ucdavis.edu/data-sets/cow-country-codes). This isn't ideal for an analysis, since you'd like to work with recognizable country names.
+
+You can use the `countrycode` package to translate. For example:
+
+    library(countrycode)
+
+    # Translate the country code 2
+    > countrycode(2, "cown", "country.name")
+    [1] "United States"
+
+    # Translate multiple country codes
+    > countrycode(c(2, 20, 40), "cown", "country.name")
+    [1] "United States" "Canada"        "Cuba"
+
+-   Load the `countrycode` package.
+
+-   Convert the country code 100 to its country name.
+
+-   Add a new `country` column in your `mutate()` statement containing country names, using the `countrycode()` function to translate from the `ccode` column. Save the result to `votes_processed`.
+
+```{r}
+# Load the countrycode package
+library(countrycode)
+
+# Convert country code 100
+countrycode(100, "cown", "country.name")
+
+# Add a country column within the mutate: votes_processed
+votes_processed <- votes %>%
+  filter(vote <= 3) %>%
+  mutate(year = session + 1945, 
+         country = countrycode(ccode, "cown", "country.name")) 
+
+  
+head(votes_processed)
+```
+
+### 
+**`04-Summarizing the full dataset`**
+
+In this analysis, you're going to focus on "% of votes that are yes" as a metric for the "agreeableness" of countries.
+
+You'll start by finding this summary for the entire dataset: the fraction of all votes in their history that were "yes". Note that within your call to `summarize()`, you can use `n()` to find the total number of votes and `mean(vote == 1)` to find the fraction of "yes" votes.
+
+-   Print the `votes_processed` dataset that you created in the previous exercise.
+
+-   Summarize the dataset using the `summarize()` function to create two columns:
+
+    -   `total`: with the number of votes
+
+    -   `percent_yes`: the percentage of "yes" votes
+
+```{r}
+# Print votes_processed
+head(votes_processed)
+
+# Find total and fraction of "yes" votes
+votes_processed %>%
+    summarise(total = n(),
+              percent_yes = mean(vote == 1))
+```
+
+### `05-Summarizing by year`
+
+The `summarize()` function is especially useful because it can be used within *groups*.
+
+For example, you might like to know how much the average "agreeableness" of countries changed from year to year. To examine this, you can use `group_by()` to perform your summary not for the entire dataset, but within each year.
+
+-   Add a `group_by()` to your code to `summarize()` within each year.
+
+```{r}
+# Change this code to summarize by year
+votes_processed %>%
+  group_by(year) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+```
+
+### **`06-Summarizing by country`**
+
+In the last exercise, you performed a summary of the votes within each year. You could instead `summarize()` within each country, which would let you compare voting patterns between countries.
+
+```{r}
+# Summarize by country: by_country
+by_country <- votes_processed %>%
+  group_by(country) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+
+head(by_country)
+```
+
+### **`07-Sorting by percentage of "yes" votes`**
+
+Now that you've summarized the dataset by country, you can start examining it and answering interesting questions.
+
+For example, you might be especially interested in the countries that voted "yes" least often, or the ones that voted "yes" most often.
+
+-   Print the `by_country` dataset created in the last exercise.
+
+-   Use `arrange()` to sort the countries in ascending order of `percent_yes`.
+
+-   Arrange the countries by the same variable, but in descending order.
+
+```{r}
+# You have the votes summarized by country
+by_country <- votes_processed %>%
+  group_by(country) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+
+# Print the by_country dataset
+by_country
+
+# Sort in ascending order of percent_yes
+by_country %>% 
+  arrange(percent_yes)
+
+# Now sort in descending order
+by_country %>% 
+  arrange(desc(percent_yes))
+```
+
+### **`08-Filtering summarized output`**
+
+In the last exercise, you may have noticed that the country that voted least frequently, Zanzibar, had only 2 votes in the entire dataset. You certainly can't make any substantial conclusions based on that data!
+
+Typically in a progressive analysis, when you find that a few of your observations have very little data while others have plenty, you set some threshold to filter them out
+
+-   Use `filter()` to remove from the sorted data countries that have fewer than 100 votes.
+
+```{r}
+# Filter out countries with fewer than 100 votes
+by_country %>%
+  arrange(percent_yes) %>%
+  filter(total >= 100)
+
+```
+
+### `THE END`
+
+
+
+
+
+
+
+
+
