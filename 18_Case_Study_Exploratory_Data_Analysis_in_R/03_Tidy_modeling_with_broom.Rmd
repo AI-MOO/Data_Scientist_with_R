@@ -1,0 +1,330 @@
+---
+title: "Tidy modeling with broom"
+author: "Mohamad Osman"
+date: '2022-07-15'
+output: rmarkdown::github_document
+---
+
+# Section 03: **Tidy modeling with broom**
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(countrycode)
+```
+
+```{r}
+
+votes_file <- file.path("..", "00_Datasets", "votes.rds")
+votes <- readRDS(votes_file)
+
+# Add a country column within the mutate: votes_processed
+votes_processed <- votes %>%
+  filter(vote <= 3) %>%
+  mutate(year = session + 1945, 
+         country = countrycode(ccode, "cown", "country.name"))
+
+# Group by year and country: by_year_country
+by_year_country <- votes_processed %>%
+  group_by(year, country) %>%
+  summarize(total = n(),
+            percent_yes = mean(vote == 1))
+```
+
+### 
+**`01-Linear regression on the United States`**
+
+A linear regression is a model that lets us examine how one variable changes with respect to another by fitting a best fit line. It is done with the `lm()` function in R.
+
+Here, you'll fit a linear regression to just the percentage of "yes" votes from the United States.
+
+-   Print the `US_by_year` data to the console.
+
+-   Using just the US data in `US_by_year`, use `lm()` to run a linear regression predicting `percent_yes` from `year`. Save this to a variable `US_fit`.
+
+-   Summarize `US_fit` using the `summary()` function.
+
+```{r}
+# Percentage of yes votes from the US by year: US_by_year
+US_by_year <- by_year_country %>%
+  filter(country == "United States")
+
+# Print the US_by_year data
+head(US_by_year)
+
+# Perform a linear regression of percent_yes by year: US_fit
+US_fit <- lm(percent_yes ~ year, data = US_by_year)
+
+# Perform summary() on the US_fit object
+summary(US_fit)
+```
+
+### **`02-Finding the slope of a linear regression`**
+
+The `US_fit` object you created in the previous exercise is available in your workspace. Calling `summary()` on this gives you lots of useful information about the linear model.
+
+What is the estimated slope of this relationship? Said differently, what's the estimated change each year of the probability of the US voting "yes"?
+
+`Ans:  -0.006`
+
+### 
+**`03-Finding the p-value of a linear regression`**
+
+Not all positive or negative slopes are necessarily real. A p-value is a way of assessing whether a trend could be due to chance. Generally, data scientists set a threshold by declaring that, for example, p-values below .05 are significant.
+
+`US_fit` is still available in your workspace. In this linear model, what is the p-value of the relationship between `year` and `percent_yes`
+
+`Ans: 1.367e-07`
+
+Correct! It seems `year` is very significant when modeling `percent_yes`.
+
+### **`04-Tidying a linear regression model`**
+
+In the last section, you fit a linear model. Now, you'll use the `tidy()` function in the `broom` package to turn that model into a tidy data frame.
+
+The `US_fit` linear model is available in your workspace.
+
+-   Load the `broom` package.
+
+-   Use the `tidy()` function from `broom` on the model object to turn it into a tidy data frame. Don't store the result; just print the output to the console.
+
+```{r}
+# Load the broom package
+library(broom)
+
+# Call the tidy() function on the US_fit object
+tidy(US_fit)
+```
+
+### **`05-Combining models for multiple countries`**
+
+One important advantage of changing models to tidied data frames is that they can be combined.
+
+In an earlier section, you fit a linear model to the percentage of "yes" votes for each year in the United States. Now you'll fit the same model for the United Kingdom and combine the results from both countries.
+
+-   Fit a model for the United Kingdom similar to the one you fit for the US and save it as `UK_fit`.
+
+-   Tidy `US_fit` into a data frame called `US_tidied` and the UK model into `UK_tidied`.
+
+-   Use `bind_rows()` from `dplyr` to combine the two tidied models, printing the result to the console.
+
+```{r}
+# Linear regression of percent_yes by year for US
+US_by_year <- by_year_country %>%
+  filter(country == "United States")
+US_fit <- lm(percent_yes ~ year, US_by_year)
+
+# Fit model for the United Kingdom
+UK_by_year <- by_year_country %>%
+  filter(country == "United Kingdom")
+UK_fit <- lm(percent_yes ~ year, UK_by_year)
+
+# Create US_tidied and UK_tidied
+US_tidied <- tidy(US_fit)
+UK_tidied <- tidy(UK_fit)
+
+# Combine the two tidied models
+bind_rows(US_tidied, UK_tidied)
+```
+
+### **`06-Nesting a data frame`**
+
+Right now, the `by_year_country` data frame has one row per country-vote pair. So that you can model each country individually, you're going to "nest" all columns besides `country`, which will result in a data frame with one row per country. The data for each individual country will then be stored in a **list column** called `data`.
+
+-   Load the `tidyr` package.
+
+-   Use the `nest()` function to nest all the columns in `by_year_country` except `country`.
+
+```{r}
+# Load the tidyr package
+library(tidyr)
+
+# Nest all columns besides country
+by_year_country %>%
+    nest(-country)
+```
+
+### **`07-List columns`**
+
+This "nested" data has an interesting structure. The second column, `data`, is a **list**, a type of R object that hasn't yet come up in this course that allows complicated objects to be stored within each row. This is because each item of the `data` column is itself a data frame.
+
+    # A tibble: 200 × 2
+                               country              data
+                                 <chr>            <list>
+    1                      Afghanistan <tibble [34 × 3]>
+    2                        Argentina <tibble [34 × 3]>
+    3                        Australia <tibble [34 × 3]>
+    4                          Belarus <tibble [34 × 3]>
+    5                          Belgium <tibble [34 × 3]>
+    6  Bolivia, Plurinational State of <tibble [34 × 3]>
+    7                           Brazil <tibble [34 × 3]>
+    8                           Canada <tibble [34 × 3]>
+    9                            Chile <tibble [34 × 3]>
+    10                        Colombia <tibble [34 × 3]>
+
+You can use `nested$data` to access this list column and double brackets to access a particular element. For example, `nested$data[[1]]` would give you the data frame with Afghanistan's voting history (the `percent_yes` per year), since Afghanistan is the first row of the table.
+
+-   Print the data frame from the `data` column that contains the data for Brazil.
+
+```{r}
+# All countries are nested besides country
+nested <- by_year_country %>%
+  nest(-country)
+
+# Print the nested data for Brazil
+nested$data[[7]]
+```
+
+### 
+**`08-Unnesting`**
+
+The opposite of the `nest()` operation is the `unnest()` operation. This takes each of the data frames in the list column and brings those rows back to the main data frame.
+
+In this exercise, you are just undoing the `nest()` operation. In the next section, you'll learn how to fit a model in between these nesting and unnesting steps that makes this process useful.
+
+Unnest the `data` list column, so that the table again has one row for each country-year pair, much like `by_year_country`.
+
+```{r}
+# All countries are nested besides country
+nested <- by_year_country %>%
+  nest(-country)
+
+# Unnest the data column to return it to its original form
+unnest(nested)
+```
+
+### `09-Performing linear regression on each nested dataset`
+
+Now that you've divided the data for each country into a separate dataset in the `data` column, you need to fit a linear model to each of these datasets.
+
+The `map()` function from `purrr` works by applying a formula to each item in a list, where `.` represents the individual item. For example, you could add one to each of a list of numbers:
+
+    map(numbers, ~ 1 + .)
+
+This means that to fit a model to each dataset, you can do:
+
+    map(data, ~ lm(percent_yes ~ year, data = .))
+
+where `.` represents each individual item from the `data` column in `by_year_country`. Recall that each item in the `data` column is a dataset that pertains to a specific country.
+
+-   Load the `tidyr` and `purrr` packages.
+
+-   After nesting, use the `map()` function within a `mutate()` to perform a linear regression on each dataset (i.e. each item in the `data` column in `by_year_country`) modeling `percent_yes` as a function of `year`. Save the results to the `model` column.
+
+```{r}
+# Load tidyr and purrr
+library(tidyr)
+library(purrr)
+
+
+# Perform a linear regression on each item in the data column
+by_year_country %>%
+  nest(-country) %>%
+  mutate(model = map(data, ~ lm(percent_yes ~ year, .)))
+```
+
+### **`10-Tidy each linear regression model`**
+
+You've now performed a linear regression on each nested dataset and have a linear model stored in the list column `model`. But you can't recombine the models until you've *tidied* each into a table of coefficients. To do that, you'll need to use `map()` one more time and the `tidy()` function from the `broom` package.
+
+Recall that you can simply give a function to `map()` (e.g. `map(models, tidy)`) in order to apply that function to each item of a list.
+
+-   Load the `broom` package.
+
+-   Use the `map()` function to apply the `tidy()` function to each linear model in the `model` column, creating a new column called `tidied`.
+
+```{r}
+# Load the broom package
+library(broom)
+
+# Add another mutate that applies tidy() to each model
+by_year_country %>%
+  nest(-country) %>%
+  mutate(model = map(data, ~ lm(percent_yes ~ year, data = .))) %>%
+  mutate(tidied = map(model, tidy))
+```
+
+-   Add an `unnest()` step to unnest the tidied models stored in the `tidied` column. Save the result as `country_coefficients`.
+
+-   Print the resulting `country_coefficients` object to the console.
+
+```{r}
+# Add one more step that unnests the tidied column
+country_coefficients <- by_year_country %>%
+  nest(-country) %>%
+  mutate(model = map(data, ~ lm(percent_yes ~ year, data = .)),
+         tidied = map(model, tidy)) %>%
+  unnest(tidied)
+
+
+# Print the resulting country_coefficients variable
+country_coefficients
+```
+
+### **`11-Filtering model terms`**
+
+You currently have both the intercept and slope terms for each by-country model. You're probably more interested in how each is changing over time, so you want to focus on the slope terms.
+
+-   Print the `country_coefficients` data frame to the console.
+
+-   Perform a `filter()` step that extracts only the slope (not intercept) terms.
+
+```{r}
+# Print the country_coefficients dataset
+country_coefficients
+
+# Filter for only the slope terms
+country_coefficients %>%
+    filter(term == "year")
+```
+
+### **`12-Filtering for significant countries`**
+
+Not all slopes are significant, and you can use the p-value to guess which are and which are not.
+
+However, when you have lots of p-values, like one for each country, you run into the problem of multiple hypothesis testing, where you have to set a stricter threshold. The [**`p.adjust()`**](https://www.rdocumentation.org/packages/stats/topics/p.adjust) function is a simple way to correct for this, where `p.adjust(p.value)` on a vector of p-values returns a set that you can trust.
+
+Here you'll add two steps to process the `slope_terms` dataset: use a `mutate` to create the new, adjusted p-value column, and `filter` to filter for those below a .05 threshold.
+
+-   Use the `p.adjust()` function to adjust the `p.value` column, saving the result into a new `p.adjusted` column. Then, filter for cases where `p.adjusted` is less than .05.
+
+```{r}
+# Filter for only the slope terms
+slope_terms <- country_coefficients %>%
+  filter(term == "year")
+
+# Add p.adjusted column, then filter
+slope_terms %>%
+  mutate(p.adjusted = p.adjust(p.value)) %>%
+  filter(p.adjusted < 0.05)
+
+
+```
+
+### **`13-Sorting by slope`**
+
+Now that you've filtered for countries where the trend is probably not due to chance, you may be interested in countries whose percentage of "yes" votes is changing most quickly over time. Thus, you want to find the countries with the highest and lowest slopes; that is, the `estimate` column.
+
+-   Using `arrange()` and `desc()`, sort the filtered countries to find the countries whose percentage "yes" is most quickly increasing over time.
+
+-   Using `arrange()`, sort to find the countries whose percentage "yes" is most quickly decreasing.
+
+```{r}
+# Filter by adjusted p-values
+filtered_countries <- country_coefficients %>%
+  filter(term == "year") %>%
+  mutate(p.adjusted = p.adjust(p.value)) %>%
+  filter(p.adjusted < .05)
+
+# Sort for the countries increasing most quickly
+filtered_countries %>%
+  arrange(desc(estimate))
+
+
+# Sort for the countries decreasing most quickly
+filtered_countries %>%
+  arrange(estimate)
+
+```
+
+### `The End` 
