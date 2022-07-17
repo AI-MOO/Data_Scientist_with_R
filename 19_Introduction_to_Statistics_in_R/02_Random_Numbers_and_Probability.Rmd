@@ -185,8 +185,7 @@ prob_between_10_and_20 <- punif(20, min=min, max=max)- punif(10, min=min, max=ma
 prob_between_10_and_20
 ```
 
-### 
-**`05-Simulating wait times`**
+### **`05-Simulating wait times`**
 
 To give Amir a better idea of how long he'll have to wait, you'll simulate Amir waiting 1000 times and create a histogram to show him what he should expect. Recall from the last exercise that his minimum wait time is 0 minutes and his maximum wait time is 30 minutes.
 
@@ -195,6 +194,7 @@ A data frame called `wait_times` is available and `dplyr` and `ggplot2` are load
 ```{r}
 simulation_nb <- seq(1,1000,1)
 wait_times <- data.frame(simulation_nb)
+
 ```
 
 ```{r}
@@ -209,28 +209,94 @@ wait_times %>%
   geom_histogram(bins = 30)
 ```
 
-### 
+### 06-**Simulating sales deals**
 
-[\
+Assume that Amir usually works on 3 deals per week, and overall, he wins 30% of deals he works on. Each deal has a binary outcome: it's either lost, or won, so you can model his sales deals with a binomial distribution. In this exercise, you'll help Amir simulate a year's worth of his deals so he can better understand his performance.
 
-](javascript:void(0))
+-   Set the random seed to 10 and simulate a single deal.
 
+```{r}
+# Set random seed to 10
+set.seed(10)
 
+# Simulate a single deal
+rbinom(1, 1, 0.3)
+```
 
-\
+-   Simulate a typical week of Amir's deals, or one week of 3 deals.
 
-\
+```{r}
+# Set random seed to 10
+set.seed(10)
 
+# Simulate 1 week of 3 deals
+rbinom(1, 3, 0.3)
+```
 
+-   Simulate a year's worth of Amir's deals, or 52 weeks of 3 deals each, and store in `deals`.
 
+-   Calculate the mean number of deals he won per week.
 
-\
+```{r}
+# Set random seed to 10
+set.seed(10)
 
-\
+# Simulate 52 weeks of 3 deals
+deals <- rbinom(52, 3, 0.3)
 
+# Calculate mean deals won per week
+mean(deals)
+```
 
-\
+### **`07-Calculating binomial probabilities`**
 
-\
+Just as in the last exercise, assume that Amir wins 30% of deals. He wants to get an idea of how likely he is to close a certain number of deals each week. In this exercise, you'll calculate what the chances are of him closing different numbers of deals using the binomial distribution.
 
+-   What's the probability that Amir closes all 3 deals in a week?
 
+```{r}
+# Probability of closing 3 out of 3 deals
+dbinom(3, 3, 0.3)
+```
+
+-   What's the probability that Amir closes 1 or fewer deals in a week?
+
+```{r}
+# Probability of closing <= 1 deal out of 3 deals
+pbinom(1, 3, 0.3)
+```
+
+-   What's the probability that Amir closes more than 1 deal?
+
+```{r}
+# Probability of closing > 1 deal out of 3 deals
+pbinom(1, 3, 0.3, lower.tail = FALSE)
+```
+
+### **`08-How many sales will be won?`**
+
+Now Amir wants to know how many deals he can expect to close each week if his win rate changes. Luckily, you can use your binomial distribution knowledge to help him calculate the expected value in different situations. Recall from the video that the expected value of a binomial distribution can be calculated by n×p.
+
+-   Calculate the expected number of sales out of the **3** he works on that Amir will win each week if he maintains his 30% win rate.
+
+-   Calculate the expected number of sales out of the 3 he works on that he'll win if his win rate drops to 25%.
+
+-   Calculate the expected number of sales out of the 3 he works on that he'll win if his win rate rises to 35%.
+
+```{r}
+# Expected number won with 30% win rate
+won_30pct <- 3  * 0.3
+won_30pct
+
+# Expected number won with 25% win rate
+won_25pct <- 3  * 0.25
+won_25pct
+
+# Expected number won with 35% win rate
+won_35pct <- 3  * 0.35
+won_35pct
+```
+
+Excellent expectation experimentation! If Amir's win rate goes up by 5%, he can expect to close more than 1 deal on average each week.
+
+### `The End`
