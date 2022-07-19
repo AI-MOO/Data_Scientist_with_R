@@ -117,7 +117,8 @@ On the right, try creating *sampling distributions* of different summary statist
 ![](images/chrome_rJM65ddOi8.png){width="289"}
 
 ### 
-**`06-The CLT in action`**
+
+### **`06-The CLT in action`**
 
 The central limit theorem states that a sampling distribution of a sample statistic approaches the normal distribution as you take more samples, no matter the original distribution being sampled from.
 
@@ -234,5 +235,32 @@ ppois(2, lambda = 4)
 # Probability of > 10 responses
 ppois(10, lambda = 4, lower.tail = FALSE)
 ```
+
+### **`09-Modeling time between leads`**
+
+To further evaluate Amir's performance, you want to know how much time it takes him to respond to a lead after he opens it. On average, it takes 2.5 hours for him to respond. In this exercise, you'll calculate probabilities of different amounts of time passing between Amir receiving a lead and sending a response.
+
+-   What's the probability it takes Amir less than an hour to respond to a lead?
+
+```{r}
+# Probability response takes < 1 hour
+pexp(1, rate = 1/2.5)
+```
+
+-   What's the probability it takes Amir more than 4 hours to respond to a lead?
+
+```{r}
+# Probability response takes > 4 hours
+pexp(4, rate = 1/2.5, lower.tail = FALSE)
+```
+
+-   What's the probability it takes Amir 3-4 hours to respond to a lead?
+
+```{r}
+# Probability response takes 3-4 hours
+pexp(4, rate = 1/2.5) - pexp(3, rate = 1/2.5)
+```
+
+### **`The End`**
 
 ### 
