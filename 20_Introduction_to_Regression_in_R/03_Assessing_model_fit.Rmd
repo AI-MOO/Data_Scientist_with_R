@@ -1,0 +1,40 @@
+---
+title: "Assessing model fit"
+author: "Mohamad Osman"
+date: '2022-07-20'
+output: rmarkdown::github_document
+---
+
+# Section 04: Assessing model fit
+
+### **`01-Coefficient of determination`**
+
+The coefficient of determination is a measure of how well the linear regression line fits the observed values. For simple linear regression, it is equal to the square of the correlation between the explanatory and response variables.
+
+Here, you'll take another look at the second stage of the advertising pipeline: modeling the click response to impressions. Two models are available: `mdl_click_vs_impression_orig` models `n_clicks` versus `n_impressions`. `mdl_click_vs_impression_trans` is the transformed model you saw in Chapter 2. It models `n_clicks ^ 0.25` versus `n_impressions ^ 0.25`.
+
+`broom` is loaded.
+
+```{r}
+library(dplyr)
+library(broom)
+library(fst)
+
+file_path <- file.path("..", "00_Datasets", "ad_conversion.fst")
+ad_conversion <- read_fst(file_path)
+
+mdl_click_vs_impression_orig <- lm(formula = n_clicks ~ n_impressions, data = ad_conversion)
+mdl_click_vs_impression_trans <- lm(formula = I(n_clicks^0.25) ~ I(n_impressions^0.25), data = ad_conversion)
+```
+
+-   Print a summary of `mdl_click_vs_impression_orig`. Do the same for `mdl_click_vs_impression_trans`.
+
+```{r}
+# Print a summary of mdl_click_vs_impression_orig
+summary(mdl_click_vs_impression_orig)
+
+strrep("***",50)
+
+# Print a summary of mdl_click_vs_impression_trans
+summary(mdl_click_vs_impression_trans)
+```
