@@ -40,9 +40,8 @@ mdl_price_vs_conv <- lm(formula = price_twd_msq ~ n_convenience, data = taiwan_r
 
 -   Create a tibble of explanatory data, where the number of convenience stores,`n_convenience`, takes the integer values from zero to ten.
 
-```{=html}
 <!-- -->
-```
+
 -   Use the model `mdl_price_vs_conv` to make predictions from `explanatory_data`.
 
 ```{r}
@@ -195,7 +194,8 @@ predict(mdl_price_vs_conv, explanatory_data)
 ```
 
 ### 
-**`06-Using broom`**
+
+### **`06-Using broom`**
 
 Many programming tasks are easier if you keep all your data inside data frames. This is particularly true if you are a tidyverse fan, where `dplyr` and `ggplot2` require you to use data frames. The `broom` package contains functions that decompose models into three data frames: one for the coefficient-level elements (the coefficients themselves, as well as p-values for each coefficient), the observation-level elements (like fitted values and residuals), and the model-level elements (mostly performance metrics).
 
@@ -235,8 +235,7 @@ Explore the plot and make predictions. What does regression to the mean say abou
 
 ![](images/chrome_lhlgYha1RJ.png){width="418"}
 
-**`Answer:`**
-Someone who hit 40 home runs in 2017 is predicted to hit 10 fewer home runs the next year because regression to the mean states that, on average, extremely high values are not sustained.
+**`Answer:`** Someone who hit 40 home runs in 2017 is predicted to hit 10 fewer home runs the next year because regression to the mean states that, on average, extremely high values are not sustained.
 
 ### `08-Plotting consecutive portfolio returns`
 
@@ -264,6 +263,241 @@ Just as with baseball home runs, a naive prediction might be that the investment
 
 -   Fix the coordinates so distances along the x and y axes appear the same.
 
+```{r}
+file_path <- file.path("..", "00_Datasets", "sp500_yearly_returns.txt")
+sp500_yearly_returns <- read.delim(file_path)
+```
+
+```{r}
+# Using sp500_yearly_returns, plot return_2019 vs. return_2018
+ggplot(sp500_yearly_returns, aes(return_2018, return_2019)) +
+  # Make it a scatter plot
+  geom_point() +
+  # Add a line at y = x, colored green, size 1
+  geom_abline(color = "green", size = 1) +
+  # Add a linear regression trend line, no std. error ribbon
+  geom_smooth(method = "lm", se = FALSE) +
+  # Fix the coordinate ratio
+  coord_fixed()
+```
+
+### `09-Modeling consecutive returns`
+
+Let's quantify the relationship between returns in 2019 and 2018 by running a linear regression and making predictions. By looking at companies with extremely high or extremely low returns in 2018, we can see if their performance was similar in 2019.
+
+`sp500_yearly_returns` is available and `dplyr` is loaded.
+
+-   Run a linear regression on `return_2019` versus `return_2018` using `sp500_yearly_returns`. Assign to `mdl_returns`.
+
+```{r}
+# Run a linear regression on return_2019 vs. return_2018 using sp500_yearly_returns
+mdl_returns <- lm(return_2019 ~ return_2018, data = sp500_yearly_returns)
+
+# See the result
+mdl_returns
+```
+
+-   Create a data frame (or tibble) named `explanatory_data`. Give it one column with 2018 returns set to a vector containing `-1`, `0`, and `1`.
+
+-   Use `mdl_returns` to predict with `explanatory_data`.
+
+```{r}
+# Run a linear regression on return_2019 vs. return_2018 using sp500_yearly_returns
+mdl_returns <- lm(
+  return_2019 ~ return_2018, 
+  data = sp500_yearly_returns
+)
+
+# Create a data frame with return_2018 at -1, 0, and 1 
+explanatory_data <- tibble(return_2018 = c(-1, 0, 1))
+
+
+
+# Use mdl_returns to predict with explanatory_data
+predict(mdl_returns, explanatory_data)
+```
+
+### **`10-Transforming the explanatory variable`**
+
+If there is no straight line relationship between the response variable and the explanatory variable, it is sometimes possible to create one by transforming one or both of the variables. Here, you'll look at transforming the explanatory variable.
+
+You'll take another look at the Taiwan real estate dataset, this time using the distance to the nearest MRT (metro) station as the explanatory variable. You'll use code to make every commuter's dream come true: shortening the distance to the metro station by taking the square root. Take that, geography!
+
+`taiwan_real_estate` is available and `ggplot2` and `tibble` are loaded.
+
+-   *Run the code provided, and look at the plot.*
+
+-   Edit the plot so the x aesthetic is square root transformed.
+
+-   *Look at the new plot. Notice how the numbers on the x-axis have changed. This is a different line to what was shown before. Do the points track the line more closely?*
+
+```{r}
+# Run the code to see the plot
+# Edit so x-axis is square root of dist_to_mrt_m
+ggplot(taiwan_real_estate, aes(dist_to_mrt_m, price_twd_msq)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+# Run the code to see the plot
+# Edit so x-axis is square root of dist_to_mrt_m
+ggplot(taiwan_real_estate, aes(sqrt(dist_to_mrt_m), price_twd_msq)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+-   Run a linear regression of `price_twd_msq` versus the square root of `dist_to_mrt_m` using `taiwan_real_estate`.
+
+```{r}
+# Run a linear regression of price_twd_msq vs. square root of dist_to_mrt_m using taiwan_real_estate
+mdl_price_vs_dist <- lm(price_twd_msq ~ sqrt(dist_to_mrt_m), data = taiwan_real_estate)
+
+
+# See the result
+mdl_price_vs_dist
+```
+
+-   Create a data frame of prediction data named `prediction_data`. Start with `explanatory_data`, and add a column named after the response variable. Predict values using `mdl_price_vs_dist` and `explanatory_data`.
+
+```{r}
+# Run a linear regression of price_twd_msq vs. square root of dist_to_mrt_m using taiwan_real_estate
+mdl_price_vs_dist <- lm(
+  price_twd_msq ~ sqrt(dist_to_mrt_m), 
+  data = taiwan_real_estate
+)
+
+explanatory_data <- tibble(
+  dist_to_mrt_m = seq(0, 80, 10) ^ 2
+)
+
+# Use mdl_price_vs_dist to predict explanatory_data
+prediction_data <- explanatory_data %>% 
+  mutate(
+  mdl_price_vs_dist = predict(mdl_price_vs_dist, explanatory_data)
+  )
+
+
+# See the result
+prediction_data
+```
+
+-   Edit the plot to add a layer of points from `prediction_data`, colored `"green"`, size `5`.
+
+```{r}
+# From previous steps
+mdl_price_vs_dist <- lm(
+  price_twd_msq ~ sqrt(dist_to_mrt_m), 
+  data = taiwan_real_estate
+)
+explanatory_data <- tibble(
+  dist_to_mrt_m = seq(0, 80, 10) ^ 2
+)
+prediction_data <- explanatory_data %>% 
+  mutate(
+    price_twd_msq = predict(mdl_price_vs_dist, explanatory_data)
+  )
+
+ggplot(taiwan_real_estate, aes(sqrt(dist_to_mrt_m), price_twd_msq)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # Add points from prediction_data, colored green, size 5
+  geom_point(data = prediction_data, color = "green", size = 5)
+```
+
+### **`11-Transforming the response variable too`**
+
+The response variable can be transformed too, but this means you need an extra step at the end to undo that transformation. That is, you "back transform" the predictions.
+
+In the video, you saw the first step of the digital advertising workflow: spending money to buy ads, and counting how many people see them (the "impressions"). The next step is determining how many people click on the advert after seeing it.
+
+`ad_conversion` is available and `ggplot2` and `tibble` are loaded.
+
+-   *Run the code provided, and look at the plot.*
+
+-   Edit the plot so the x and y aesthetics are transformed by raising them to the power `0.25`.
+
+-   *Look at the new plot. Do the points track the line more closely?*
+
+```{r}
+file_path <- file.path("..", "00_Datasets", "ad_conversion.fst")
+ad_conversion <- read_fst(file_path)
+
+
+# Run the code to see the plot
+# Edit to raise x, y aesthetics to power 0.25
+ggplot(ad_conversion, aes(n_impressions, n_clicks)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+# Run the code to see the plot
+# Edit to raise x, y aesthetics to power 0.25
+ggplot(ad_conversion, aes(I(n_impressions ^ 0.25), I(n_clicks ^ 0.25))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+-   Run a linear regression of `n_clicks` to the power `0.25` versus `n_impressions` to the power `0.25` using `ad_conversion`. *Each variable in the formula needs to be specified "as is", using `I()`.*
+
+```{r}
+# Run a linear regression of n_clicks to the power 0.25 vs. n_impressions to the power 0.25 using ad_conversion
+mdl_click_vs_impression <- lm(I(n_clicks ^ 0.25) ~ I(n_impressions ^ 0.25), data = ad_conversion)
+```
+
+-   Complete the code for the prediction data. Use `mdl_click_vs_impression` to predict `n_clicks` to the power `0.25` from `explanatory_data`.
+
+-   Back transform by raising `n_clicks_025` to the power `4` to get `n_clicks`.
+
+-   Edit the plot to add a layer of points from `prediction_data`, colored `"green"`.
+
+```{r}
+# From previous steps
+mdl_click_vs_impression <- lm(
+  I(n_clicks ^ 0.25) ~ I(n_impressions ^ 0.25),
+  data = ad_conversion
+)
+explanatory_data <- tibble(
+  n_impressions = seq(0, 3e6, 5e5)
+)
+prediction_data <- explanatory_data %>% 
+  mutate(
+    n_clicks_025 = predict(mdl_click_vs_impression, explanatory_data),
+    n_clicks = n_clicks_025 ^ 4
+  )
+
+ggplot(ad_conversion, aes(n_impressions ^ 0.25, n_clicks ^ 0.25)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # Add points from prediction_data, colored green
+  geom_point(data = prediction_data, color = "green")
+
+```
+
+### `The End`
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+ 
+
+\
+
+\
+
+\
+
 \
 
 \
@@ -272,28 +506,6 @@ Just as with baseball home runs, a naive prediction might be that the investment
 
 \
 
-
-
-
-
-
-
 \
 
 \
-
-\
-
-\
-
-
-\
-
-
-
-
-
-
-
-\
-
