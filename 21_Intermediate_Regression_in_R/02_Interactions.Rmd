@@ -1,0 +1,199 @@
+---
+title: "Interactions"
+author: "Mohamad Osman"
+date: '2022-07-21'
+output: rmarkdown::github_document
+---
+
+# Section 02: Interactions
+
+### **`01-One model per category`**
+
+The model you ran on the whole dataset fits some parts of the data better than others. It's worth taking a look at what happens when you run a linear model on different parts of the dataset separately, to see if each model agrees or disagrees with the others.
+
+`taiwan_real_estate` is available; `dplyr` is loaded.
+
+-   Filter `taiwan_real_estate` for rows where `house_age_years` is `"0 to 15"`, assigning to `taiwan_0_to_15`.
+
+-   Repeat this for the `"15 to 30"` and `"30 to 45"` house age categories.
+
+```{r}
+# Filter for rows where house age is 0 to 15 years
+taiwan_0_to_15 <- taiwan_real_estate %>%
+    filter(house_age_years  == "0 to 15")
+
+
+# Filter for rows where house age is 15 to 30 years
+taiwan_15_to_30 <- taiwan_real_estate %>%
+    filter(house_age_years  == "15 to 30")
+
+
+# Filter for rows where house age is 30 to 45 years
+taiwan_30_to_45 <- taiwan_real_estate %>%
+    filter(house_age_years  == "30 to 45")
+
+```
+
+-   Run a linear regression of `price_twd_msq` versus `n_convenience` using the `taiwan_0_to_15` dataset.
+
+-   Repeat this for `taiwan_15_to_30` and `taiwan_30_to_45`.
+
+```{r}
+mdl_all_ages <- lm(price_twd_msq ~ n_convenience, data = taiwan_real_estate)
+
+
+
+# Model price vs. no. convenience stores using 0 to 15 data
+mdl_0_to_15 <- lm(price_twd_msq ~ n_convenience, data = taiwan_0_to_15)
+
+# Model price vs. no. convenience stores using 15 to 30 data
+mdl_15_to_30 <- lm(price_twd_msq ~ n_convenience, data = taiwan_15_to_30)
+
+# Model price vs. no. convenience stores using 30 to 45 data
+mdl_30_to_45 <- lm(price_twd_msq ~ n_convenience, data = taiwan_30_to_45)
+
+# See the results
+mdl_0_to_15
+mdl_15_to_30
+mdl_30_to_45
+```
+
+### **`02-Predicting multiple models`**
+
+In order to see what each of the models for individual categories are doing, it's helpful to make predictions from them. The flow is exactly the same as the flow for making predictions on the whole model, though remember that you only have a single explanatory variable in these models (so `expand_grid()` isn't needed.)
+
+The models `mdl_0_to_15`, `mdl_15_to_30` and `mdl_30_to_45` are available; `dplyr` is loaded.
+
+-   Create a tibble of explanatory data, setting `n_convenience` to a vector from zero to ten, assigning to `explanatory_data_0_to_15`.
+
+```{r}
+# Create a tibble of explanatory data, setting no. of conv stores to 0 to 10
+explanatory_data <- tibble(n_convenience = seq(0,10,1))
+
+```
+
+-   Add a column of predictions named `price_twd_msq` to `explanatory_data`, using `mdl_0_to_15` and `explanatory_data`. Assign to `prediction_data_0_to_15`.
+
+-   Repeat this for the 15 to 30 year and 30 to 45 year house age categories.
+
+```{r}
+# From previous step
+explanatory_data <- tibble(
+  n_convenience = 0:10
+)
+
+# Add column of predictions using "0 to 15" model and explanatory data 
+prediction_data_0_to_15 <- explanatory_data %>% 
+  mutate(price_twd_msq = predict(mdl_0_to_15, explanatory_data))
+
+# Same again, with "15 to 30"
+prediction_data_15_to_30 <- explanatory_data %>% 
+  mutate(price_twd_msq = predict(mdl_15_to_30, explanatory_data))
+
+# Same again, with "30 to 45"
+prediction_data_30_to_45 <- explanatory_data %>% 
+  mutate(price_twd_msq = predict(mdl_30_to_45, explanatory_data))
+```
+
+### 
+
+### **`03-Visualizing multiple models`**
+
+In the last two exercises, you ran models for each category of house ages separately, then calculated predictions for each model. Now it's time to visualize those predictions to see how they compare.
+
+When you use `geom_smooth()` in a ggplot with an aesthetic that splits the dataset into groups and draws a line for each group (like the `color` aesthetic), you get multiple trend lines. This is the same as running a model on each group separately, so we get a chance to test our predictions against ggplot's.
+
+`taiwan_real_estate`, `prediction_data_0_to_15`, `prediction_data_15_to_30`, and `prediction_data_30_to_45` are available; `ggplot2` is loaded.
+
+-   Using `taiwan_real_estate`, plot `price_twd_msq` versus `n_convenience` colored by `house_age_years`.
+
+-   Add a point layer.
+
+-   Add smooth trend lines for each color using the linear regression method and turning off the standard error ribbon.
+
+-   Extend the plot by adding the prediction points from `prediction_data_0_to_15`. Color them red, with size 3 and shape 15.
+
+-   Add prediction points from `prediction_data_15_to_30`, colored green, size 3, and shape 15.
+
+-   Add prediction points from `prediction_data_30_to_45`, colored blue, size 3, and shape 15.
+
+```{r}
+# Extend the plot to include prediction points
+ggplot(taiwan_real_estate, aes(n_convenience, price_twd_msq, color = house_age_years)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # Add points using prediction_data_0_to_15, colored red, size 3, shape 15
+  geom_point(data = prediction_data_0_to_15, size = 3, shape = 15, color = "red") +
+  # Add points using prediction_data_15_to_30, colored green, size 3, shape 15
+  geom_point(data = prediction_data_15_to_30, size = 3, shape = 15, color = "green") +
+  # Add points using prediction_data_30_to_45, colored blue, size 3, shape 15
+    geom_point(data = prediction_data_30_to_45, size = 3, shape = 15, color = "blue")
+
+```
+
+Three cheers for three trend lines! It's a good sign that our predictions match those of ggplot's. Notice that the 30 to 45 year house age group has a much shallower slope compared to the other lines.
+
+### **`04-Assessing model performance`**
+
+To test which approach is best---the whole dataset model or the models for each house age category---you need to calculate some metrics. Here's, you'll compare the coefficient of determination and the residual standard error for each model.
+
+Four models of price versus no. of convenience stores (`mdl_all_ages`, `mdl_0_to_15`, `mdl_15_to_30`, and `mdl_30_to_45`) are available; `dplyr` and `broom` are loaded.
+
+-   Get the coefficient of determination for `mdl_all_ages`, `mdl_0_to_15`, `mdl_15_to_30`, and `mdl_30_to_45`.
+
+```{r}
+# Get the coeff. of determination for mdl_all_ages
+mdl_all_ages %>%
+    glance() %>%
+    pull(r.squared)
+
+
+# Get the coeff. of determination for mdl_0_to_15
+mdl_0_to_15 %>%
+    glance() %>%
+    pull(r.squared)
+
+
+# Get the coeff. of determination for mdl_15_to_30
+mdl_15_to_30 %>%
+    glance() %>%
+    pull(r.squared)
+
+# Get the coeff. of determination for mdl_30_to_45
+mdl_30_to_45 %>%
+    glance() %>%
+    pull(r.squared)
+```
+
+-   Get the residual standard error for `mdl_all_ages`, `mdl_0_to_15`, `mdl_15_to_30`, and `mdl_30_to_45`.
+
+```{r}
+# Get the RSE for mdl_all
+mdl_all_ages %>%
+    glance() %>%
+    pull(sigma)
+
+
+# Get the RSE for mdl_0_to_15
+mdl_0_to_15 %>%
+    glance() %>%
+    pull(sigma)
+
+
+# Get the RSE for mdl_15_to_30
+mdl_15_to_30 %>%
+    glance() %>%
+    pull(sigma)
+
+
+# Get the RSE for mdl_30_to_45
+mdl_30_to_45 %>%
+    glance() %>%
+    pull(sigma)
+```
+
+-   the best model in terms of performance is `mdl_15_to_30`\
+
+
+
+    \
