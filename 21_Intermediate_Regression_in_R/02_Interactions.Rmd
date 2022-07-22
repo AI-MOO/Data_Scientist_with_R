@@ -18,6 +18,18 @@ The model you ran on the whole dataset fits some parts of the data better than o
 -   Repeat this for the `"15 to 30"` and `"30 to 45"` house age categories.
 
 ```{r}
+library(ggplot2)
+library(fst)
+library(dplyr)
+library(broom)
+
+file_path <- file.path("..", "00_Datasets", "taiwan_real_estate.fst")
+taiwan_real_estate <- read_fst(file_path)
+taiwan_real_estate$house_age_years <- as.factor(taiwan_real_estate$house_age_years)
+head(taiwan_real_estate, 3)
+```
+
+```{r}
 # Filter for rows where house age is 0 to 15 years
 taiwan_0_to_15 <- taiwan_real_estate %>%
     filter(house_age_years  == "0 to 15")
@@ -192,8 +204,265 @@ mdl_30_to_45 %>%
     pull(sigma)
 ```
 
--   the best model in terms of performance is `mdl_15_to_30`\
+-   the best model in terms of performance is `mdl_15_to_30`
+
+### 
+05-**Specifying an interaction**
+
+So far you used a single parallel slopes model, which gave an OK fit for the whole dataset, then three separate models for each house age category, which gave a better fit for each individual category, but was clunky because you had three separate models to work with and explain. Ideally, you'd have a single model that had all the predictive power of the individual models.
+
+Defining this single model is achieved through adding interactions between explanatory variables. R's formula syntax is flexible, and gives you a couple of options, depending on whether you prefer concise code that is quick to type and to read, or explicit code that describes what you are doing in detail.
+
+`taiwan_real_estate` is available.
+
+-   Fit a linear regression of `price_twd_msq` versus `n_convenience` and `house_age_years` and their interaction, using the "times" syntax to implicitly generate the interaction.
+
+```{r}
+# Model price vs both with an interaction using "times" syntax
+lm(price_twd_msq ~ n_convenience * house_age_years, data = taiwan_real_estate)
+```
+
+-   Fit a linear regression of `price_twd_msq` versus `n_convenience` and `house_age_years` and their interaction, using the "colon" syntax to explicitly generate the interaction.
+
+```{r}
+# Model price vs both with an interaction using "colon" syntax
+lm(price_twd_msq ~ n_convenience + house_age_years + n_convenience:house_age_years, data = taiwan_real_estate)
+```
+
+Which statement about the coefficients of `mdl_readable_inter` is true?
+
+```{r}
+# From previous step
+mdl_readable_inter <- lm(
+  price_twd_msq ~ house_age_years + n_convenience:house_age_years + 0, 
+  data = taiwan_real_estate
+)
+
+# Look at the coefficients
+coefficients(mdl_readable_inter)
+```
+
+-   The expected increase in house price for each nearby convenience store is lowest for the 30 to 45 year age group.
+
+###  06-**Predicting with interactions**
+
+As with every other regression model you've created, the fun part is making predictions. Fortunately, the code flow for this case is the same as the one without interactions---R can handle calculating the interactions without any extra prompting from you. The only thing you need to remember is the trick for getting combinations of explanatory variables.
+
+`mdl_price_vs_both_inter` is available; `dplyr` and `ggplot2` are loaded.
+
+Make a grid of explanatory data, formed from combinations of the following variables.
+
+-   `n_convenience` should take the numbers zero to ten.
+
+-   `house_age_years` should take the unique values of the `house_age_years` column of `taiwan_real_estate`.
+
+```{r}
+# Make a grid of explanatory data
+explanatory_data <- expand.grid(
+  # Set n_convenience to zero to ten
+  n_convenience = seq(0,10,1),
+  # Set house_age_years to the unique values of that variable
+  house_age_years = unique(taiwan_real_estate$house_age_years)
+)
+
+# See the result
+explanatory_data
+```
+
+-   Add a column to the `explanatory_data`, assigning to `prediction_data`.
+
+-   The column should be named after the response variable, and contain predictions made using `mdl_price_vs_both_inter` and `explanatory_data`.
+
+```{r}
+# Linear Regression Model 
+mdl_price_vs_both_inter <- lm(formula = price_twd_msq ~ house_age_years + n_convenience:house_age_years + 0, data = taiwan_real_estate)
+
+# From previous step
+explanatory_data <- expand.grid(
+  n_convenience = 0:10,
+  house_age_years = unique(taiwan_real_estate$house_age_years)
+)
+
+# Add predictions to the data frame
+prediction_data <- explanatory_data %>%
+    mutate(
+      price_twd_msq = predict(mdl_price_vs_both_inter, explanatory_data)
+      
+   )
 
 
 
-    \
+# See the result
+prediction_data
+```
+
+-   Using `taiwan_real_estate`, plot `price_twd_msq` versus `n_convenience`, colored by `house_age_years`.
+
+-   Add a point layer.
+
+-   Add smooth trend lines using linear regression, no standard error ribbon.
+
+-   Add another point layer using `prediction_data`, with `size` `5` and `shape` `15`.
+
+```{r}
+# From previous step
+explanatory_data <- expand.grid(
+  n_convenience = 0:10,
+  house_age_years = unique(taiwan_real_estate$house_age_years)
+)
+prediction_data <- explanatory_data %>% 
+  mutate(
+    price_twd_msq = predict(mdl_price_vs_both_inter, explanatory_data)
+  )
+
+# Using taiwan_real_estate, plot price vs. no. of convenience stores, colored by house age
+ggplot(taiwan_real_estate, aes(x = n_convenience,y = price_twd_msq, color = house_age_years))
+  # Make it a scatter plot
+  geom_point()
+  # Add linear regression trend lines, no ribbon
+  geom_smooth(method = "lm", se = FALSE)
+  # Add points from prediction_data, size 5, shape 15
+  geom_point(data = prediction_data, size = 5, shape = 15)
+```
+
+### **`07-Manually calculating predictions with interactions`**
+
+In order to understand how `predict()` works, it's time to calculate the predictions manually again. For this model, there are three separate lines to calculate for, and in each one, the prediction is an intercept plus a slope times the numeric explanatory value. The tricky part is getting the right intercept and the right slope for each case.
+
+`mdl_price_vs_both_inter` and `explanatory_data` are available; `dplyr` and `tidyr` are available.
+
+-   Get the coefficients from `mdl_price_vs_both_inter`, assigning to `coeffs`.
+
+-   Get the three intercept coefficients from `coeffs`, assigning to `intercept_0_15`, `intercept_15_30`, and `intercept_30_45`.
+
+-   Get the three slope coefficients from `coeffs`, assigning to `slope_0_15`, `slope_15_30`, and `slope_30_45`.
+
+```{r}
+# Get the coefficients from mdl_price_vs_both_inter
+coeffs <- coefficients(mdl_price_vs_both_inter)
+
+# Get the intercept for 0 to 15 year age group
+intercept_0_15 <- coeffs[1]
+
+# Get the intercept for 15 to 30 year age group
+intercept_15_30 <- coeffs[2]
+
+# Get the intercept for 30 to 45 year age group
+intercept_30_45 <- coeffs[3]
+
+# Get the slope for 0 to 15 year age group
+slope_0_15 <- coeffs[4]
+
+# Get the slope for 15 to 30 year age group
+slope_15_30 <- coeffs[5]
+
+# Get the slope for 30 to 45 year age group
+slope_30_45 <- coeffs[6]
+```
+
+Add a `price_twd_msq` column to `explanatory_data` containing the predictions.
+
+-   In the case when `house_age_years` is `"0 to 15"`, choose the appropriate intercept plus the appropriate slope times the number of nearby convenience stores.
+
+-   Do likewise for the cases where the house age is `"15 to 30"` and `"30 to 45"`.
+
+```{r}
+# From previous step
+coeffs <- coefficients(mdl_price_vs_both_inter)
+intercept_0_15 <- coeffs[1]
+intercept_15_30 <- coeffs[2]
+intercept_30_45 <- coeffs[3]
+slope_0_15 <- coeffs[4]
+slope_15_30 <- coeffs[5]
+slope_30_45 <- coeffs[6]
+
+prediction_data <- explanatory_data %>% 
+  mutate(
+    # Consider the 3 cases to choose the price
+    price_twd_msq = case_when(
+      house_age_years == "0 to 15" ~ intercept_0_15 + slope_0_15 * n_convenience,
+      house_age_years == "15 to 30" ~ intercept_15_30 + slope_15_30 * n_convenience,
+      house_age_years == "30 to 45" ~ intercept_30_45 + slope_30_45 * n_convenience
+    )
+        
+  )
+
+# See the result
+prediction_data
+```
+
+### **`08-Modeling eBay auctions`**
+
+Sometimes modeling a whole dataset suggests trends that disagree with models on separate parts of that dataset. This is known as Simpson's paradox. In the most extreme case, you may see a positive slope on the whole dataset, and negative slopes on every subset of that dataset (or the other way around).
+
+Over the next few exercises, you'll look at [**eBay auctions**](http://www.modelingonlineauctions.com/datasets) of Palm Pilot M515 PDA models.
+
+| variable       | meaning                        |
+|:---------------|:-------------------------------|
+| `price`        | Final sale price, USD          |
+| `openbid`      | The opening bid, USD           |
+| `auction_type` | How long did the auction last? |
+
+`auctions` is available; `dplyr` and `ggplot2` are loaded.
+
+-   Look at the structure of the `auctions` dataset and familiarize yourself with its columns.
+
+-   Fit a linear regression model of `price` versus `openbid`, using the `auctions` dataset. *Look at the coefficients.*
+
+```{r}
+file_path <- file.path("..", "00_Datasets", "auctions.txt")
+auctions <- read.delim(file_path)
+
+# Take a glimpse at the dataset
+glimpse(auctions)
+
+# Model price vs. opening bid using auctions
+mdl_price_vs_openbid <- lm(price ~ openbid, data = auctions)
+
+# See the result
+mdl_price_vs_openbid
+```
+
+-   Using auctions, plot `price` versus `openbid` as a scatter plot with linear regression trend lines (no ribbon). *Look at the trend line.*
+
+```{r}
+# Using auctions, plot price vs. opening bid as a scatter plot with linear regression trend lines
+ggplot(auctions, aes(openbid, price)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+```
+
+Amazing auction modeling! The slope coefficient is small enough that it might as well be zero. That is, opening bid appears to have no effect on the final sale price for Palm Pilots.
+
+### `09-Modeling each auction type`
+
+You just saw that the opening bid price appeared not to affect the final sale price of Palm Pilots in the eBay auctions. Now let's look at what happens when you model the three auction types (3 day, 5 day, and 7 day) separately.
+
+`auctions` is available; `dplyr` and `ggplot2` are loaded.
+
+-   Fit a linear regression model of `price` versus `openbid` and `auction_type`, with an interaction, using the `auctions` dataset. *Look at the coefficients.*
+
+```{r}
+# Fit linear regression of price vs. opening bid and auction type, with an interaction.
+mdl_price_vs_both <- lm(price ~ openbid + auction_type + openbid:auction_type , data = auctions)
+
+# See the result
+mdl_price_vs_both
+```
+
+-   Using `auctions`, plot `price` versus `openbid`, colored by `auction_type`, as a scatter plot with linear regression trend lines (no ribbon). *Look at the trend lines.*
+
+```{r}
+# Using auctions, plot price vs. opening bid colored by auction type as a scatter plot with linear regr'n trend lines
+ggplot(auctions, aes(openbid, price, color = auction_type)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE) 
+```
+
+-   Which statement about the model resolves Simpson's Paradox?
+
+    -   The two models disagree, and the best model to take advice from depends upon the question we are trying to answer.
+
+Super Simpson solving! Interpreting models is a subtle art, and your conclusions need to be based on the question you are trying to answer. Here, the answer to 'Does opening bid affect final sale price?' is *no* overall, but the answer to 'Does opening bid price affect final sale price for any type of auction?' is *yes, for 5 day auctions*.
+
+###  `The End`
