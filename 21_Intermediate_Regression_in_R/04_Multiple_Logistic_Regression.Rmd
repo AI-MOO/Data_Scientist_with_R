@@ -1,0 +1,36 @@
+---
+title: "Multiple Logistic Regression"
+author: "Mohamad Osman"
+date: '2022-07-24'
+output: rmarkdown::github_document
+---
+
+# Section 04:Multiple Logistic Regression
+
+### **01-Visualizing multiple explanatory variables**
+
+Logistic regression also supports multiple explanatory variables. Plotting has similar issues as the linear regression case: it quickly becomes difficult to include more numeric variables in the plot. Here we'll look at the case of two numeric explanatory variables, and the solution is basically the same as before: use color to denote the response.
+
+Here there are only two possible values of response (zero and one), and later when we add predicted responses, the values all lie between zero and one. Once you include predicted responses, the most important thing to determine from the plot is whether the predictions are close to zero, or close to one. That means that a 2-color gradient split at 0.5 is really useful: responses above 0.5 are one color, and responses below 0.5 are another color.
+
+The bank churn dataset is available as `churn`; `ggplot2` is loaded.
+
+-   Using the `churn` dataset, plot the recency of purchase, `time_since_last_purchase`, versus the length of customer relationship, `time_since_first_purchase`, colored by whether or not the customer churned, `has_churned`.
+
+-   Add a point layer, with transparency set to `0.5`.
+
+-   Use a 2-color gradient, with midpoint `0.5`.
+
+-   Use the black and white theme.
+
+```{r}
+library(ggplot2)
+library(fst)
+library(dplyr)
+
+file_path <- file.path("..", "00_Datasets", "churn.fst")
+churn <- read_fst(file_path)
+head(churn)
+```
+
+\
