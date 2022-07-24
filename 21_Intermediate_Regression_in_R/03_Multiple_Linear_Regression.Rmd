@@ -1,0 +1,156 @@
+---
+title: "Multiple Linear Regression"
+author: "Mohamad Osman"
+date: '2022-07-24'
+output: html_document
+---
+
+# Section 03: Multiple Linear Regression
+
+### **`01-3D visualizations`**
+
+Since computer screens and paper are both two-dimensional objects, most plots are best suited to visualizing two variables at once. For the case of three continuous variables, you can draw a 3D scatter plot, but perspective problems usually make it difficult to interpret. There are some "flat" alternatives that provide easier interpretation, though they require a little thinking about to make.
+
+`taiwan_real_estate` is available; `magrittr`, `plot3D` and `ggplot2` are loaded.
+
+```{r}
+library(ggplot2)
+library(plot3D)
+library(fst)
+library(dplyr)
+library(magrittr)
+
+file_path <- file.path("..", "00_Datasets", "taiwan_real_estate.fst")
+taiwan_real_estate <- read_fst(file_path)
+```
+
+-   With the `taiwan_real_estate` dataset, draw a 3D scatter plot of the number of nearby convenience stores on the x-axis, the **square-root** of the distance to the nearest MRT stop on the y-axis, and the house price on the z-axis.
+
+```{r}
+# With taiwan_real_estate, draw a 3D scatter plot of no. of conv. stores, sqrt dist to MRT, and price
+taiwan_real_estate %$%
+    scatter3D(n_convenience, sqrt(dist_to_mrt_m),price_twd_msq)
+```
+
+-   With the `taiwan_real_estate` dataset, draw a scatter plot of the square-root of the distance to the nearest MRT stop versus the number of nearby convenience stores, colored by house price.
+
+-   Use the continuous viridis color scale, using the `"plasma"` option.
+
+```{r}
+# Using taiwan_real_estate, plot sqrt dist to MRT vs. no. of conv stores, colored by price
+ggplot(taiwan_real_estate, aes(n_convenience, sqrt(dist_to_mrt_m), color = price_twd_msq)) + 
+  # Make it a scatter plot
+  geom_point() +
+  # Use the continuous viridis plasma color scale
+  scale_color_viridis_c(option = "plasma")
+```
+
+### **`02-Modeling 2 numeric explanatory variables`**
+
+You already saw how to make a model and predictions with a numeric and a categorical explanatory variable. The code for modeling and predicting with two numeric explanatory variables in the same, other than a slight difference in how to specify the explanatory variables to make predictions against.
+
+Here you'll model and predict the house prices against the number of nearby convenience stores and the square-root of the distance to the nearest MRT station.
+
+`taiwan_real_estate` is available; `dplyr`, `tidyr` and `ggplot2` are loaded.
+
+-   Fit a linear regression of house price versus the number of convenience stores and the square-root of the distance to the nearest MRT stations, without an interaction, using the `taiwan_real_estate` dataset.
+
+```{r}
+# Fit a linear regression of price vs. no. of conv. stores and sqrt dist. to nearest MRT, no interaction
+mdl_price_vs_conv_dist <- lm(price_twd_msq ~ n_convenience + sqrt(dist_to_mrt_m),
+                            data = taiwan_real_estate)
+
+
+# See the result
+mdl_price_vs_conv_dist
+```
+
+-   Create expanded grid of explanatory variables with number of convenience stores from 0 to 10 and the distance to the nearest MRT station as a sequence from 0 to 80 in steps of 10, all squared (0, 100, 400, ..., 6400). Assign to `explanatory_data`.
+
+-   Add a column of predictions to `explanatory_data` using `mdl_price_vs_conv_dist` and `explanatory_data`. Assign to `prediction_data`.
+
+```{r}
+library(tidyr)
+
+# From previous step 
+mdl_price_vs_conv_dist <- lm(price_twd_msq ~ n_convenience + sqrt(dist_to_mrt_m), data = taiwan_real_estate)
+
+# Create expanded grid of explanatory variables with no. of conv. stores and  dist. to nearest MRT
+explanatory_data <- expand.grid(n_convenience = 0:10, 
+                                dist_to_mrt_m = seq(0,80,10) ^ 2
+                                )
+
+
+# Add predictions using mdl_price_vs_conv_dist and explanatory_data
+prediction_data <- explanatory_data %>%
+        mutate(price_twd_msq = predict(mdl_price_vs_conv_dist, explanatory_data))
+
+
+
+# See the result
+prediction_data
+```
+
+-   Extend the plot to add a layer of points using the prediction data, colored yellow, with size 3.
+
+```{r}
+# From previous steps
+mdl_price_vs_conv_dist <- lm(price_twd_msq ~ n_convenience + sqrt(dist_to_mrt_m), data = taiwan_real_estate)
+explanatory_data <- expand_grid(n_convenience = 0:10, dist_to_mrt_m = seq(0, 80, 10) ^ 2)
+prediction_data <- explanatory_data %>% 
+  mutate(price_twd_msq = predict(mdl_price_vs_conv_dist, explanatory_data))
+
+# Add predictions to plot
+ggplot(
+  taiwan_real_estate, 
+  aes(n_convenience, sqrt(dist_to_mrt_m), color = price_twd_msq)
+) + 
+  geom_point() +
+  scale_color_viridis_c(option = "plasma")+
+  # Add prediction points colored yellow, size 3
+  geom_point(data = prediction_data, color = "yellow", size = 3)
+```
+
+Nice numeric modeling! The modeling and prediction flow for two numeric variables is just as it was for the previous case that included a categorical variable. R automatically handles this different scenario.
+
+### **`03-Including an interaction`**
+
+Just as in the case with one numeric and one categorical explanatory variable, it is possible that numeric explanatory variables can interact. With this model structure, you'll get a third slope coefficient: one for each explanatory variable and one for the interaction.
+
+Here you'll run and predict the same model as in the previous exercise, but this time including an interaction between the explanatory variables.
+
+`taiwan_real_estate` is available; `dplyr`, `tidyr` and `ggplot2` are loaded.
+
+-   Fit a linear regression of house price versus the number of convenience stores and the square-root of the distance to the nearest MRT stations, *with* an interaction, using the `taiwan_real_estate` dataset.
+
+```{r}
+# Fit a linear regression of price vs. no. of conv. stores and sqrt dist. to nearest MRT, with interaction
+mdl_price_vs_conv_dist <- lm(price_twd_msq ~ n_convenience * sqrt(dist_to_mrt_m), data =taiwan_real_estate)
+
+
+
+# See the result
+mdl_price_vs_conv_dist
+```
+
+-   Create expanded grid of explanatory variables with number of convenience stores from 0 to 10 and the distance to the nearest MRT station as a sequence from 0 to 80 in steps of 10, all squared (0, 100, 400, ..., 6400). Assign to `explanatory_data`.
+
+-   Add a column of predictions to `explanatory_data` using `mdl_price_vs_conv_dist` and `explanatory_data`. Assign to `prediction_data`.
+
+```{r}
+
+```
+
+\
+
+\
+
+
+
+
+
+
+
+\
+
+
