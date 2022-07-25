@@ -27,10 +27,465 @@ The bank churn dataset is available as `churn`; `ggplot2` is loaded.
 library(ggplot2)
 library(fst)
 library(dplyr)
-
+library(yardstick)
 file_path <- file.path("..", "00_Datasets", "churn.fst")
 churn <- read_fst(file_path)
 head(churn)
 ```
 
-\
+```{r}
+# Using churn, plot recency vs. length of relationship colored by churn status
+ggplot(churn, aes(time_since_first_purchase, time_since_last_purchase, color = has_churned)) +
+  # Make it a scatter plot, with transparency 0.5
+  geom_point(alpha = 0.5) +
+  # Use a 2-color gradient split at 0.5
+  scale_color_gradient2(midpoint = 0.5) +
+  # Use the black and white theme
+  theme_bw()
+```
+
+### **`02-Logistic regression with 2 explanatory variables`**
+
+To include multiple explanatory variables in logistic regression models, the syntax is the same as for linear regressions. The only change is the same as in the simple case: you run a *generalized* linear model with a binomial error family.
+
+Here you'll fit a model of churn status with both of the explanatory variables from the dataset: the length of customer relationship and the recency of purchase.
+
+`churn` is available.
+
+-   Fit a logistic regression of churn status, `has_churned` versus length of customer relationship, `time_since_first_purchase` and recency of purchase, `time_since_last_purchase`, and an interaction between the explanatory variables.
+
+```{r}
+# Fit a logistic regression of churn status vs. length of relationship, recency, and an interaction
+mdl_churn_vs_both_inter <- glm(has_churned ~ time_since_first_purchase * time_since_last_purchase, data = churn, family = binomial)
+
+
+# See the result
+mdl_churn_vs_both_inter
+```
+
+### 
+**`03-Logistic regression prediction`**
+
+As with linear regression, the joy of logistic regression is that you can make predictions. Let's step through the prediction flow one more time!
+
+`churn` and `mdl_churn_vs_both_inter` are available; `dplyr`, `tidyr` and `ggplot2` are loaded.
+
+```{r}
+# Make a grid of explanatory data
+explanatory_data <- expand.grid(
+  # Set len. relationship to seq from -2 to 4 in steps of 0.1
+  time_since_first_purchase = seq(-2, 4, 0.1),
+  # Set recency to seq from -1 to 6 in steps of 0.1
+  time_since_last_purchase = seq(-1, 6, 0.1)
+)
+
+# See the result
+explanatory_data
+```
+
+-   Add a column to `explanatory_data` named `has_churned` containing predictions using `mdl_churn_vs_both_inter` and `explanatory_data` with type `"response"`.
+
+```{r}
+# Add a column of predictions using mdl_churn_vs_both_inter and explanatory_data with type response
+prediction_data <- explanatory_data %>%
+    mutate(has_churned = predict(mdl_churn_vs_both_inter, explanatory_data, type = "response"))
+
+
+# See the result
+prediction_data
+```
+
+-   Extend the plot by adding points from `prediction_data` with size 3 and shape 15.
+
+```{r}
+# Extend the plot
+ggplot(
+  churn, 
+  aes(time_since_first_purchase, time_since_last_purchase, color = has_churned)
+) +
+  geom_point(alpha = 0.5) +
+  scale_color_gradient2(midpoint = 0.5) +
+  theme_bw() +
+  # Add points from prediction_data with size 3 and shape 15
+  geom_point(data = prediction_data, size = 3, shape = 15)
+```
+
+Painless probability predictions! The prediction workflow should be familiar now: you've seen it many times before. The only thing to remember here is to set the prediction type to `"response"`.
+
+### **`04-Confusion matrix`**
+
+When the response variable has just two outcomes, like the case of churn, the measures of success for the model are "how many cases where the customer churned did the model correctly predict?" and "how many cases where the customer didn't churn did the model correctly predict?". These can be found by generating a confusion matrix and calculating summary metrics on it. A mosaic plot is the natural way to visualize the results.
+
+`churn` and `mdl_churn_vs_both_inter` are available; `dplyr` and `yardstick` are loaded.
+
+-   Get the actual responses from the `churn` dataset.
+
+-   Get the predicted responses from the rounded, fitted values of `mdl_churn_vs_both_inter`.
+
+-   Create a table of the actual and predicted response values.
+
+-   Convert the table to a `conf_mat` confusion matrix object.
+
+```{r}
+# Get the actual responses from churn
+actual_response <- churn$has_churned
+
+# Get the predicted responses from the model
+predicted_response <- round(fitted(mdl_churn_vs_both_inter))
+
+# Get a table of these values
+outcomes <- table(predicted_response, actual_response)
+
+# Convert the table to a conf_mat object
+confusion <- conf_mat(outcomes)
+
+# See the result
+confusion
+```
+
+-   "Automatically" plot the confusion matrix, `confusion`.
+
+-   Get summary metrics from the confusion matrix. Remember that the churn event is in the second row/column of the matrix.
+
+```{r}
+# From previous step
+actual_response <- churn$has_churned
+predicted_response <- round(fitted(mdl_churn_vs_both_inter))
+outcomes <- table(predicted_response, actual_response)
+confusion <- conf_mat(outcomes)
+
+# "Automatically" plot the confusion matrix
+autoplot(confusion)
+
+# Get summary metrics
+summary(confusion, event_level = "second")
+```
+
+### 
+
+`05-Cumulative distribution function`
+
+![](images/chrome_aJ9dZWxtiA.png)
+
+Understanding the logistic distribution is key to understanding logistic regression. Like the normal (Gaussian) distribution, it is a probability distribution of a single continuous variable. Here you'll visualize the *cumulative distribution function* (CDF) for the logistic distribution. That is, if you have a logistically distributed variable, `x`, and a possible value, `xval`, that `x` could take, then the CDF gives the probability that `x` is less than `xval`.
+
+The logistic distribution's CDF is calculated with the logistic function (hence the name). The plot of this has an S-shape, known as a *sigmoid curve*. An important property of this function is that it takes an input that can be any number from minus infinity to infinity, and returns a value between zero and one.
+
+`ggplot2` is loaded.
+
+Create a tibble containing three columns.
+
+-   `x` values as a sequence from minus ten to ten in steps of `0.1`.
+
+-   `logistic_x` made from `x` transformed with the logistic distribution CDF.
+
+-   `logistic_x_man` made from `x` transformed with a logistic function calculated from the equation cdf(x)=1(1+exp(−x)).
+
+-   Check that both logistic transformations (`logistic_x` and `logistic_x_man`) have the same values with `all.equal()`.
+
+```{r}
+logistic_distn_cdf <- tibble(
+  # Make a seq from -10 to 10 in steps of 0.1
+  x = seq(-10, 10, 0.1),
+  # Transform x with built-in logistic CDF
+  logistic_x = plogis(x),
+  # Transform x with manual logistic
+  logistic_x_man = 1 / (1 + exp(-x))
+) 
+
+# Check that each logistic function gives the same results
+all.equal(
+  logistic_distn_cdf$logistic_x, 
+  logistic_distn_cdf$logistic_x_man
+)
+```
+
+-   Using the `logistic_distn_cdf` dataset, plot `logistic_x` versus `x` as a line plot.
+
+```{r}
+# From previous step
+logistic_distn_cdf <- tibble(
+  x = seq(-10, 10, 0.1),
+  logistic_x = plogis(x),
+  logistic_x_man = 1 / (1 + exp(-x))
+)
+
+# Using logistic_distn_cdf, plot logistic_x vs. x
+ggplot(logistic_distn_cdf, aes(x, logistic_x)) +
+  # Make it a line plot
+  geom_line()
+```
+
+### **`06-Inverse cumulative distribution function`**
+
+The logistic function (logistic distribution CDF) has another important property: each x input value is transformed to a unique value. That means that the transformation can be reversed. The *logit function* is the name for the *inverse logistic function*, which is also the *logistic distribution inverse cumulative distribution function*. (All three terms mean exactly the same thing.)
+
+The logit function takes values between zero and one, and returns values between minus infinity and infinity.
+
+`dplyr` and `ggplot2` are loaded.
+
+Create a tibble containing three columns.
+
+-   `x` values as a sequence from minus `0.001` to `0.999` in steps of `0.001`.
+
+-   `logit_p` made from `p` transformed with the logistic distribution inverse CDF.
+
+-   `logit_p_man` made from `p` transformed with the equation log(p(1−p)).
+
+-   Check that both logit transformations (`logit_p` and `logit_p_man`) have the same values with `all.equal()`.
+
+```{r}
+logistic_distn_inv_cdf <- tibble(
+  # Make a seq from 0.001 to 0.999 in steps of 0.001
+  p = seq(0.001, 0.999, 0.001),
+  # Transform with built-in logistic inverse CDF
+  logit_p = qlogis(p),
+  # Transform with manual logit
+  logit_p_man = log(p/(1-p))
+) 
+
+# Check that each logistic function gives the same results
+all.equal(
+  logistic_distn_inv_cdf$logit_p,
+  logistic_distn_inv_cdf$logit_p_man
+)
+```
+
+-   Using the `logistic_distn_inv_cdf` dataset, plot `logit_p` versus `p` as a line plot.
+
+```{r}
+# From previous step
+logistic_distn_inv_cdf <- tibble(
+  p = seq(0.001, 0.999, 0.001),
+  logit_p = qlogis(p),
+  logit_p_man = log(p / (1 - p))
+)
+
+# Using logistic_distn_inv_cdf, plot logit_p vs. p
+ggplot(logistic_distn_inv_cdf, aes(p, logit_p)) +
+  # Make it a line plot
+  geom_line()
+```
+
+Incredible inversing! The inverse CDF is the "opposite" transformation to the CDF. If you flip the x and y axes on this plot, you get the same plot you saw in the previous exercise.
+
+### **`07-binomial family argument`**
+
+The big difference between running a linear regression with `lm()` and running a logistic regression with `glm()` is that you have to set `glm()`'s `family` argument to `binomial`. `binomial()` is a function that returns a list of other functions that tell `glm()` how to perform calculations in the regression. The two most interesting functions are `linkinv` and `linkfun`, which are used for transforming variables from the whole number line (minus infinity to infinity) to probabilities (zero to one) and back again.
+
+A vector of values, `x`, and a vector of probabilities, `p`, are available.
+
+-   Examine the structure of the `binomial()` function. *Notice that it contains two elements that are functions,* `binomial()$linkinv`*, and* `binomial()$linkfun`.
+
+-   Call `binomial()$linkinv()` on `x`, assigning to `linkinv_x`.
+
+-   Check that `linkinv_x` and `plogis()` of `x` give the same results with `all.equal()`.
+
+-   Call `binomial()$linkfun()` on `p`, assigning to `linkfun_p`.
+
+-   Check that `linkfun_p` and `qlogis()` of `p` give the same results.
+
+```{r}
+x_file_path <- file.path("..", "00_Datasets", "x_values_co21.txt")
+p_file_path <- file.path("..", "00_Datasets", "p_values_co21.txt")
+
+x <- read.delim(x_file_path)$x
+p <- read.delim(p_file_path)$p
+```
+
+```{r}
+# Look at the structure of binomial() function
+str(binomial())
+
+# Call the link inverse on x
+linkinv_x <- binomial()$linkinv(x)
+
+# Check linkinv_x and plogis() of x give same results 
+all.equal(
+    linkinv_x, 
+    plogis(x)
+)
+
+# Call the link fun on p
+linkfun_p <- binomial()$linkfun(p)
+
+# Check linkfun_p and qlogis() of p give same results  
+all.equal(
+    linkfun_p,
+    qlogis(p)
+)
+```
+
+Terrific transforming! The `binomial()` family object contains `linkinv` and `linkfun` functions that correspond to the logistic distribution CDF and inverse CDF respectively. These are used to translate between numbers and probabilities.
+
+### 
+**`08-Logistic distribution parameters`**
+
+The logistic distribution CDF is not just a single curve. In the same way that the normal distribution has mean and standard deviation parameters that affect the CDF curve, the logistic distribution has *location* and *scale* parameters. Here, you'll visualize how changing those parameters changes the CDF curve.
+
+How do changes to the parameters change the CDF curve?
+
+![](images/chrome_S3l18sSlZs.png)
+
+![](images/chrome_o9ikyEcnJ1.png)
+As \`location\` increases, the logistic CDF curve moves rightwards. As \`scale\` increases, the steepness of the slope decreases.
+
+### 
+**`09-Likelihood & log-likelihood`**
+
+Linear regression tries to optimize a "sum of squares" metric in order to find the best fit. That metric isn't applicable to logistic regression. Instead, logistic regression tries to optimize a metric called *likelihood*, or a related metric called *log-likelihood*.
+
+The dashboard shows churn status versus line time since last purchase from the `churn` dataset. The blue dotted line is the logistic regression prediction line calculated by ggplot2's `geom_smooth()`. (That is, it's the "best fit" line.) The black solid line shows a prediction line calculated from the intercept and slope coefficients you specify as `plogis(intercept + slope * time_since_last_purchase)`.
+
+Change the intercept and slope coefficients and watch how the likelihood and log-likelihood values change.
+
+As you get closer to the best fit line, what statement is true about likelihood and log-likelihood?
+
+![](images/chrome_uTATSeYUVw.png){width="475"}
+Both likelihood and log-likelihood increase to a maximum value.
+
+It seems likely that you know what you are doing! Logistic regression chooses the prediction line that gives you the maximum likelihood value. It also gives maximum log-likelihood.
+
+### **`10-Logistic regression algorithm`**
+
+Let's dig into the internals and implement a logistic regression algorithm. Since R's `glm()` function is very complex, you'll stick to implementing simple logistic regression for a single dataset.
+
+Rather than using sum of squares as the metric, we want to use likelihood. However, log-likelihood is more computationally stable, so we'll use that instead. Actually, there is one more change: since we want to maximize log-likelihood, but `optim()` defaults to finding minimum values, it is easier to calculate the *negative* log-likelihood.
+The log-likelihood value for each observation is\
+![](images/chrome_FeH62KvESK-01.png)
+
+The log-likelihood value for each observation is log(ypred)∗yactual+log(1−ypred)∗(1−yactual)
+
+The metric to calculate is minus the sum of these log-likelihood contributions.
+
+The explanatory values (the `time_since_last_purchase` column of `churn`) are available as `x_actual`. The response values (the `has_churned` column of `churn`) are available as `y_actual`.
+
+```{r}
+file_path <- file.path("..", "00_Datasets", "x_y_actual_LR.txt")
+
+x_actual <- read.delim(file_path)$x_actual
+y_actual <- read.delim(file_path)$y_actual
+```
+
+-   Set the intercept to one.
+
+-   Set the slope to `0.5`.
+
+-   Calculate the predicted y-values as the intercept plus the slope times the actual x-values, all transformed with the logistic distribution CDF.
+
+-   Calculate the log-likelihood for each term as the log of the predicted y-values times the actual y-values, plus the log of one minus the predicted y-values times one minus the actual y-values.
+
+-   Calculate minus the sum of the log-likelihoods for each term.
+
+```{r}
+# Set the intercept to 1
+intercept <- 1
+
+# Set the slope to 0.5
+slope <- 0.5
+
+# Calculate the predicted y values
+y_pred <- plogis(intercept + slope * x_actual)
+
+# Calculate the log-likelihood for each term
+log_likelihoods <- log(y_pred) * y_actual + log(1 - y_pred) * (1 - y_actual)
+
+# Calculate minus the sum of the log-likelihoods for each term
+-sum(log_likelihoods)
+```
+
+Complete the function body.
+
+-   Get the intercept from the first element of `coeffs`.
+
+-   Get the slope from the second element of `coeffs`.
+
+-   Calculate the predicted y-values as the intercept plus the slope times the actual x-values, transformed with the logistic distribution CDF.
+
+-   Calculate the log-likelihood for each term as the log of the predicted y-values times the actual y-values, plus the log of one minus the predicted y-values times one minus the actual y-values.
+
+-   Calculate minus the sum of the log-likelihoods for each term.
+
+```{r}
+calc_neg_log_likelihood <- function(coeffs) {
+  # Get the intercept coeff
+  intercept <- coeffs[1]
+
+  # Get the slope coeff
+  slope <- coeffs[2]
+
+  # Calculate the predicted y values
+  y_pred <- plogis(intercept + slope * x_actual)
+
+  # Calculate the log-likelihood for each term
+  log_likelihoods <- log(y_pred) * y_actual + log(1 - y_pred) * (1 - y_actual)
+
+  # Calculate minus the sum of the log-likelihoods for each term
+  -sum(log_likelihoods)
+}
+
+```
+
+Optimize the sum of squares metric.
+
+-   Call an optimization function.
+
+-   Initially guess that the intercept is zero and the slope is one.
+
+-   Use `calc_neg_log_likelihood` as the optimization function.
+
+```{r}
+# From previous step
+calc_neg_log_likelihood <- function(coeffs) {
+  intercept <- coeffs[1]
+  slope <- coeffs[2]
+  y_pred <- plogis(intercept + slope * x_actual)
+  log_likelihoods <- log(y_pred) * y_actual + log(1 - y_pred) * (1 - y_actual)
+  -sum(log_likelihoods)
+}
+
+# Optimize the metric
+optim(
+  # Initially guess 0 intercept and 1 slope
+  par = c(intercept = 0, slope = 1),
+  # Use calc_neg_log_likelihood as the optimization fn 
+  fn = calc_neg_log_likelihood
+)
+
+# Compare the coefficients to those calculated by glm()
+glm(has_churned ~ time_since_last_purchase, data = churn, family = binomial)
+```
+
+### 
+`The End`
+
+
+
+ 
+
+
+
+ 
+
+
+
+
+
+ 
+
+ 
+
+
+ 
+
+
+
+
+
+
+
+ 
+
+ 
+
+ 
