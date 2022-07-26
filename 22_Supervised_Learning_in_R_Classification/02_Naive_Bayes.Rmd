@@ -47,7 +47,105 @@ head(locations)
 -   Print the value of `p_A_given_B`.
 
 ```{r}
+# Compute P(A) 
+p_A <- nrow(subset(where9am, location == "office")) / nrow(where9am)
+
+# Compute P(B)
+p_B <- nrow(subset(where9am, daytype == "weekday")) / nrow(where9am)
+
+# Compute the observed P(A and B)
+p_AB <- nrow(subset(where9am, (location == "office") & (daytype == "weekday"))) / nrow(where9am)
+
+# Compute P(A | B) and print its value
+p_A_given_B <- p_AB / p_B
+print(p_A_given_B)
+```
+
+### **`02-Understanding dependent events`**
+
+In the previous exercise, you found that there is a 60% chance Brett is in the office at 9am given that it is a weekday. On the other hand, if Brett is never in the office on a weekend, which of the following is/are true?
+
+-   P(office and weekend) = 0.
+
+-   P(office \| weekend) = 0.
+
+-   Brett's location is dependent on the day of the week.
+
+-   All of the above. `(the answer)`
+
+### 
+**`03-A simple Naive Bayes location model`**
+
+The previous exercises showed that the probability that Brett is at work or at home at 9am is highly dependent on whether it is the weekend or a weekday.
+
+To see this finding in action, use the `where9am` data frame to build a Naive Bayes model on the same data.
+
+You can then use this model to predict the future: where does the model think that Brett will be at 9am on Thursday and at 9am on Saturday?
+
+The data frame `where9am` is available in your workspace. This dataset contains information about Brett's location at 9am on different days.
+
+```{r}
+# Load the naivebayes package
+library(naivebayes)
+
+# Build the location prediction model
+locmodel <- naive_bayes(location ~ daytype, data = where9am)
+
+
+thursday9am <- data.frame(daytype = "weekday")
+saturday9am <- data.frame(daytype = "weekend")
+
+# Predict Thursday's 9am location
+predict(locmodel, thursday9am)
+
+# Predict Saturdays's 9am location
+predict(locmodel, saturday9am)
+```
+
+Awesome job! Not surprisingly, Brett is most likely at the office at 9am on a Thursday, but at home at the same time on a Saturday!
+
+### **`04-Examining "raw" probabilities`**
+
+The `naivebayes` package offers several ways to peek inside a Naive Bayes model.
+
+Typing the name of the model object provides the *a priori* (overall) and conditional probabilities of each of the model's predictors. If one were so inclined, you might use these for calculating *posterior* (predicted) probabilities by hand.
+
+Alternatively, R will compute the posterior probabilities for you if the `type = "prob"` parameter is supplied to the `predict()` function.
+
+Using these methods, examine how the model's predicted 9am location probability varies from day-to-day. The model `locmodel` that you fit in the previous exercise is available for you to use, and the `naivebayes` package has been pre-loaded.
+
+-   Print the `locmodel` object to the console to view the computed *a priori* and conditional probabilities.
+
+-   Use the `predict()` function similarly to the previous exercise, but with `type = "prob"` to see the predicted probabilities for Thursday at 9am.
+
+-   Compare these to the predicted probabilities for Saturday at 9am.
+
+```{r}
+# Examine the location prediction model
+locmodel
+
+# Obtain the predicted probabilities for Thursday at 9am
+predict(locmodel, thursday9am, type = "prob")
+
+# Obtain the predicted probabilities for Saturday at 9am
+predict(locmodel, saturday9am, type = "prob")
 
 ```
 
+### **`05-Understanding independence`**
+
+Understanding the idea of event independence will become important as you learn more about how "naive" Bayes got its name. Which of the following is true about independent events?
+
+**`Ans.`** Knowing the outcome of one event does not help predict the other.
+
+Yes! One event is independent of another if knowing one doesn't give you information about how likely the other is. For example, knowing if it's raining in New York doesn't help you predict the weather in San Francisco. The weather events in the two cities are independent of each other.
+
+
+
+
+
 \
+
+
+
+
