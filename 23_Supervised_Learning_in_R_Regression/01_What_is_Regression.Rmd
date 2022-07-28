@@ -1,0 +1,224 @@
+---
+title: "What is Regression?"
+author: "Mohamad Osman"
+date: '2022-07-28'
+output: rmarkdown::github_document
+---
+
+# Section 01: What is Regression?
+
+### **`01-Identify the regression tasks`**
+
+From a machine learning perspective, the term *regression* generally encompasses the prediction of continuous values. Statistically, these predictions are the *expected value*, or the average value one would observe for the given input values.
+
+Which of the following tasks are regression problems?
+
+-   Predict the student's score (0 - 100) on the final exam, given scores on midterms and homework.
+
+### **`02-Code a simple one-variable regression`**
+
+```{r}
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+file_path <- file.path("..", "00_Datasets", "unemployment.txt")
+unemployment <- read.delim(file_path)
+```
+
+For the first coding exercise, you'll create a formula to define a one-variable modeling task, and then fit a linear model to the data. You are given the rates of male and female unemployment in the United States over several years ([**Source**](https://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/slr/frames/slr04.html)).
+
+The task is to predict the rate of female unemployment from the observed rate of male unemployment. The outcome is `female_unemployment`, and the input is `male_unemployment`.
+
+The sign of the variable coefficient tells you whether the outcome increases (+) or decreases (-) as the variable increases.
+
+Recall the calling interface for [**`lm()`**](https://www.rdocumentation.org/packages/stats/topics/lm) is:
+
+`lm(formula, data = ___)`
+
+The `unemployment` data frame has been pre-loaded.
+
+-   Define a formula that expresses `female_unemployment` as a function of `male_unemployment`. Assign the formula to the variable `fmla` and print it.
+
+-   Then use `lm()` and `fmla` to fit a linear model to predict female unemployment from male unemployment using the dataset `unemployment`.
+
+-   Print the model. Is the coefficient for male unemployment consistent with what you would expect? Does female unemployment increase as male unemployment does?
+
+```{r}
+# unemployment is available
+summary(unemployment)
+
+# Define a formula to express female_unemployment as a function of male_unemployment
+fmla <- female_unemployment ~ male_unemployment
+
+# Print it
+fmla
+
+# Use the formula to fit a model: unemployment_model
+unemployment_model <- lm(fmla, data = unemployment)
+
+# Print it
+unemployment_model
+```
+
+### **`03-Examining a model`**
+
+Let's look at the model `unemployment_model` that you have just created. There are a variety of different ways to examine a model; each way provides different information. We will use [**`summary()`**](https://www.rdocumentation.org/packages/base/topics/summary), [**`broom::glance()`**](https://www.rdocumentation.org/packages/broom/topics/glance), and [**`sigr::wrapFTest()`**](https://www.rdocumentation.org/packages/sigr/topics/wrapFTest).
+
+The `broom` and `sigr` packages have been pre-loaded, and `unemployment_model` is available for you.
+
+```{r}
+library(broom)
+library(sigr)
+```
+
+-   Print `unemployment_model` again. What information does it report?
+
+-   Call `summary()` on `unemployment_model`. In addition to the coefficient values, you get standard errors on the coefficient estimates, and some goodness-of-fit metrics like R-squared.
+
+-   Call `glance()` on the model to see the performance metrics in an orderly data frame. Can you match the information from `summary()` to the columns of `glance()`?
+
+-   Now call `wrapFTest()` on the model to see the R-squared again
+
+```{r}
+# Print unemployment_model
+unemployment_model
+print("--------------------------")
+
+# Call summary() on unemployment_model to get more details
+summary(unemployment_model)
+print("--------------------------")
+
+# Call glance() on unemployment_model to see the details in a tidier form
+glance(unemployment_model)
+
+# Call wrapFTest() on unemployment_model to see the most relevant details
+wrapFTest(unemployment_model)
+```
+
+### **`04-Predicting from the unemployment model`**
+
+In this exercise, you will use your unemployment model `unemployment_model` to make predictions from the `unemployment` data, and compare predicted female unemployment rates to the actual observed female unemployment rates on the training data, `unemployment`. You will also use your model to predict on the new data in `newrates`, which consists of only one observation, where male unemployment is 5%.
+
+The [**`predict()`**](https://www.rdocumentation.org/packages/stats/topics/predict.lm) interface for `lm` models takes the form
+
+    predict(model, newdata)
+
+You will use the `ggplot2` package to make the plots, so you will add the prediction column to the `unemployment` data frame. You will plot outcome versus prediction, and compare them to the line that represents perfect predictions (that is when the outcome is equal to the predicted value).
+
+The `ggplot2` command to plot a scatterplot of `dframe$outcome` versus `dframe$pred` (`pred` on the *x* axis, `outcome` on the *y* axis), along with a blue line where *`outcome == pred`* is as follows:
+
+    ggplot(dframe, aes(x = pred, y = outcome)) + 
+           geom_point() +  
+           geom_abline(color = "blue")
+
+`unemployment`, `unemployment_model`, and `newrates` have been pre-loaded for you.
+
+-   Use `predict()` to predict female unemployment rates from the `unemployment` data. Assign it to a new column: `prediction`.
+
+-   Use the [**`library()`**](https://www.rdocumentation.org/packages/base/topics/library) command to load the `ggplot2` package.
+
+-   Use `ggplot()` to compare the predictions to actual unemployment rates. Put the predictions on the *x* axis. How close are the results to the line of perfect prediction?
+
+-   Use the data frame `newrates` to predict expected female unemployment rate when male unemployment is 5%. Assign the answer to the variable `pred` and print it.
+
+```{r}
+# unemployment is available
+summary(unemployment)
+
+# newrates is available
+newrates <- data.frame(male_unemployment = 5)
+newrates
+
+# Predict female unemployment in the unemployment dataset
+unemployment$prediction <-  predict(unemployment_model, unemployment)
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# Make a plot to compare predictions to actual (prediction on x axis). 
+ggplot(unemployment, aes(x = prediction, y = female_unemployment)) + 
+  geom_point() +
+  geom_abline(color = "blue")
+
+# Predict female unemployment rate when male unemployment is 5%
+pred <- predict(unemployment_model, newrates)
+pred
+```
+
+### **`05-Multivariate linear regression (Part 1)`**
+
+In this exercise, you will work with the blood pressure dataset ([**Source**](https://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/mlr/frames/frame.html)), and model `blood_pressure` as a function of `weight` and `age`.
+
+The data frame `bloodpressure` has been pre-loaded for you.
+
+-   Define a formula that expresses `blood_pressure` explicitly as a function of `age` and `weight`. Assign the formula to the variable `fmla` and print it.
+
+-   Use `fmla` to fit a linear model to predict `blood_pressure` from `age` and `weight` in the dataset `bloodpressure`. Call the model `bloodpressure_model`.
+
+-   Print the model and call `summary()` on it. Does blood pressure increase or decrease with age? With weight?
+
+```{r}
+file_path <- file.path("..", "00_Datasets", "bloodpressure.rds")
+bloodpressure <- readRDS(file_path)
+```
+
+```{r}
+# bloodpressure is available
+summary(bloodpressure)
+
+# Create the formula and print it
+fmla <- blood_pressure ~ age + weight
+fmla
+
+# Fit the model: bloodpressure_model
+bloodpressure_model <- lm(fmla, data = bloodpressure)
+
+# Print bloodpressure_model and call summary() 
+bloodpressure_model
+summary(bloodpressure_model)
+```
+
+Good! One of the advantages of linear regression is that you can interpret the effects of each variable on the input -- to a certain extent. In this case the coefficients for both age and weight are positive, which indicates that bloodpressure tends to increase as both age and weight increase.
+
+### **`06-Multivariate linear regression (Part 2)`**
+
+Now you will make predictions using the blood pressure model `bloodpressure_model` that you fit in the previous exercise.
+
+You will also compare the predictions to outcomes graphically. `ggplot2` has already been loaded. Recall the plot command takes the form:
+
+    ggplot(dframe, aes(x = pred, y = outcome)) + 
+         geom_point() + 
+         geom_abline(color = "blue")
+
+`bloodpressure` and `bloodpressure_model` are available for you to use.
+
+-   Use `predict()` to predict blood pressure in the `bloodpressure` dataset. Assign the predictions to the column `prediction`.
+
+-   Graphically compare the predictions to actual blood pressures. Put predictions on the x axis. How close are the results to the line of perfect prediction?
+
+```{r}
+# bloodpressure is available
+summary(bloodpressure)
+
+# bloodpressure_model is available
+bloodpressure_model
+
+# Predict blood pressure using bloodpressure_model: prediction
+bloodpressure$prediction <- predict(bloodpressure_model, bloodpressure)
+
+# Plot the results
+ggplot(bloodpressure, aes(prediction, blood_pressure)) + 
+    geom_point() +
+    geom_abline(color = "blue")
+```
+
+### `The End`
+
+
+
+
+
+ 
+
+
