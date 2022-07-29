@@ -1,0 +1,550 @@
+---
+title: "Issues to Consider"
+author: "Mohamad Osman"
+date: '2022-07-29'
+output: rmarkdown::github_document
+---
+
+# Section 01: Issues to Consider
+
+```{r}
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(tidyr)
+
+file_path <- file.path("..", "00_Datasets", "flowers.txt")
+flowers <- read.delim(file_path)
+```
+
+### `01-Examining the structure of categorical inputs`
+
+For this exercise, you will call [**`model.matrix()`**](https://www.rdocumentation.org/packages/stats/topics/model.matrix) to examine how R represents data with both categorical and numerical inputs for modeling. The dataset `flowers` (derived from the `Sleuth3` package) has been loaded for you. It has the following columns:
+
+-   `Flowers`: the average number of flowers on a *meadowfoam* plant
+
+-   `Intensity`: the intensity of a light treatment applied to the plant
+
+-   `Time`: A categorical variable - when (`Late` or `Early`) in the lifecycle the light treatment occurred
+
+The ultimate goal is to predict `Flowers` as a function of `Time` and `Intensity`.
+
+-   Call the [**`str()`**](https://www.rdocumentation.org/packages/utils/topics/str) function on `flowers` to see the types of each column.
+
+-   Use the [**`unique()`**](https://www.rdocumentation.org/packages/base/topics/unique) function on the column `flowers$Time` to see the possible values that `Time` takes. How many unique values are there?
+
+-   Create a formula to express `Flowers` as a function of `Intensity` and `Time`. Assign it to the variable `fmla` and print it.
+
+-   Use `fmla` and `model.matrix()` to create the model matrix for the data frame `flowers`. Assign it to the variable `mmat`.
+
+-   Use [**`head()`**](https://www.rdocumentation.org/packages/utils/topics/head) to examine the first 20 lines of `flowers`.
+
+-   Now examine the first 20 lines of `mmat`.
+
+    -   Is the numeric column `Intensity` different?
+
+    -   What happened to the categorical column `Time` from `flowers`?
+
+    -   How is `Time == 'Early'` represented? And `Time == 'Late'`?
+
+```{r}
+# Call str on flowers to see the types of each column
+str(flowers)
+
+# Use unique() to see how many possible values Time takes
+unique(flowers$Time)
+
+# Build and print a formula to express Flowers as a function of Intensity and Time: fmla
+(fmla <- as.formula("Flowers ~ Intensity + Time"))
+
+# Use fmla and model.matrix to see how the data is represented for modeling
+mmat <- model.matrix(fmla, data = flowers)
+
+# Examine the first 20 lines of flowers
+head(flowers, 20)
+
+# Examine the first 20 lines of mmat
+head(mmat, 20)
+```
+
+### **`02-Modeling with categorical inputs`**
+
+For this exercise, you will fit a linear model to the `flowers` data, to predict `Flowers` as a function of `Time` and `Intensity`.
+
+The model formula `fmla` that you created in the previous exercise is still available, as is the model matrix `mmat`.
+
+-   Use `fmla` and `lm` to train a linear model that predicts `Flowers` from `Intensity` and `Time`. Assign the model to the variable `flower_model`.
+
+-   Use `summary()` to remind yourself of the structure of `mmat`.
+
+-   Use `summary()` to examine the `flower_model`. Do the variables match what you saw in `mmat`?
+
+-   Use `flower_model` to predict the number of flowers. Add the predictions to `flowers` as the column `predictions`.
+
+-   Fill in the blanks to plot predictions vs. actual flowers (predictions on the x-axis).
+
+```{r}
+# flowers is available
+str(flowers)
+
+# fmla is available
+fmla
+
+# Fit a model to predict Flowers from Intensity and Time : flower_model
+flower_model <- lm(fmla, data = flowers)
+
+# Use summary on mmat to remind yourself of its structure
+summary(mmat)
+
+# Use summary to examine flower_model 
+summary(flower_model)
+
+# Predict the number of flowers on each plant
+flowers$predictions <- predict(flower_model, flowers)
+
+# Plot predictions vs actual flowers (predictions on x-axis)
+ggplot(flowers, aes(x = predictions, y = Flowers)) + 
+  geom_point() +
+  geom_abline(color = "blue") 
+```
+
+### **`03-Modeling an interaction`**
+
+In this exercise, you will use interactions to model the effect of gender and gastric activity on alcohol metabolism.
+
+The `alcohol` data frame has been pre-loaded, and has the columns:
+
+-   `Metabol`: the alcohol metabolism rate
+
+-   `Gastric`: the rate of gastric alcohol dehydrogenase activity
+
+-   `Sex`: the sex of the drinker (`Male` or `Female`)
+
+In the video, we fit three models to the `alcohol` data:
+
+-   one with only additive (main effect) terms : `Metabol ~ Gastric + Sex`
+
+-   two models, each with interactions between gastric activity and sex
+
+You saw that one of the models with interaction terms had a better R-squared than the additive model, suggesting that using interaction terms gives a better fit. In this exercise, you will compare the R-squared of one of the interaction models to the main-effects-only model.
+
+Recall that the operator `:` designates the interaction between two variables. The operator `*` designates the interaction between the two variables, plus the main effects.
+
+    x*y = x + y + x:y
+
+-   Write a formula that expresses `Metabol` as a function of `Gastric` and `Sex` with no interactions.
+
+    -   Assign the formula to the variable `fmla_add` and print it.
+
+-   Write a formula that expresses `Metabol` as a function of the interaction between `Gastric` and `Sex`.
+
+    -   Add `Gastric` as a main effect, but not `Sex`.
+
+    -   Assign the formula to the variable `fmla_interaction` and print it.
+
+-   Fit a linear model with only main effects: `model_add` to the data.
+
+-   Fit a linear model with the interaction: `model_interaction` to the data.
+
+-   Call `summary()` on both models. Which has a better R-squared?
+
+```{r}
+alc_file_path <- file.path("..", "00_Datasets", "alcohol.txt")
+alcohol <- read.delim(alc_file_path)
+head(alcohol)
+```
+
+```{r}
+# alcohol is available
+summary(alcohol)
+
+# Create the formula with main effects only
+(fmla_add <- as.formula("Metabol ~ Gastric + Sex") )
+
+# Create the formula with interactions
+(fmla_interaction <- as.formula("Metabol ~ Gastric + Gastric:Sex") )
+
+# Fit the main effects only model
+model_add <- lm(fmla_add, data = alcohol)
+
+# Fit the interaction model
+model_interaction <- lm(fmla_interaction, data = alcohol)
+
+# Call summary on both models and compare
+summary(model_add)
+summary(model_interaction)
+```
+
+### **`04-Modeling an interaction (2)`**
+
+In this exercise, you will compare the performance of the interaction model you fit in the previous exercise to the performance of a main-effects only model. Because this dataset is small, we will use cross-validation to simulate making predictions on out-of-sample data.
+
+You will begin to use the `dplyr` package to do calculations.
+
+-   [**`mutate()`**](https://www.rdocumentation.org/packages/dplyr/topics/mutate) adds new columns to a tbl (a type of data frame)
+
+-   [**`group_by()`**](https://www.rdocumentation.org/packages/dplyr/topics/group_by) specifies how rows are grouped in a tbl
+
+-   [**`summarize()`**](https://www.rdocumentation.org/packages/dplyr/topics/summarise) computes summary statistics of a column
+
+You will also use `tidyr`'s [**`gather()`**](https://www.rdocumentation.org/packages/tidyr/topics/gather) which takes multiple columns and collapses them into key-value pairs. The `alcohol` data frame and the formulas `fmla_add` and `fmla_interaction` have been pre-loaded.
+
+-   Use [**`kWayCrossValidation()`**](https://www.rdocumentation.org/packages/vtreat/topics/kWayCrossValidation) to create a splitting plan for a 3-fold cross validation.
+
+    -   The first argument is the number of rows to be split.
+
+    -   The second argument is the number of folds for the cross-validation.
+
+    -   You can set the 3rd and 4th arguments of the function to `NULL`.
+
+-   Examine and run the sample code to get the 3-fold cross-validation predictions of a model with no interactions and assign them to the column `pred_add`.
+
+-   Get the 3-fold cross-validation predictions of the model with interactions. Assign the predictions to the column `pred_interaction`.
+
+    -   The sample code shows you the procedure.
+
+    -   Use the same `splitPlan` that you already created.
+
+-   Fill in the blanks to
+
+    -   gather the predictions into a single column `pred`.
+
+    -   add a column of residuals (actual outcome - predicted outcome).
+
+    -   get the RMSE of the cross-validation predictions for each model type.
+
+-   Compare the RMSEs. Based on these results, which model should you use?
+
+```{r}
+library(vtreat)
+
+# alcohol is available
+summary(alcohol)
+
+# Both the formulae are available
+fmla_add
+fmla_interaction
+
+# Create the splitting plan for 3-fold cross validation
+set.seed(34245)  # set the seed for reproducibility
+splitPlan <- kWayCrossValidation(nrow(alcohol), 3, NULL, NULL)
+
+# Sample code: Get cross-val predictions for main-effects only model
+alcohol$pred_add <- 0  # initialize the prediction vector
+for(i in 1:3) {
+  split <- splitPlan[[i]]
+  model_add <- lm(fmla_add, data = alcohol[split$train, ])
+  alcohol$pred_add[split$app] <- predict(model_add, newdata = alcohol[split$app, ])
+}
+
+# Get the cross-val predictions for the model with interactions
+alcohol$pred_interaction <- 0 # initialize the prediction vector
+for(i in 1:3) {
+  split <- splitPlan[[i]]
+  model_interaction <- lm(fmla_interaction, data = alcohol[split$train, ])
+  alcohol$pred_interaction[split$app] <- predict(model_interaction, newdata = alcohol[split$app, ])
+}
+
+# Get RMSE
+alcohol %>% 
+  gather(key = modeltype, value = pred, pred_add, pred_interaction) %>%
+  mutate(residuals = Metabol - pred) %>%
+  group_by(modeltype) %>%
+  summarize(rmse = sqrt(mean(residuals^2)))
+```
+
+### **`05-Relative error`**
+
+In this exercise, you will compare relative error to absolute error. For the purposes of modeling, we will define relative error as
+
+![](images/chrome_kAuTZMZzAg.png)
+
+The example (toy) dataset `fdata` has been pre-loaded. It includes the columns:
+
+-   `y`: the true output to be predicted by some model; imagine it is the amount of money a customer will spend on a visit to your store.
+
+-   `pred`: the predictions of a model that predicts `y`.
+
+-   `label`: categorical: whether `y` comes from a population that makes `small` purchases, or `large` ones.
+
+You want to know which model does "better": the one predicting the `small` purchases, or the one predicting `large` ones.
+
+```{r}
+fdata_path <- file.path("..", "00_Datasets", "fdata.txt")
+fdata <- read.delim(fdata_path)
+```
+
+```{r}
+# fdata is available
+summary(fdata)
+
+# Examine the data: generate the summaries for the groups large and small:
+fdata %>% 
+    group_by(label) %>%     # group by small/large purchases
+    summarize(min  = min(y),   # min of y
+              mean = mean(y),   # mean of y
+              max  = max(y))   # max of y
+
+# Fill in the blanks to add error columns
+fdata2 <- fdata %>% 
+         group_by(label) %>%       # group by label
+           mutate(residual = y - pred,  # Residual
+                  relerr   = residual / y)  # Relative error
+
+# Compare the rmse and rmse.rel of the large and small groups:
+fdata2 %>% 
+  group_by(label) %>% 
+  summarize(rmse     = sqrt(mean(residual ^ 2)),   # RMSE
+            rmse.rel = sqrt(mean(relerr ^ 2)))   # Root mean squared relative error
+            
+# Plot the predictions for both groups of purchases
+ggplot(fdata2, aes(x = pred, y = y, color = label)) + 
+  geom_point() + 
+  geom_abline() + 
+  facet_wrap(~ label, ncol = 1, scales = "free") + 
+  ggtitle("Outcome vs prediction")
+```
+
+### **`06-Modeling log-transformed monetary output`**
+
+In this exercise, you will practice modeling on log-transformed monetary output, and then transforming the "log-money" predictions back into monetary units. The data loaded records subjects' incomes in 2005 (`Income2005`), as well as the results of several aptitude tests taken by the subjects in 1981:
+
+-   `Arith`
+
+-   `Word`
+
+-   `Parag`
+
+-   `Math`
+
+-   `AFQT` (Percentile on the Armed Forces Qualifying Test)
+
+The data have already been split into training and test sets (`income_train` and `income_test`, respectively) and pre-loaded. You will build a model of log(income) from the inputs, and then convert log(income) back into income.
+
+-   Call `summary()` on `income_train$Income2005` to see the summary statistics of income in the training set.
+
+-   Write a formula to express `log(Income2005)` as a function of the five tests as the variable `fmla.log`. Print it.
+
+-   Fit a linear model of `log(Income2005)` to the `income_train` data: `model.log`.
+
+-   Use `model.log` to predict income on the `income_test` dataset. Put it in the column `logpred`.
+
+    -   Check `summary()` of `logpred` to see that the magnitudes are much different from those of `Income2005`.
+
+-   Reverse the log transformation to put the predictions into "monetary units": `exp(income_test$logpred)`.
+
+    -   Check `summary()` of `pred.income` and see that the magnitudes are now similar to `Income2005` magnitudes.
+
+-   Fill in the blanks to plot a scatter plot of predicted income vs income on the test set.
+
+```{r}
+train_path <- file.path("..", "00_Datasets", "income_train.txt")
+test_path <- file.path("..", "00_Datasets", "income_test.txt")
+
+income_train <- read.delim(train_path)
+income_test <- read.delim(test_path) 
+
+head(income_train)
+head(income_test)
+```
+
+```{r}
+# Examine Income2005 in the training set
+summary(income_train$Income2005)
+
+# Write the formula for log income as a function of the tests and print it
+(fmla.log <- as.formula("log(Income2005) ~ Arith + Word + Parag + Math + AFQT"))
+
+# Fit the linear model
+model.log <-  lm(fmla.log, data = income_train)
+
+# Make predictions on income_test
+income_test$logpred <- predict(model.log, income_test)
+summary(income_test$logpred)
+
+# Convert the predictions to monetary units
+income_test$pred.income <- exp(income_test$logpred)
+summary(income_test$pred.income)
+
+#  Plot predicted income (x axis) vs income
+ggplot(income_test, aes(x = pred.income, y = Income2005)) + 
+  geom_point() + 
+  geom_abline(color = "blue")
+```
+
+### **`07-Comparing RMSE and root-mean-squared Relative Error`**
+
+In this exercise, you will show that log-transforming a monetary output before modeling improves mean relative error (but increases RMSE) compared to modeling the monetary output directly. You will compare the results of `model.log` from the previous exercise to a model (`model.abs`) that directly fits income.
+
+The `income_train` and `income_test` datasets have been pre-loaded, along with your model, `model.log`.
+
+Also available:
+
+-   `model.abs`: a model that directly fits income to the inputs using the formula
+
+    `Income2005 ~ Arith + Word + Parag + Math + AFQT`
+
+-   Fill in the blanks to add predictions from the models to `income_test`.
+
+    -   Don't forget to take the exponent of the predictions from `model.log` to undo the log transform!
+
+-   Fill in the blanks to [**`gather()`**](https://www.rdocumentation.org/packages/tidyr/topics/gather) the predictions and calculate the residuals and relative error.
+
+-   Fill in the blanks to calculate the RMSE and relative RMSE for predictions.
+
+    -   Which model has larger absolute error? Larger relative error?
+
+```{r}
+# fmla.abs is available
+fmla.abs <- as.formula("Income2005 ~ Arith + Word + Parag + Math + AFQT")
+fmla.abs
+
+# model.abs is available
+model.abs <- lm(fmla.abs, income_train)
+summary(model.abs)
+
+# Add predictions to the test set
+income_test <- income_test %>%
+  mutate(pred.absmodel = predict(model.abs, income_test),      # predictions from model.abs
+         pred.logmodel = exp(predict(model.log, income_test))) # predictions from model.log
+
+# Gather the predictions and calculate residuals and relative error
+income_long <- income_test %>% 
+  gather(key = modeltype, value = pred, pred.absmodel, pred.logmodel) %>%
+  mutate(residual = pred - Income2005,     # residuals
+         relerr   = residual / Income2005) # relative error
+
+# Calculate RMSE and relative RMSE and compare
+income_long %>% 
+  group_by(modeltype) %>%                       # group by modeltype
+  summarize(rmse     = sqrt(mean(residual^2)),  # RMSE
+            rmse.rel = sqrt(mean(relerr^2)))    # Root mean squared relative error
+```
+
+You've seen how modeling log(income) can reduce the relative error of the fit, at the cost of increased RMSE. Which tradeoff to make depends on the goals of your project.
+
+### **`08-Input transforms: the "hockey stick"`**
+
+In this exercise, we will build a model to predict price from a measure of the house's size (surface area). The `houseprice` dataset, loaded for you, has the columns:
+
+-   `price`: house price in units of \$1000
+
+-   `size`: surface area
+
+A scatterplot of the data shows that the data is quite non-linear: a sort of "hockey-stick" where price is fairly flat for smaller houses, but rises steeply as the house gets larger. Quadratics and tritics are often good functional forms to express hockey-stick like relationships. Note that there may not be a "physical" reason that `price` is related to the square of the `size`; a quadratic is simply a closed form approximation of the observed relationship.
+
+![](https://assets.datacamp.com/production/course_3851/datasets/Ch3_V4_houseprice.png)
+
+You will fit a model to predict price as a function of the squared size, and look at its fit on the training data.
+
+Because `^` is also a symbol to express interactions, use the function [**`I()`**](https://www.rdocumentation.org/packages/base/topics/AsIs) to treat the expression `x^2` "as is": that is, as the square of x rather than the interaction of `x` with itself.
+
+    exampleFormula = y ~ I(x^2)
+
+-   Write a formula, `fmla_sqr`, to express price as a function of squared size. Print it.
+
+-   Fit a model `model_sqr` to the data using `fmla_sqr`
+
+-   For comparison, fit a linear model `model_lin` to the data using the formula `price ~ size`.
+
+-   Fill in the blanks to
+
+    -   make predictions from the training data from the two models
+
+    -   gather the predictions into a single column `pred`
+
+    -   graphically compare the predictions of the two models to the data. Which fits better?
+
+```{r}
+hp_path <- file.path("..", "00_Datasets", "houseprice.txt")
+houseprice <- read.delim(hp_path)
+head(houseprice)
+```
+
+```{r}
+# houseprice is available
+summary(houseprice)
+
+# Create the formula for price as a function of squared size
+(fmla_sqr <- as.formula("price ~ I(size ^ 2)"))
+
+# Fit a model of price as a function of squared size (use fmla_sqr)
+model_sqr <- lm(fmla_sqr, data = houseprice)
+
+# Fit a model of price as a linear function of size
+model_lin <- lm(price ~ size, data = houseprice)
+
+# Make predictions and compare
+houseprice %>% 
+    mutate(pred_lin = predict(model_lin, houseprice),       # predictions from linear model
+           pred_sqr = predict(model_sqr, houseprice)) %>%   # predictions from quadratic model 
+    gather(key = modeltype, value = pred, pred_lin, pred_sqr) %>% # gather the predictions
+    ggplot(aes(x = size)) + 
+       geom_point(aes(y = price)) +                   # actual prices
+       geom_line(aes(y = pred, color = modeltype)) + # the predictions
+       scale_color_brewer(palette = "Dark2")
+```
+
+### **`09-Input transforms: the "hockey stick" (2)`**
+
+In the last exercise, you saw that a quadratic model seems to fit the `houseprice` data better than a linear model. In this exercise, you will confirm whether the quadratic model would perform better on out-of-sample data. Since this dataset is small, you will use cross-validation. The quadratic formula `fmla_sqr` that you created in the last exercise and the `houseprice` data frame are available for you to use.
+
+For comparison, the sample code will calculate cross-validation predictions from a linear model `price ~ size`.
+
+-   Use [**`kWayCrossValidation()`**](https://www.rdocumentation.org/packages/vtreat/topics/kWayCrossValidation) to create a splitting plan for a 3-fold cross validation.
+
+    -   You can set the 3rd and 4th arguments of the function to `NULL`.
+
+-   Examine and run the sample code to get the 3-fold cross-validation predictions of the model `price ~ size` and add them to the column `pred_lin`.
+
+-   Get the cross-validation predictions for price as a function of squared size. Assign them to the column `pred_sqr`.
+
+    -   The sample code gives you the procedure.
+
+    -   You can use the splitting plan you already created.
+
+-   Fill in the blanks to gather the predictions and calculate the residuals.
+
+-   Fill in the blanks to compare the RMSE for the two models. Which one fits better?
+
+```{r}
+# houseprice is available
+summary(houseprice)
+
+# fmla_sqr is available
+fmla_sqr
+
+# Create a splitting plan for 3-fold cross validation
+set.seed(34245)  # set the seed for reproducibility
+splitPlan <- kWayCrossValidation(nRows  = nrow(houseprice), nSplits = 3, NULL, NULL)
+
+# Sample code: get cross-val predictions for price ~ size
+houseprice$pred_lin <- 0  # initialize the prediction vector
+for(i in 1:3) {
+  split <- splitPlan[[i]]
+  model_lin <- lm(price ~ size, data = houseprice[split$train,])
+  houseprice$pred_lin[split$app] <- predict(model_lin, newdata = houseprice[split$app,])
+}
+
+# Get cross-val predictions for price as a function of size^2 (use fmla_sqr)
+houseprice$pred_sqr <- 0 # initialize the prediction vector
+for(i in 1:3) {
+  split <- splitPlan[[i]]
+  model_sqr <- lm(fmla_sqr, data = houseprice[split$train, ])
+  houseprice$pred_sqr[split$app] <- predict(model_sqr, newdata = houseprice[split$app, ])
+}
+
+# Gather the predictions and calculate the residuals
+houseprice_long <- houseprice %>%
+  gather(key = modeltype, value = pred, pred_lin, pred_sqr) %>%
+  mutate(residuals = price - pred)
+
+# Compare the cross-validated RMSE for the two models
+houseprice_long %>% 
+  group_by(modeltype) %>% # group by modeltype
+  summarize(rmse = sqrt(mean(residuals ^ 2)))
+```
+
+Great work! You've confirmed that the quadratic input tranformation improved the model. In the next chapter, you will see how transformations like this can sometimes be learned automatically.
+
+###  **`The End`** 
