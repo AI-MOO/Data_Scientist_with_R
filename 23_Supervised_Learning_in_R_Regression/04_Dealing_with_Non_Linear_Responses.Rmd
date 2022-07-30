@@ -1,0 +1,8 @@
+---
+title: "Dealing with Non-Linear Responses"
+author: "Mohamad Osman"
+date: '2022-07-30'
+output: rmarkdown::github_document
+---
+
+# Section 04: Dealing with Non-Linear Responses
