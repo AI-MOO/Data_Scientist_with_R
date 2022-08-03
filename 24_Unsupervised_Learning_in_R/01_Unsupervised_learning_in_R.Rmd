@@ -1,0 +1,102 @@
+---
+title: "Unsupervised learning in R"
+author: "Mohamad Osman"
+date: '2022-08-03'
+output: rmarkdown::github_document
+---
+
+# Section 01: Unsupervised learning in R
+
+### **`01-Identify clustering problems`**
+
+Which of the following are clustering problems?
+
+1.  Determining how many features it takes to describe most of the variability in data
+
+2.  Determining the natural groupings of houses for sale based on size, number of bedrooms, etc.
+
+3.  Visualizing 13 dimensional data (data with 13 features)
+
+4.  Determining if there are common patterns in the demographics of people at a commerce site
+
+5.  Predicting if someone will click on a web advertisement
+
+Ans:
+
+-   1, 3, and 5
+
+-   2 and 3
+
+-   1, 2, and 4
+
+-   2 and 4 ✔️
+
+-   All 5 are clustering problems
+
+### 
+**`02-k-means clustering`**
+
+We have created some two-dimensional data and stored it in a variable called `x` in your workspace. The scatter plot on the right is a visual representation of the data.
+
+In this exercise, your task is to create a k-means model of the `x` data using 3 clusters, then to look at the structure of the resulting model using the [**`summary()`**](https://www.rdocumentation.org/packages/base/topics/summary) function.
+
+-   Fit a k-means model to `x` using 3 centers and run the k-means algorithm 20 times. Store the result in `km.out`.
+
+-   Inspect the result with the `summary()` function.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+x_file <- file.path("..", "00_Datasets", "x_k_means.txt")
+x <- read.delim(x_file) %>%
+     select(-id)
+
+head(x)
+```
+
+```{r}
+# Create the k-means model: km.out
+km.out <- kmeans(x, centers = 3, nstart = 20)
+
+# Inspect the result
+summary(km.out)
+```
+
+### **`03-Results of kmeans()`**
+
+The `kmeans()` function produces several outputs. In the video, we discussed one output of modeling, the cluster membership.
+
+In this exercise, you will access the `cluster` component directly. This is useful anytime you need the cluster membership for each observation of the data used to build the clustering model. A future exercise will show an example of how this cluster membership might be used to help communicate the results of k-means modeling.
+
+k-means models also have a print method to give a human friendly output of basic modeling results. This is available by using `print()` or simply typing the name of the model.
+
+```{r}
+# Print the cluster membership component of the model
+km.out
+print("-----------------------")
+# Print the km.out object
+print(km.out)
+```
+
+### **`04-Visualizing and interpreting results of kmeans()`**
+
+One of the more intuitive ways to interpret the results of k-means models is by plotting the data as a scatter plot and using color to label the samples' cluster membership. In this exercise, you will use the standard `plot()` function to accomplish this.
+
+To create a scatter plot, you can pass data with two features (i.e., columns) to `plot()` with an extra argument `col = km.out$cluster`, which sets the color of each point in the scatter plot according to its cluster membership.
+
+`x` and `km.out` are available in your workspace. Using the `plot()` function to create a scatter plot of data `x`:
+
+-   Color the dots on the scatterplot by setting the `col` argument to the `cluster` component in `km.out`.
+
+-   Title the plot `"k-means with 3 clusters"` using the `main` argument to `plot()`.
+
+-   Ensure there are no axis labels by specifying `""` for both the `xlab` and `ylab` arguments to `plot()`.
+
+```{r}
+# Scatter plot of x
+plot(x, col = km.out$cluster,
+     main = "k-means with 3 clusters",
+     xlab = "",
+     ylab = "")
+```
