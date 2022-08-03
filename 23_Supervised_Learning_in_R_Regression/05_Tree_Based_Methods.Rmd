@@ -7,7 +7,7 @@ output: rmarkdown::github_document
 
 # Section 05: **Tree-Based Methods**
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 library(dplyr)
 library(ggplot2)
 library(tidyr)
@@ -17,8 +17,7 @@ file <- file.path("..", "00_Datasets", "Bikes.RData")
 (load(file))
 ```
 
-### 
-**`01-Predicting with a decision tree`**
+### **`01-Predicting with a decision tree`**
 
 ![decision tree](https://assets.datacamp.com/production/course_3851/datasets/decisiontree_intelligence.png){alt="decision tree" width="337"}
 
@@ -180,12 +179,14 @@ first_two_weeks <- bikesAugust %>%
   filter(instant < 14) 
 
 # Plot predictions and cnt by date/time 
-ggplot(first_two_weeks, aes(x = instant, y = value, color = valuetype, linetype = valuetype)) + 
+randomforest_plot <- ggplot(first_two_weeks, aes(x = instant, y = value, color = valuetype, linetype = valuetype)) + 
   geom_point() + 
   geom_line() + 
   scale_x_continuous("Day", breaks = 0:14, labels = 0:14) + 
   scale_color_brewer(palette = "Dark2") + 
   ggtitle("Predicted August bike rentals, Random Forest plot")
+
+randomforest_plot
 ```
 
 ### **`05-vtreat on a small example`**
@@ -385,15 +386,203 @@ str(bikesAugust.treat)
 
 ```
 
-\
+### 
+**`08-Find the right number of trees for a gradient boosting machine`**
+
+In this exercise, you will get ready to build a gradient boosting model to predict the number of bikes rented in an hour as a function of the weather and the type and time of day. You will train the model on data from the month of July.
+
+The July data has been pre-loaded. Remember that `bikesJuly.treat` no longer has the outcome column, so you must get it from the untreated data: `bikesJuly$cnt`.
+
+You will use the `xgboost` package to fit the random forest model. The function [**`xgb.cv()`**](https://www.rdocumentation.org/packages/xgboost/topics/xgb.cv) uses cross-validation to estimate the out-of-sample learning error as each new tree is added to the model. The appropriate number of trees to use in the final model is the number that minimizes the holdout RMSE.
+
+For this exercise, the key arguments to the `xgb.cv()` call are:
+
+-   `data`: a numeric matrix.
+
+-   `label`: vector of outcomes (also numeric).
+
+-   `nrounds`: the maximum number of rounds (trees to build).
+
+-   `nfold`: the number of folds for the cross-validation. 5 is a good number.
+
+-   `objective`: `"reg:squarederror"` for continuous outcomes.
+
+-   `eta`: the learning rate.
+
+-   `max_depth`: maximum depth of trees.
+
+-   `early_stopping_rounds`: after this many rounds without improvement, stop.
+
+-   `verbose`: `FALSE` to stay silent.
+
+    #### **`Question:`** 
+
+-   Load the package `xgboost`.
+
+-   Fill in the blanks to run `xgb.cv()` on the treated training data; assign the output to the variable `cv`.
+
+    -   Use `as.matrix()` to convert the vtreated data frame to a matrix.
+
+    -   Use 100 rounds, and 5-fold cross validation.
+
+    -   Set `early_stopping_rounds` to 5.
+
+    -   Set `eta` to 0.5, `max_depth` to 5.
+
+-   Get the data frame `evaluation_log` from `cv` and assign it to the variable `elog`. Each row of the `evaluation_log` corresponds to an additional tree, so the row number tells you the number of trees in the model.
+
+-   Fill in the blanks to get the number of trees with the minimum value of the columns `train_rmse_mean` and `test_rmse_mean`.
+
+    -   [**`which.min()`**](https://www.rdocumentation.org/packages/base/topics/which.min) returns the index of the minimum value in a vector.
+
+    -   How many trees do you need?
+
+```{r}
+# Load the package xgboost
+library(xgboost)
+
+# Run xgb.cv
+cv <- xgb.cv(data = as.matrix(bikesJuly.treat), 
+            label = bikesJuly$cnt,
+            nrounds = 100,
+            nfold = 5,
+            objective = "reg:squarederror",
+            eta = 0.5,
+            max_depth = 5,
+            early_stopping_rounds = 5,
+            verbose = FALSE   # silent
+)
+
+# Get the evaluation log 
+elog <- as.data.frame(cv$evaluation_log)
+
+# Determine and print how many trees minimize training and test error
+ntrees <- elog %>% 
+   summarize(ntrees.train = which.min(train_rmse_mean),   # find the index of min(train_rmse_mean)
+             ntrees.test  = which.min(test_rmse_mean))   # find the index of min(test_rmse_mean)
+
+```
+
+Very good! In most cases, `ntrees.test` is less than `ntrees.train`. The training error keeps decreasing even after the test error starts to increase. It's important to use cross-validation to find the right number of trees (as determined by `ntrees.test`) and avoid an overfit model.
+
+### 
+**`09-Fit an xgboost bike rental model and predict`**
+
+In this exercise, you will fit a gradient boosting model using `xgboost()` to predict the number of bikes rented in an hour as a function of the weather and the type and time of day. You will train the model on data from the month of July and predict on data for the month of August.
+
+The data frames `bikesJuly`, `bikesJuly.treat`, `bikesAugust`, and `bikesAugust.treat` have also been pre-loaded. Remember the `vtreat`-ed data no longer has the outcome column, so you must get it from the original data (the `cnt` column).
+
+For convenience, the number of trees to use, `ntrees` from the previous exercise is available to use.
+
+The arguments to [**`xgboost()`**](https://www.rdocumentation.org/packages/xgboost/topics/xgb.train) are similar to those of `xgb.cv()`.
+
+-   Fill in the blanks to run `xgboost()` on the July data. Assign the model to the variable `model`.
+
+    -   Use `as.matrix()` to convert the vtreated data frame to a matrix.
+
+    -   The objective should be `"reg:squarederror"`.
+
+    -   Use `ntrees` rounds.
+
+    -   Set `eta` to 0.3, `max_depth` to 6, and `verbose` to 0 (silent).
+
+-   Now call [**`predict()`**](https://www.rdocumentation.org/packages/xgboost/topics/predict.xgb.Booster) on `bikesAugust.treat` to predict the number of bikes rented in August.
+
+    -   Use `as.matrix()` to convert the `vtreat`-ed test data into a matrix.
+
+    -   Add the predictions to`bikesAugust` as the column `pred`.
+
+-   Fill in the blanks to plot actual bike rental counts versus the predictions (predictions on the x-axis).
+
+    -   Do you see a possible problem with the predictions?
+
+```{r}
+# Examine the objects available
+ls()
+
+# The number of trees to use, as determined by xgb.cv
+ntrees
+ntree <- ntrees %>% select(ntrees.test) %>% pull()
+ntree
 
 
-\
+# Run xgboost
+bike_model_xgb <- xgboost(data = as.matrix(bikesJuly.treat), # training data as matrix
+                   label = bikesJuly$cnt,  # column of outcomes
+                   nrounds = ntree,       # number of trees to build
+                   objective = "reg:squarederror", # objective
+                   eta = 0.3,
+                   max_depth = 6,
+                   verbose = FALSE  # silent
+)
 
+# Make predictions
+bikesAugust$pred <- predict(bike_model_xgb, as.matrix(bikesAugust.treat))
 
+# Plot predictions (on x axis) vs actual bike rental count
+ggplot(bikesAugust, aes(x = pred, y = cnt)) + 
+  geom_point() + 
+  geom_abline()
+```
 
+### **`10-Evaluate the xgboost bike rental model`**
 
+In this exercise, you will evaluate the gradient boosting model `bike_model_xgb` that you fit in the last exercise, using data from the month of August. You'll compare this model's RMSE for August to the RMSE of previous models that you've built.
 
-\
+The dataset `bikesAugust` has been pre-loaded. You have already made predictions using the `xgboost` model; they are in the column `pred`.
 
-\
+-   Fill in the blanks to calculate the RMSE of the predictions.
+
+    -   How does it compare to the RMSE from the poisson model (approx. 112.6) and the random forest model (approx. 96.7)?
+
+```{r}
+# bikesAugust is available
+str(bikesAugust)
+
+# Calculate RMSE
+bikesAugust %>%
+  mutate(residuals = cnt - pred) %>%
+  summarize(rmse = sqrt(mean(residuals ^ 2)))
+```
+
+### **`11-Visualize the xgboost bike rental model`**
+
+You've now seen three different ways to model the bike rental data. For this example, you've seen that the gradient boosting model had the smallest RMSE. To finish up the course, let's compare the gradient boosting model's predictions to the other two models as a function of time.
+
+On completing this exercise, you will have completed the course. Congratulations! Now you have the tools to apply a variety of approaches to your regression tasks.
+
+The data frame `bikesAugust` with predictions,has been pre-loaded. The plots `quasipoisson_plot` and `randomforest_plot` are also available.
+
+-   Print `quasipoisson_plot` to review the quasipoisson model's behavior.
+
+-   Print `randomforest_plot` to review the random forest model's behavior.
+
+-   Fill in the blanks to plot the gradient boosting predictions and actual counts by hour for the first 14 days of August.
+
+    -   [**`gather()`**](https://www.rdocumentation.org/packages/tidyr/topics/gather) the `cnt` and `pred` columns into a column called `value`, with a key called `valuetype`.
+
+    -   Plot `value` as a function of `instant` (day).
+
+How does the gradient boosting model compare to the previous models?
+
+```{r}
+# Print quasipoisson_plot
+#quasipoisson_plot
+
+# Print randomforest_plot
+randomforest_plot
+
+# Plot predictions and actual bike rentals as a function of time (days)
+bikesAugust %>% 
+  mutate(instant = (instant - min(instant))/24) %>%  # set start to 0, convert unit to days
+  gather(key = valuetype, value = value, cnt, pred) %>%
+  filter(instant < 14) %>% # first two weeks
+  ggplot(aes(x = instant, y = value, color = valuetype, linetype = valuetype)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous("Day", breaks = 0:14, labels = 0:14) + 
+  scale_color_brewer(palette = "Dark2") + 
+  ggtitle("Predicted August bike rentals, Gradient Boosting model")
+```
+
+### **`The End`**
