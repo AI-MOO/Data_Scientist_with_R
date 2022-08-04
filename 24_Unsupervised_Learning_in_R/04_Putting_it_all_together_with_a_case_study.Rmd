@@ -1,0 +1,182 @@
+---
+title: "Putting it all together with a case study"
+author: "Mohamad Osman"
+date: '2022-08-04'
+output: rmarkdown::github_document
+---
+
+# Section 04: Putting it all together with a case study
+
+### **`01-Preparing the data`**
+
+Unlike prior chapters, where we prepared the data for you for unsupervised learning, the goal of this chapter is to step you through a more realistic and complete workflow.
+
+Recall from the video that the first step is to download and prepare the data.
+
+-   Use `read.csv()` function to download the CSV (comma-separated values) file containing the data from the URL provided. Assign the result to `wisc.df`.
+
+-   Use `as.matrix()` to convert the features of the data (in columns 3 through 32) to a matrix. Store this in a variable called `wisc.data`.
+
+-   Assign the row names of `wisc.data` the values currently contained in the `id` column of `wisc.df`. While not strictly required, this will help you keep track of the different observations throughout the modeling process.
+
+-   Finally, set a vector called `diagnosis` to be `1` if a diagnosis is malignant (`"M"`) and `0` otherwise. Note that R coerces `TRUE` to 1 and `FALSE` to 0.
+
+```{r message = FALSE, warning = FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+url <- "https://assets.datacamp.com/production/course_1903/datasets/WisconsinCancer.csv"
+
+# Download the data: wisc.df
+wisc.df <- read.csv(url)
+
+# Convert the features of the data: wisc.data
+wisc.data <- as.matrix(wisc.df[,3:32])
+
+# Set the row names of wisc.data
+row.names(wisc.data) <- wisc.df$id
+
+# Create diagnosis vector
+diagnosis <- as.numeric(wisc.df$diagnosis == "M")
+```
+
+### **`02-Exploratory data analysis`**
+
+The first step of any data analysis, unsupervised or supervised, is to familiarize yourself with the data.
+
+The variables you created before, `wisc.data` and `diagnosis`, are still available in your workspace. Explore the data to answer the following questions:
+
+1.  How many observations are in this dataset?
+
+2.  How many variables/features in the data are suffixed with `_mean`?
+
+3.  How many of the observations have a malignant diagnosis?
+
+```{r}
+nrow(wisc.data)
+colnames(wisc.data)
+table(diagnosis)
+```
+
+-   569, 5, 112
+
+-   30, 10, 212
+
+-   569, 10, 212 **✔️**
+
+-   30, 5, 112
+
+### 
+`03-Performing PCA`
+
+The next step in your analysis is to perform PCA on `wisc.data`.
+
+You saw in the last chapter that it's important to check if the data need to be scaled before performing PCA. Recall two common reasons for scaling data:
+
+1.  The input variables use different units of measurement.
+
+2.  The input variables have *significantly* different variances.
+
+The variables you created before, `wisc.data` and `diagnosis`, are still available in your workspace.
+
+-   Check the mean and standard deviation of the features of the data to determine if the data should be scaled. Use the `colMeans()` and `apply()` functions like you've done before.
+
+-   Execute PCA on the `wisc.data`, scaling if appropriate, and assign the model to `wisc.pr`.
+
+-   Inspect a summary of the results with the `summary()` function.
+
+```{r}
+# Check column means and standard deviations
+colMeans(wisc.data)
+apply(wisc.data, 2, sd)
+
+# Execute PCA, scaling if appropriate: wisc.pr
+wisc.pr <- prcomp(wisc.data, scale = TRUE)
+
+# Look at summary of results
+summary(wisc.pr)
+```
+
+### **`04-Interpreting PCA results`**
+
+Now you'll use some visualizations to better understand your PCA model. You were introduced to one of these visualizations, the biplot, in an earlier chapter.
+
+You'll run into some common challenges with using biplots on real-world data containing a non-trivial number of observations and variables, then you'll look at some alternative visualizations. You are encouraged to experiment with additional visualizations before moving on to the next exercise.
+
+The variables you created before, `wisc.data`, `diagnosis`, and `wisc.pr`, are still available.
+
+-   Create a biplot of the `wisc.pr` data. *What stands out to you about this plot? Is it easy or difficult to understand? Why?*
+
+-   Execute the code to scatter plot each observation by principal components 1 and 2, coloring the points by the diagnosis.
+
+-   Repeat the same for principal components 1 and 3. *What do you notice about these plots?*
+
+```{r}
+# Create a biplot of wisc.pr
+biplot(wisc.pr)
+
+# Scatter plot observations by components 1 and 2
+plot(wisc.pr$x [, c(1, 2)], col = (diagnosis + 1), 
+     xlab = "PC1", ylab = "PC2")
+
+# Repeat for components 1 and 3
+plot(wisc.pr$x [, c(1, 3)], col = (diagnosis + 1), 
+     xlab = "PC1", ylab = "PC3")
+
+# Do additional data exploration of your choosing below (optional)
+
+```
+
+Excellent work! Because principal component 2 explains more variance in the original data than principal component 3, you can see that the first plot has a cleaner cut separating the two subgroups.
+
+### **`05-Variance explained`**
+
+In this exercise, you will produce scree plots showing the proportion of variance explained as the number of principal components increases. The data from PCA must be prepared for these plots, as there is not a built-in function in R to create them directly from the PCA model.
+
+As you look at these plots, ask yourself if there's an elbow in the amount of variance explained that might lead you to pick a natural number of principal components. If an obvious elbow does not exist, as is typical in real-world datasets, consider how else you might determine the number of principal components to retain based on the scree plot.
+
+The variables you created before, `wisc.data`, `diagnosis`, and `wisc.pr`, are still available.
+
+-   Calculate the variance of each principal component by squaring the `sdev` component of `wisc.pr`. Save the result as an object called `pr.var`.
+
+-   Calculate the variance explained by each principal component by dividing by the total variance explained of all principal components. Assign this to a variable called `pve`.
+
+-   Create a plot of variance explained for each principal component.
+
+-   Using the `cumsum()` function, create a plot of cumulative proportion of variance explained.
+
+```{r}
+# Set up 1 x 2 plotting grid
+par(mfrow = c(1, 2))
+
+# Calculate variability of each component
+pr.var <- wisc.pr$sdev^2
+
+# Variance explained by each principal component: pve
+pve <- pr.var / sum(pr.var)
+
+# Plot variance explained for each principal component
+plot(pve, xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "b")
+
+# Plot cumulative proportion of variance explained
+plot(cumsum(pve), xlab = "Principal Component", 
+     ylab = "Cumulative Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "b")
+```
+
+Great work! Before moving on, answer the following question: What is the minimum number of principal components needed to explain 80% of the variance in the data? Write it down as you may need this in the next exercise :)
+
+between 7 and 10s
+
+\
+
+
+
+
+
+\
+
