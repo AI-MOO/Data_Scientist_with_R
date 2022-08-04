@@ -34,7 +34,8 @@ Ans:
 -   All 5 are clustering problems
 
 ### 
-**`02-k-means clustering`**
+
+### **`02-k-means clustering`**
 
 We have created some two-dimensional data and stored it in a variable called `x` in your workspace. The scatter plot on the right is a visual representation of the data.
 
@@ -44,7 +45,7 @@ In this exercise, your task is to create a k-means model of the `x` data using 3
 
 -   Inspect the result with the `summary()` function.
 
-```{r}
+```{r message = FALSE, warning = FALSE}
 library(dplyr)
 library(ggplot2)
 
@@ -100,3 +101,148 @@ plot(x, col = km.out$cluster,
      xlab = "",
      ylab = "")
 ```
+
+### **`05-Handling random algorithms`**
+
+In the video, you saw how `kmeans()` randomly initializes the centers of clusters. This random initialization can result in assigning observations to different cluster labels. Also, the random initialization can result in finding different *local minima* for the k-means algorithm. This exercise will demonstrate both results.
+
+At the top of each plot, the measure of model quality---total within cluster sum of squares error---will be plotted. Look for the model(s) with the lowest error to find models with the better model results.
+
+Because `kmeans()` initializes observations to random clusters, it is important to set the random number generator seed for reproducibility.
+
+The data, `x`, is still available in your workspace. Your task is to generate six `kmeans()` models on the data, plotting the results of each, in order to see the impact of random initializations on model results.
+
+-   Set the random number seed to 1 with [**`set.seed()`**](https://www.rdocumentation.org/packages/base/topics/Random).
+
+-   For each iteration of the `for` loop, run `kmeans()` on `x`. Assume the number of clusters is 3 and number of starts (`nstart`) is 1.
+
+-   Visualize the cluster memberships using the `col` argument to `plot()`. Observe how the measure of quality and cluster assignments vary among the six model runs.
+
+```{r}
+# Set up 2 x 3 plotting grid
+par(mfrow = c(2, 3))
+
+# Set seed
+set.seed(1)
+
+for(i in 1:6) {
+  # Run kmeans() on x with three clusters and one start
+  km.out <- kmeans(x, centers = 3, nstart = 1)
+  
+  # Plot clusters
+  plot(x, col = km.out$cluster, 
+      main = km.out$tot.withinss, 
+      xlab = "", ylab = "")
+}
+```
+
+### **`06-Selecting number of clusters`**
+
+The k-means algorithm assumes the number of clusters as part of the input. If you know the number of clusters in advance (e.g., due to certain business constraints) this makes setting the number of clusters easy. However, as you saw in the video, if you do not know the number of clusters and need to determine it, you will need to run the algorithm multiple times, each time with a different number of clusters. From this, you can observe how a measure of model quality changes with the number of clusters.
+
+In this exercise, you will run `kmeans()` multiple times to see how model quality changes as the number of clusters changes. Plots displaying this information help to determine the number of clusters and are often referred to as *scree plots*.
+
+The ideal plot will have an *elbow* where the quality measure improves more slowly as the number of clusters increases. This indicates that the quality of the model is no longer improving substantially as the model complexity (i.e., number of clusters) increases. In other words, the elbow indicates the number of clusters inherent in the data.
+
+The data, `x`, is still available in your workspace.
+
+-   Build 15 `kmeans()` models on `x`, each with a different number of clusters (ranging from 1 to 15). Set `nstart = 20` for all model runs and save the total within cluster sum of squares for each model to the `i`th element of `wss`.
+
+-   Run the code provided to create a scree plot of the `wss` for all 15 models.
+
+-   Take a look at your scree plot. How many clusters are inherent in the data? Set `k` equal to the number of clusters at the location of the elbow.
+
+```{r}
+# Initialize total within sum of squares error: wss
+wss <- 0
+
+# For 1 to 15 cluster centers
+for (i in 1:15) {
+  km.out <- kmeans(x, centers = i, nstart = 20)
+  # Save total within sum of squares to wss variable
+  wss[i] <- km.out$tot.withinss
+}
+
+# Plot total within sum of squares vs. number of clusters
+plot(1:15, wss, type = "b", 
+     xlab = "Number of Clusters", 
+     ylab = "Within groups sum of squares")
+
+# Set k equal to the number of clusters corresponding to the elbow location
+k <- 2
+```
+
+Looking at the scree plot, it looks like there are inherently 2 or 3 clusters in the data. Awesome job!
+
+```{r}
+Pok_URL <- "https://assets.datacamp.com/production/course_6430/datasets/Pokemon.csv"
+
+pokemon <- read.csv(Pok_URL) %>%
+          select(c("HitPoints", "Attack", "Defense",
+                   "SpecialAttack","SpecialDefense", "Speed" ))
+head(pokemon)
+```
+
+### **`07-Practical matters: working with real data`**
+
+Dealing with real data is often more challenging than dealing with synthetic data. Synthetic data helps with learning new concepts and techniques, but the next few exercises will deal with data that is closer to the type of real data you might find in your professional or academic pursuits.
+
+The first challenge with the Pokemon data is that there is no pre-determined number of clusters. You will determine the appropriate number of clusters, keeping in mind that in real data the *elbow* in the scree plot might be less of a sharp elbow than in synthetic data. Use your judgment on making the determination of the number of clusters.
+
+The second part of this exercise includes plotting the outcomes of the clustering on two dimensions, or features, of the data. These features were chosen somewhat arbitrarily for this exercise. Think about how you would use plotting and clustering to communicate interesting groups of Pokemon to other people.
+
+An additional note: this exercise utilizes the `iter.max` argument to `kmeans()`. As you've seen, `kmeans()` is an iterative algorithm, repeating over and over until some stopping criterion is reached. The default number of iterations for `kmeans()` is 10, which is not enough for the algorithm to converge and reach its stopping criterion, so we'll set the number of iterations to 50 to overcome this issue. To see what happens when `kmeans()` does not converge, try running the example with a lower number of iterations (e.g., 3). This is another example of what might happen when you encounter real data and use real cases.
+
+The `pokemon` dataset, which contains observations of 800 Pokemon characters on 6 dimensions (i.e., features), is available in your workspace.
+
+-   Using `kmeans()` with `nstart = 20`, determine the total within sum of square errors for different numbers of clusters (between 1 and 15).
+
+-   Pick an appropriate number of clusters based on these results from the first instruction and assign that number to `k`.
+
+-   Create a k-means model using `k` clusters and assign it to the `km.out` variable.
+
+-   Create a scatter plot of `Defense` vs. `Speed`, showing cluster membership for each observation.
+
+```{r}
+# Initialize total within sum of squares error: wss
+wss <- 0
+
+# Look over 1 to 15 possible clusters
+for (i in 1:15) {
+  # Fit the model: km.out
+  km.out <- kmeans(pokemon, centers = i, nstart = 20, iter.max = 50)
+  # Save the within cluster sum of squares
+  wss[i] <- km.out$tot.withinss
+}
+
+# Produce a scree plot
+plot(1:15, wss, type = "b", 
+     xlab = "Number of Clusters", 
+     ylab = "Within groups sum of squares")
+
+# Select number of clusters
+k <- 2
+
+# Build model with k clusters: km.out
+km.out <- kmeans(pokemon, centers = k, nstart = 20, iter.max = 50)
+
+# View the resulting model
+km.out
+
+# Plot of Defense vs. Speed by cluster membership
+plot(pokemon[, c("Defense", "Speed")],
+     col = km.out$cluster,
+     main = paste("k-means clustering of Pokemon with", k, "clusters"),
+     xlab = "Defense", ylab = "Speed")
+```
+
+### 
+**`The End`**
+
+
+
+
+
+
+
+
