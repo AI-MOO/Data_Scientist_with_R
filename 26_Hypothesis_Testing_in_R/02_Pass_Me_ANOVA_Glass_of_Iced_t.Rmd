@@ -1,0 +1,9 @@
+---
+title: "Pass Me ANOVA Glass of Iced t"
+author: "Mohamad Osman"
+date: '2022-08-06'
+output: rmarkdown::github_document
+---
+
+# **Section 02: Pass Me ANOVA Glass of Iced t**
+
