@@ -69,7 +69,8 @@ table(diagnosis)
 -   30, 5, 112
 
 ### 
-`03-Performing PCA`
+
+### `03-Performing PCA`
 
 The next step in your analysis is to perform PCA on `wisc.data`.
 
@@ -172,11 +173,155 @@ Great work! Before moving on, answer the following question: What is the minimum
 
 between 7 and 10s
 
-\
+### **`06-Communicating PCA results`**
 
+This exercise will check your understanding of the PCA results, in particular the loadings and variance explained. The loadings, represented as vectors, explain the mapping from the original features to the principal components. The principal components are naturally ordered from the most variance explained to the least variance explained.
 
+The variables you created before---`wisc.data`, `diagnosis`, `wisc.pr`, and `pve`---are still available.
 
+For the first principal component, what is the component of the loading vector for the feature `concave.points_mean`? What is the minimum number of principal components required to explain 80% of the variance of the data?
 
+```{r}
+wisc.pr$rotation["concave.points_mean","PC1"]
 
-\
+```
 
+-   -0.26085376, 5 **✔️**
+
+-   -0.25088597, 2
+
+-   0.034767500, 4
+
+-   0.26085376, 5
+
+### **`07-Hierarchical clustering of case data`**
+
+The goal of this exercise is to do hierarchical clustering of the observations. Recall from Chapter 2 that this type of clustering does not assume in advance the number of natural groups that exist in the data.
+
+As part of the preparation for hierarchical clustering, distance between all pairs of observations are computed. Furthermore, there are different ways to *link* clusters together, with *single*, *complete*, and *average* being the most common linkage methods.
+
+The variables you created before, `wisc.data`, `diagnosis`, `wisc.pr`, and `pve`, are available in your workspace.
+
+-   Scale the `wisc.data` data and assign the result to `data.scaled`.
+
+-   Calculate the (Euclidean) distances between all pairs of observations in the new scaled dataset and assign the result to `data.dist`.
+
+-   Create a hierarchical clustering model using complete linkage. Manually specify the `method` argument to `hclust()` and assign the results to `wisc.hclust`.
+
+```{r}
+# Scale the wisc.data data: data.scaled
+data.scaled <- scale(wisc.data)
+
+# Calculate the (Euclidean) distances: data.dist
+data.dist <- dist(data.scaled)
+
+# Create a hierarchical clustering model: wisc.hclust
+wisc.hclust <- hclust(data.dist, method="complete")
+```
+
+### **`08-Results of hierarchical clustering`**
+
+Let's use the hierarchical clustering model you just created to determine a height (or distance between clusters) where a certain number of clusters exists. The variables you created before---`wisc.data`, `diagnosis`, `wisc.pr`, `pve`, and `wisc.hclust`---are all available in your workspace.
+
+Using the `plot()` function, what is the height at which the clustering model has 4 clusters?
+
+```{r}
+plot(wisc.hclust)
+```
+
+-   20 **✔️**
+
+-   4
+
+-   10
+
+-   24
+
+### 
+
+**`09-Selecting number of clusters`**
+
+In this exercise, you will compare the outputs from your hierarchical clustering model to the actual diagnoses. Normally when performing *unsupervised* learning like this, a target variable isn't available. We do have it with this dataset, however, so it can be used to check the performance of the clustering model.
+
+When performing *supervised* learning---that is, when you're trying to predict some target variable of interest and that target variable is available in the original data---using clustering to create new features may or may not improve the performance of the final model. This exercise will help you determine if, in this case, hierarchical clustering provides a promising new feature.
+
+`wisc.data`, `diagnosis`, `wisc.pr`, `pve`, and `wisc.hclust` are available in your workspace.
+
+-   Use `cutree()` to cut the tree so that it has 4 clusters. Assign the output to the variable `wisc.hclust.clusters`.
+
+-   Use the `table()` function to compare the cluster membership to the actual diagnoses.
+
+```{r}
+# Cut tree so that it has 4 clusters: wisc.hclust.clusters
+wisc.hclust.clusters <- cutree(wisc.hclust, k=4)
+
+# Compare cluster membership to actual diagnoses
+table(wisc.hclust.clusters, diagnosis)
+```
+
+Four clusters were picked after some exploration. Before moving on, you may want to explore how different numbers of clusters affect the ability of the hierarchical clustering to separate the different diagnoses. Great job!
+
+### **`10-k-means clustering and comparing results`**
+
+As you now know, there are two main types of clustering: hierarchical and k-means.
+
+In this exercise, you will create a k-means clustering model on the Wisconsin breast cancer data and compare the results to the actual diagnoses and the results of your hierarchical clustering model. Take some time to see how each clustering model performs in terms of separating the two diagnoses and how the clustering models compare to each other.
+
+`wisc.data`, `diagnosis`, and `wisc.hclust.clusters` are still available.
+
+-   Create a k-means model on `wisc.data`, assigning the result to `wisc.km`. Be sure to create 2 clusters, corresponding to the actual number of diagnosis. Also, remember to scale the data and repeat the algorithm 20 times to find a well performing model.
+
+-   Use the `table()` function to compare the cluster membership of the k-means model to the actual diagnoses contained in the `diagnosis` vector. *How well does k-means separate the two diagnoses?*
+
+-   Use the `table()` function to compare the cluster membership of the k-means model to the hierarchical clustering model. Recall the cluster membership of the hierarchical clustering model is contained in `wisc.hclust.clusters`.
+
+```{r}
+# Create a k-means model on wisc.data: wisc.km
+wisc.km <- kmeans(scale(wisc.data), centers=2, nstart=20)
+
+# Compare k-means to actual diagnoses
+table(wisc.km$cluster, diagnosis)
+
+# Compare k-means to hierarchical clustering
+table(wisc.km$cluster, wisc.hclust.clusters)
+
+```
+
+Nice! Looking at the second table you generated, it looks like clusters 1, 2, and 4 from the hierarchical clustering model can be interpreted as the cluster 1 equivalent from the k-means algorithm, and cluster 3 can be interpreted as the cluster 2 equivalent.
+
+### 
+
+**`11-Clustering on PCA results`**
+
+In this final exercise, you will put together several steps you used earlier and, in doing so, you will experience some of the creativity that is typical in unsupervised learning.
+
+Recall from earlier exercises that the PCA model required significantly fewer features to describe 80% and 95% of the variability of the data. In addition to *normalizing* data and potentially avoiding overfitting, PCA also uncorrelates the variables, sometimes improving the performance of other modeling techniques.
+
+Let's see if PCA improves or degrades the performance of hierarchical clustering.
+
+`wisc.pr`, `diagnosis`, `wisc.hclust.clusters`, and `wisc.km` are still available in your workspace.
+
+-   Using the minimum number of principal components required to describe at least 90% of the variability in the data, create a hierarchical clustering model with complete linkage. Assign the results to `wisc.pr.hclust`.
+
+-   Cut this hierarchical clustering model into 4 clusters and assign the results to `wisc.pr.hclust.clusters`.
+
+-   Using `table()`, compare the results from your new hierarchical clustering model with the actual diagnoses. How well does the newly created model with four clusters separate out the two diagnoses?
+
+-   How well do the k-means and hierarchical clustering models you created in previous exercises do in terms of separating the diagnoses? Again, use the `table()` function to compare the output of each model with the vector containing the actual diagnoses.
+
+```{r}
+# Create a hierarchical clustering model: wisc.pr.hclust
+wisc.pr.hclust <- hclust(dist(wisc.pr$x[, 1:7]), method = "complete")
+
+# Cut model into 4 clusters: wisc.pr.hclust.clusters
+wisc.pr.hclust.clusters <- cutree(wisc.pr.hclust, k=4)
+
+# Compare to actual diagnoses
+table(wisc.pr.hclust.clusters, diagnosis)
+
+# Compare to k-means and hierarchical
+table(wisc.km$cluster, diagnosis)
+table(wisc.hclust.clusters,diagnosis)
+```
+
+### **`The End`**
