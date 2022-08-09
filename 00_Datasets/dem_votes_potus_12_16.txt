@@ -1,0 +1,501 @@
+state	county	dem_percent_12	dem_percent_16
+Alabama	Bullock	76.3059	74.946921
+Alabama	Chilton	19.453671	15.847352
+Alabama	Clay	26.673672	18.674517
+Alabama	Cullman	14.661752	10.028252
+Alabama	Escambia	36.915731	31.020546
+Alabama	Fayette	22.866851	16.511092
+Alabama	Franklin	29.201584	18.247508
+Alabama	Hale	62.605577	59.390547
+Alabama	Lamar	22.969579	14.872237
+Alabama	Lauderdale	33.883111	25.179001
+Alabama	Monroe	45.890923	42.177003
+Alabama	Pike	42.78018	38.396112
+Alabama	Shelby	21.675116	22.692437
+Alabama	Walker	22.990077	15.25855
+Arizona	Graham	30.442851	16.256279
+Arkansas	Baxter	26.743885	21.091774
+Arkansas	Benton	28.560253	28.923614
+Arkansas	Bradley	39.676889	36.05256
+Arkansas	Craighead	33.208202	29.623591
+Arkansas	Dallas	43.352789	42.042584
+Arkansas	Desha	55.271493	52.337327
+Arkansas	Faulkner	32.853353	30.780399
+Arkansas	Howard	32.967279	28.904579
+Arkansas	Logan	27.404174	21.651307
+Arkansas	Marion	28.889519	20.17729
+Arkansas	Newton	27.123737	18.6251
+California	Alameda	78.853405	78.690013
+California	Calaveras	39.796199	34.3361
+California	Humboldt	59.956499	56.037538
+California	Mariposa	38.866667	35.169539
+California	Merced	53.184975	52.715817
+California	Modoc	27.872554	23.152059
+California	Mono	52.750434	52.558757
+California	Napa	62.965173	63.871146
+California	Placer	39.001413	40.204223
+California	Riverside	49.714386	49.73376
+California	Santa Barbara	57.634705	60.605478
+California	Santa Clara	70.101743	72.712442
+California	Stanislaus	50.025423	47.428927
+California	Tulare	41.297725	42.360283
+Colorado	Alamosa	56.753537	45.957631
+Colorado	Arapahoe	53.904159	52.759317
+Colorado	Cheyenne	15.736505	11.978221
+Colorado	Elbert	25.412611	19.61447
+Colorado	Las Animas	50.204022	39.010746
+Colorado	Moffat	21.562905	13.394636
+Colorado	Morgan	36.299527	26.346154
+Colorado	Park	41.234252	32.840549
+Colorado	Phillips	25.960265	18.696398
+Colorado	Rio Blanco	16.859602	12.637681
+Connecticut	Hartford	62.369723	59.08682
+Connecticut	New Haven	60.652695	54.249537
+Florida	Broward	67.199526	66.508725
+Florida	Calhoun	27.048114	20.407828
+Florida	Desoto	42.311201	34.951008
+Florida	Flagler	45.868169	38.304088
+Florida	Franklin	33.704786	28.994181
+Florida	Hardee	34.085248	28.339707
+Florida	Highlands	38.045425	32.694917
+Florida	Lake	40.97778	36.863348
+Florida	Madison	47.917384	41.457966
+Florida	Orange	58.681188	60.38973
+Florida	St. Johns	30.654645	31.571121
+Florida	Walton	23.411946	20.441775
+Georgia	Bacon	20.122106	15.124378
+Georgia	Clinch	34.466019	27.942974
+Georgia	Columbia	27.919488	29.172266
+Georgia	Coweta	27.302673	26.857235
+Georgia	Dawson	12.114408	12.307692
+Georgia	Dougherty	69.345183	68.386775
+Georgia	Fannin	20.245583	16.280054
+Georgia	Franklin	19.312033	14.620089
+Georgia	Houston	39.103624	37.538907
+Georgia	Jenkins	43.893805	36.747382
+Georgia	Lumpkin	18.844567	17.867203
+Georgia	McDuffie	42.160133	39.911524
+Georgia	Mitchell	49.317221	44.327411
+Georgia	Paulding	27.570167	27.777778
+Georgia	Pierce	16.418346	12.351252
+Georgia	Talbot	64.881123	61.675909
+Georgia	Telfair	41.628229	34.589041
+Georgia	Toombs	29.387842	25.585467
+Georgia	Twiggs	54.021894	48.558758
+Georgia	Ware	32.666052	28.233749
+Georgia	Webster	49.031171	42.383513
+Georgia	Wheeler	35.740741	30.732636
+Hawaii	Honolulu	68.864199	61.477309
+Hawaii	Maui	74.100261	64.452787
+Idaho	Bingham	21.712208	17.58797
+Idaho	Bonneville	22.916715	20.194025
+Idaho	Camas	27.508651	18.644068
+Idaho	Canyon	30.05901	23.195713
+Idaho	Custer	22.534014	17.688484
+Idaho	Franklin	5.803571	7.001273
+Idaho	Fremont	13.960703	11.391076
+Idaho	Gooding	25.146542	17.915623
+Idaho	Lemhi	23.357664	17.895508
+Illinois	DeKalb	51.608586	46.940367
+Illinois	Franklin	40.493469	25.263214
+Illinois	Grundy	44.487855	34.707578
+Illinois	Kankakee	47.452152	40.103583
+Illinois	McHenry	44.676638	42.894533
+Illinois	Marshall	41.965812	29.89639
+Illinois	Menard	34.14079	27.889486
+Illinois	Moultrie	35.397061	23.571542
+Illinois	Ogle	40.715539	33.274088
+Illinois	Randolph	40.015286	24.228547
+Illinois	Rock Island	60.226713	50.470357
+Illinois	Wayne	19.713542	12.686115
+Illinois	Whiteside	57.819443	43.135799
+Illinois	Woodford	29.522094	25.634313
+Indiana	Clark	44.133118	36.77244
+Indiana	Hamilton	31.999883	37.122057
+Indiana	Huntington	29.153187	21.853768
+Indiana	LaGrange	31.107772	21.743676
+Indiana	Newton	39.122745	24.227783
+Indiana	Ohio	35.260731	23.485108
+Indiana	Putnam	32.590932	22.80666
+Indiana	Randolph	36.990873	23.388793
+Indiana	Shelby	31.97494	23.602312
+Indiana	Starke	43.511538	26.978105
+Indiana	Vermillion	45.266677	29.989912
+Iowa	Adair	44.794795	29.72973
+Iowa	Appanoose	47.253803	29.563233
+Iowa	Benton	48.933894	33.790812
+Iowa	Butler	44.121935	28.710236
+Iowa	Chickasaw	54.811845	35.213675
+Iowa	Clinton	60.564	43.763818
+Iowa	Crawford	45.408768	28.709445
+Iowa	Guthrie	43.631114	30.121739
+Iowa	Harrison	42.829828	28.546551
+Iowa	Howard	59.590958	36.784383
+Iowa	Iowa	46.740356	34.636119
+Iowa	Jackson	57.674282	37.216295
+Iowa	Lee	56.654857	38.480589
+Iowa	Muscatine	56.999748	43.058557
+Iowa	Page	36.911993	25.653038
+Iowa	Pocahontas	37.772817	24.915912
+Iowa	Story	55.550371	50.741114
+Kansas	Anderson	28.476621	20.059701
+Kansas	Atchison	38.462691	30.250951
+Kansas	Brown	26.947158	21.382557
+Kansas	Clay	22.626153	17.722513
+Kansas	Decatur	17.362924	12.258953
+Kansas	Edwards	21.516245	16.072782
+Kansas	Ellis	26.096978	22.951369
+Kansas	Ford	31.09304	27.844001
+Kansas	Franklin	33.612375	26.374829
+Kansas	Hamilton	18.586089	13.812785
+Kansas	Lincoln	19.487525	14.685792
+Kansas	Miami	31.717824	26.567701
+Kansas	Neosho	31.635802	23.772569
+Kansas	Phillips	14.892788	11.261261
+Kansas	Rawlins	13.157895	11.07337
+Kansas	Reno	33.105397	28.240397
+Kansas	Stanton	18.84058	18.053375
+Kansas	Wyandotte	67.606133	61.798651
+Kentucky	Anderson	32.122093	23.06076
+Kentucky	Barren	32.59295	23.123107
+Kentucky	Bell	23.454967	17.699115
+Kentucky	Boyle	36.135133	33.068129
+Kentucky	Bracken	35.488861	19.988659
+Kentucky	Caldwell	31.604096	21.087866
+Kentucky	Cumberland	20.988087	14.970646
+Kentucky	Fayette	49.322295	51.188791
+Kentucky	Fleming	33.050847	21.533546
+Kentucky	Greenup	39.734968	25.471524
+Kentucky	Knott	24.942912	21.603332
+Kentucky	Madison	34.547746	31.556555
+Kentucky	Mercer	29.842036	22.626358
+Kentucky	Muhlenberg	37.451919	25.053599
+Kentucky	Oldham	30.919556	31.254376
+Kentucky	Powell	36.152644	25.660682
+Kentucky	Rowan	44.853229	37.240054
+Kentucky	Shelby	35.546268	30.495627
+Kentucky	Todd	29.737177	21.803725
+Kentucky	Trimble	38.244426	23.14376
+Louisiana	Bossier	26.679297	25.359092
+Louisiana	Caldwell	21.543681	16.794544
+Louisiana	East Baton Rouge	51.801727	52.332168
+Louisiana	Franklin	31.287489	27.352107
+Louisiana	Sabine	21.824331	17.400633
+Louisiana	St. Martin	37.046357	32.100971
+Maine	Kennebec	55.227806	44.257492
+Maine	Knox	59.922056	53.756426
+Maine	Lincoln	54.511731	47.625913
+Maine	Sagadahoc	56.848129	49.333827
+Maryland	Garrett	23.744015	18.321319
+Maryland	Montgomery	70.922297	74.724823
+Maryland	Worcester	40.167761	34.495809
+Massachusetts	Barnstable	53.203621	54.107962
+Massachusetts	Bristol	59.195309	52.032664
+Massachusetts	Essex	57.403571	58.522961
+Massachusetts	Franklin	71.698713	64.117139
+Michigan	Arenac	46.792501	30.977131
+Michigan	Calhoun	50.177448	41.01219
+Michigan	Kalamazoo	56.0579	53.1659
+Michigan	Macomb	51.478151	42.049119
+Michigan	Mecosta	44.433276	33.941053
+Michigan	Midland	41.792403	36.783042
+Michigan	Missaukee	32.360894	21.388547
+Michigan	Newaygo	40.636931	27.438163
+Michigan	Ottawa	32.300169	31.50826
+Michigan	St. Joseph	43.322908	31.679084
+Michigan	Schoolcraft	46.072134	32.956187
+Michigan	Van Buren	49.608673	39.844924
+Michigan	Washtenaw	67.313689	68.13255
+Minnesota	Dakota	50.365868	47.737211
+Minnesota	Douglas	41.297189	28.583888
+Minnesota	Kanabec	44.08589	28.45787
+Minnesota	Lake	59.281525	47.186014
+Minnesota	Lyon	44.115273	31.313958
+Minnesota	Nobles	44.518779	31.66126
+Minnesota	Norman	53.944496	38.761116
+Minnesota	Pennington	46.401719	31.973194
+Minnesota	Pipestone	37.128713	23.4401
+Minnesota	Pope	47.726545	33.328058
+Minnesota	Ramsey	66.328339	65.071409
+Minnesota	Renville	44.020752	27.83329
+Minnesota	Roseau	37.704026	23.782676
+Minnesota	Sherburne	37.835688	27.531429
+Minnesota	Waseca	44.834308	29.400186
+Mississippi	Bolivar	68.589577	65.436921
+Mississippi	Calhoun	36.587436	29.862414
+Mississippi	Claiborne	88.220277	86.797753
+Mississippi	Copiah	54.867946	51.925743
+Mississippi	Covington	41.48481	37.180797
+Mississippi	Grenada	46.651963	42.081233
+Mississippi	Jefferson Davis	62.164918	59.64406
+Mississippi	Leflore	71.392782	69.901257
+Mississippi	Lowndes	49.296708	46.213099
+Mississippi	Pearl River	19.645428	16.469405
+Mississippi	Tate	39.763018	33.766234
+Mississippi	Tunica	79.301689	74.768713
+Mississippi	Yalobusha	47.686497	42.48807
+Missouri	Adair	41.665021	34.226482
+Missouri	Barton	21.406196	13.386092
+Missouri	Chariton	35.043182	22.373394
+Missouri	Clark	43.348837	22.51944
+Missouri	Henry	35.621851	23.890128
+Missouri	Holt	23.852814	14.734607
+Missouri	Howell	26.887312	16.505299
+Missouri	Lafayette	35.802469	25.529101
+Missouri	Lincoln	34.142681	22.333948
+Missouri	Madison	32.210953	18.887427
+Missouri	Miller	24.058445	15.329362
+Missouri	Platte	42.094749	41.028945
+Missouri	Putnam	25.422261	15.046888
+Missouri	St. Clair	31.560744	20.215983
+Missouri	St. Louis County	56.196423	55.686034
+Missouri	Saline	41.61177	30.073323
+Missouri	Shelby	29.888614	18.617512
+Missouri	Webster	28.576058	18.975094
+Missouri	St. Louis City	82.711846	79.452859
+Montana	Fergus	27.013672	20.582192
+Montana	Flathead	31.953262	28.543514
+Montana	Glacier	65.678347	61.497537
+Montana	McCone	22.4572	14.528302
+Montana	Meagher	27.674897	19.75435
+Montana	Missoula	57.392642	53.279395
+Montana	Powell	31.988473	19.72083
+Montana	Rosebud	40.363327	28.58384
+Montana	Wheatland	27.419355	18.921776
+Nebraska	Antelope	17.667079	11.67327
+Nebraska	Banner	13.381995	4.726368
+Nebraska	Blaine	9.570957	9.463722
+Nebraska	Buffalo	27.579294	22.542477
+Nebraska	Burt	38.251852	26.13828
+Nebraska	Cass	35.853859	26.938839
+Nebraska	Frontier	20.766284	12.123494
+Nebraska	Hamilton	23.526997	17.545963
+Nebraska	Hooker	14.936709	9.592326
+Nebraska	Keya Paha	16.528926	8.350731
+Nebraska	Nance	29.673041	17.334978
+Nebraska	Perkins	17.073171	11.065292
+Nebraska	Sherman	36.078431	21.614749
+Nebraska	Sioux	13.667118	11.005435
+Nebraska	Thomas	10.294118	7.633588
+Nebraska	Valley	22.687927	15.37415
+Nebraska	Wayne	29.16893	22.113347
+Nevada	Esmeralda	21.149425	15.36643
+Nevada	Eureka	13.242574	8.665105
+Nevada	Nye	36.068942	25.996428
+New Hampshire	Grafton	60.863177	55.693384
+New Jersey	Cape May	45.183702	38.483642
+New Jersey	Morris	44.041127	46.023018
+New Jersey	Passaic	63.699804	59.93727
+New Jersey	Sussex	38.426096	32.663303
+New Mexico	Chaves	32.544845	27.300084
+New Mexico	De Baca	31.818182	21.208791
+New Mexico	Sierra	38.494708	31.113685
+New York	Cattaraugus	40.447475	30.477199
+New York	Chautauqua	42.501703	35.201165
+New York	Clinton	58.950939	46.905466
+New York	Erie	54.883569	50.860077
+New York	Essex	56.038763	45.080729
+New York	Franklin	59.821765	43.045068
+New York	Monroe	55.694655	54.225826
+New York	New York	81.404893	86.556921
+New York	Oneida	45.018454	37.076553
+New York	Otsego	47.765028	40.716067
+New York	Richmond	49.009204	40.972038
+New York	St. Lawrence	55.088597	42.106338
+New York	Saratoga	48.334755	44.623731
+New York	Warren	48.265603	41.680464
+North Carolina	Ashe	32.640761	26.072706
+North Carolina	Bertie	66.136521	61.816626
+North Carolina	Catawba	34.5814	29.323714
+North Carolina	Currituck	31.51097	22.993133
+North Carolina	Dare	41.131635	36.830027
+North Carolina	Edgecombe	67.885214	65.193281
+North Carolina	Iredell	34.146533	29.956278
+North Carolina	Jackson	48.470151	41.217336
+North Carolina	Lincoln	29.976886	24.728281
+North Carolina	Moore	35.559625	33.535283
+North Carolina	Perquimans	41.476248	34.570662
+North Carolina	Randolph	24.331714	20.432056
+North Carolina	Rockingham	38.912423	33.653437
+North Carolina	Rowan	36.349339	30.138731
+North Carolina	Sampson	44.18889	40.678031
+North Carolina	Stokes	27.836625	20.687361
+North Carolina	Vance	63.887024	61.215398
+North Carolina	Wake	54.943907	57.377223
+North Carolina	Wilson	53.376461	51.561558
+North Carolina	Yancey	42.122527	32.088353
+North Dakota	Cavalier	39.536008	23.728814
+North Dakota	Foster	36.08799	20.186155
+North Dakota	Hettinger	22.98091	12.962963
+North Dakota	LaMoure	33.72835	23.337982
+North Dakota	McLean	33.81936	20.338664
+North Dakota	Nelson	45.709178	31.217239
+North Dakota	Pembina	38.494624	21.598478
+North Dakota	Richland	42.007093	27.186512
+Ohio	Athens	66.238512	55.598954
+Ohio	Carroll	41.796109	24.124216
+Ohio	Delaware	37.759844	39.352975
+Ohio	Erie	55.305164	42.729789
+Ohio	Greene	38.634567	35.35757
+Ohio	Harrison	41.310741	23.845176
+Ohio	Hocking	48.373664	29.404892
+Ohio	Knox	36.881781	28.483285
+Ohio	Licking	42.021133	33.078382
+Ohio	Marion	45.715121	30.119292
+Ohio	Ottawa	51.224617	37.289585
+Ohio	Paulding	38.75986	23.134741
+Ohio	Vinton	44.558259	24.554707
+Ohio	Washington	39.496254	26.896783
+Oklahoma	Alfalfa	15.458473	9.565988
+Oklahoma	Carter	28.664876	21.592748
+Oklahoma	Cherokee	42.947015	33.086719
+Oklahoma	Cleveland	37.034946	35.476473
+Oklahoma	Delaware	29.391987	21.067702
+Oklahoma	Johnston	30.031696	19.561971
+Oklahoma	Love	29.798271	19.398258
+Oklahoma	Noble	24.681494	18.470685
+Oklahoma	Pushmataha	25.254237	16.685255
+Oklahoma	Rogers	24.925751	19.33826
+Oklahoma	Stephens	23.381017	17.236372
+Oregon	Benton	61.997232	59.879392
+Oregon	Clackamas	50.436799	47.699251
+Oregon	Columbia	50.278534	38.195958
+Oregon	Curry	39.604384	34.097217
+Oregon	Josephine	37.16139	30.190754
+Oregon	Klamath	29.489912	23.63392
+Oregon	Malheur	27.711933	21.523718
+Oregon	Multnomah	75.368911	73.304636
+Oregon	Union	32.916321	25.053979
+Pennsylvania	Butler	31.919056	29.446488
+Pennsylvania	Cameron	34.296542	24.290942
+Pennsylvania	Fayette	45.296361	33.37735
+Pennsylvania	Lawrence	44.863716	34.375383
+Pennsylvania	Lebanon	35.171439	30.64597
+Pennsylvania	Schuylkill	42.520831	26.674514
+Pennsylvania	Tioga	31.504352	21.287858
+Pennsylvania	Washington	42.580475	35.802859
+Rhode Island	Newport	59.47227	55.673042
+South Carolina	Anderson	31.026699	26.212989
+South Carolina	Beaufort	40.721994	40.927614
+South Carolina	Darlington	51.266998	46.801914
+South Carolina	Dillon	57.713847	49.871773
+South Carolina	Lexington	30.320627	28.855053
+South Carolina	Marion	64.647004	60.023816
+South Dakota	Brookings	46.991935	38.477918
+South Dakota	Buffalo	73.634945	60.408163
+South Dakota	Custer	29.535398	23.744969
+South Dakota	Day	52.105813	35.456862
+South Dakota	Fall River	32.423208	23.04238
+South Dakota	Haakon	12.637363	7.375479
+South Dakota	Hughes	34.16309	29.969419
+South Dakota	Jackson	38.517179	29.497717
+South Dakota	McPherson	22.386831	16.886544
+South Dakota	Potter	24.547429	16.080778
+South Dakota	Sully	22.738386	15.911731
+South Dakota	Todd	79.134962	70.823529
+South Dakota	Turner	33.515439	23.156627
+South Dakota	Walworth	27.254265	18.449738
+Tennessee	Anderson	34.127921	30.16298
+Tennessee	Bedford	29.151956	22.110062
+Tennessee	Carroll	32.024698	22.409476
+Tennessee	Cheatham	30.687656	24.353178
+Tennessee	Fayette	34.167774	30.287718
+Tennessee	Grundy	38.777437	20.974176
+Tennessee	Hamilton	41.674163	38.843323
+Tennessee	Obion	27.006587	19.805698
+Tennessee	Scott	21.775645	13.112453
+Tennessee	Union	25.360329	16.199776
+Tennessee	Van Buren	38.043478	22.281935
+Tennessee	Washington	29.823867	26.178894
+Texas	Atascosa	40.350601	34.015944
+Texas	Blanco	24.532475	21.882146
+Texas	Briscoe	16.666667	12.36413
+Texas	Cameron	64.991222	64.511995
+Texas	Ector	24.968474	28.056392
+Texas	El Paso	65.512841	69.082931
+Texas	Erath	15.754029	15.547398
+Texas	Galveston	35.893639	35.522322
+Texas	Gonzales	29.337956	24.802652
+Texas	Hudspeth	43.91657	37.198622
+Texas	Jeff Davis	36.912752	35.43241
+Texas	Kaufman	27.32045	24.907306
+Texas	Kendall	17.111848	18.106362
+Texas	Lamb	24.395013	19.299124
+Texas	Lampasas	20.530261	18.074345
+Texas	La Salle	58.626974	54.832443
+Texas	Leon	15.291577	12.219384
+Texas	Lipscomb	10.188356	10.135135
+Texas	McLennan	34.469621	34.22447
+Texas	Madison	24.006951	20.540919
+Texas	Menard	20.141343	17.824074
+Texas	Mills	12.676056	10.824053
+Texas	Mitchell	23.229706	16.120219
+Texas	Navarro	28.312939	24.353435
+Texas	Palo Pinto	19.395952	16.630964
+Texas	Panola	21.612903	17.617127
+Texas	Parker	16.465383	14.685745
+Texas	Pecos	38.337349	37.132616
+Texas	Refugio	37.280538	35.074627
+Texas	Roberts	6.496063	3.610108
+Texas	San Saba	14.298362	12.431056
+Texas	Scurry	16.669982	13.858953
+Texas	Shelby	25.010771	19.348448
+Texas	Smith	26.954435	26.307097
+Texas	Sterling	6.275304	11.058452
+Texas	Sutton	24.781733	22.10452
+Texas	Titus	29.907386	27.571929
+Texas	Tom Green	25.310458	23.838977
+Texas	Trinity	25.886127	19.281537
+Texas	Wilson	28.020924	24.650062
+Utah	Grand	43.721519	43.238473
+Utah	Summit	46.157365	50.884163
+Vermont	Rutland	59.729456	46.03464
+Virginia	Amelia	36.008677	30.227273
+Virginia	Amherst	39.412158	32.846194
+Virginia	Essex	53.145374	47.004438
+Virginia	Greensville	63.6419	58.629383
+Virginia	Henry	41.329167	34.008131
+Virginia	Highland	32.484076	26.671459
+Virginia	James City	43.35354	44.252195
+Virginia	Mecklenburg	45.904358	42.054199
+Virginia	Middlesex	38.980263	35.03407
+Virginia	Stafford	44.867372	42.327176
+Virginia	Surry	59.795729	53.736991
+Virginia	Warren	38.639358	28.780624
+Virginia	Washington	27.606117	21.484118
+Virginia	Lexington	55.303312	61.419878
+Virginia	Lynchburg	43.755487	41.467859
+Washington	Douglas	34.573685	31.641253
+Washington	Ferry	37.616279	30.49153
+Washington	Mason	52.289711	42.720764
+Washington	San Juan	67.25505	66.567663
+West Virginia	Barbour	30.689116	20.185002
+West Virginia	Braxton	41.590341	25.952849
+West Virginia	Calhoun	37.063888	17.424532
+West Virginia	Harrison	37.220331	27.517883
+West Virginia	Nicholas	30.324417	19.386787
+West Virginia	Ohio	37.887332	30.622143
+West Virginia	Raleigh	26.844497	21.753663
+West Virginia	Tucker	28.04334	21.611511
+West Virginia	Wayne	35.335005	22.111711
+Wisconsin	Ashland	64.488772	52.659111
+Wisconsin	Barron	47.990481	34.796626
+Wisconsin	Calumet	43.485995	36.195122
+Wisconsin	Chippewa	49.259666	37.660404
+Wisconsin	Columbia	56.226675	45.433476
+Wisconsin	Florence	36.304762	25.065864
+Wisconsin	Jefferson	45.522911	38.383628
+Wisconsin	Juneau	52.777543	34.717013
+Wisconsin	Kewaunee	46.688412	33.677263
+Wisconsin	Lafayette	57.042254	42.913078
+Wisconsin	Lincoln	49.704259	36.515708
+Wisconsin	Ozaukee	34.324668	36.989894
+Wisconsin	Portage	56.11765	48.111492
+Wyoming	Albany	45.754601	40.38687
+Wyoming	Laramie	36.185293	28.248188
+Wyoming	Lincoln	14.933859	12.450704
+Wyoming	Uinta	19.065464	14.191263
+Wyoming	Washakie	20.131846	13.94861
+Alaska	District 3	33.514582	16.301064
+Alaska	District 18	61.284271	52.810051
+Alaska	District 24	42.91398	39.405286
