@@ -1,0 +1,263 @@
+---
+title: 'Letting the Categoricals Out of the Bag'
+author: "Mohamad Osman"
+date: '2022-08-09'
+output: rmarkdown::github_document
+---
+
+# Section 03: Letting the Categoricals Out of the Bag
+
+### **`01-t for proportions?`**
+
+Some of the hypothesis tests in this course have used a z test statistic, and some have used a t test statistic. To get the correct p-value, you need to use the right type of test statistic.
+
+Do tests of proportion(s) use a z or a t test statistic and why?
+
+-   The test statistic for proportion(s) has only one estimate of a parameter instead of two. [✅](https://www.google.com/search?q=What+does+the+%E2%9C%85+mean%3F&sa=X&ved=2ahUKEwi-kuOUzbr5AhV6YPEDHX_CA8MQzmd6BAgiEAU)
+
+-   t: There are two estimates used for unknown values in the test statistic for proportion(s).
+
+-   z: Since the population standard deviation is always known for proportion(s), we always compute z-scores.
+
+-   t: Proportions are ratios, so you need to estimate the numerator and the denominator.
+
+Zipadeedoodah for z-scores! The t-test is needed for tests of mean(s) since you are estimating two unknown quantities, which leads to more variability.
+
+### **`02-Test for single proportions`**
+
+In Chapter 1, you calculated a p-value for a test hypothesizing that the proportion of late shipments was greater than 6%. In that chapter, you used a bootstrap distribution to estimate the standard error of the statistic. A simpler alternative is to use an equation for the standard error based on the sample proportion, hypothesized proportion, and sample size.
+
+![](images/chrome_lRhRYgLTfv.png)
+
+Let's revisit the p-value using this simpler calculation.
+
+`late_shipments` is available; `dplyr` is loaded.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(fst)
+
+file_path <- file.path("..", "00_Datasets", "late_shipments.fst")
+late_shipments <- read_fst(file_path)
+```
+
+-   Hypothesize that the proportion of late shipments is 6%.
+
+-   Calculate the sample proportion of shipments where `late` equals `"Yes"` as `prop_late`, and pull out the value to get a numeric value.
+
+-   Calculate the number of observations in the sample.
+
+```{r}
+# Hypothesize that the proportion of late shipments is 6%
+p_0 <- 0.06
+
+# Calculate the sample proportion of late shipments
+p_hat <- late_shipments %>%
+         summarize(prop_late = mean(late == "Yes")) %>%
+         pull()
+
+
+
+# Calculate the sample size
+n <- nrow(late_shipments)
+```
+
+-   Calculate the numerator of the z-score as the difference between the sample proportion and the hypothesized proportion.
+
+-   Calculate the denominator of the z-score as the sample proportion times one minus the sample proportion, divided by the sample size, all square rooted.
+
+-   Calculate the z-score as the ratio of these numbers.
+
+```{r}
+# From previous step
+p_0 <- 0.06
+p_hat <- late_shipments %>%
+  summarize(prop_late = mean(late == "Yes")) %>%
+  pull(prop_late)
+n <- nrow(late_shipments)
+
+# Calculate the numerator of the test statistic
+numerator <- p_hat - p_0
+
+# Calculate the denominator of the test statistic
+denominator <- sqrt(p_0 * (1 - p_0) / n)
+
+# Calculate the test statistic
+z_score <- numerator / denominator
+
+# See the result
+z_score
+```
+
+-   Transform the z-score into a p-value, remembering that this is a "greater than" alternative hypothesis.
+
+```{r}
+# From previous step
+p_0 <- 0.06
+p_hat <- late_shipments %>%
+  summarize(prop_late = mean(late == "Yes")) %>%
+  pull(prop_late)
+n <- nrow(late_shipments)
+numerator <- p_hat - p_0
+denominator <- sqrt(p_0 * (1 - p_0) / n)
+z_score <- numerator / denominator
+
+# Calculate the p-value from the z-score
+p_value <- pnorm(z_score,  lower.tail = FALSE)
+
+# See the result
+p_value
+```
+
+Well proportioned! While bootstrapping can be used to estimate the standard error of any statistic, it is computationally intensive. For proportions, using a simple equation of the hypothesized proportion and sample size is easier to compute, and the resulting p-value is almost identical (0.19 rather than 0.18).
+
+### 
+
+### **`03-Test for two proportions`**
+
+You may wonder if the amount paid for freight affects whether or not the shipment was late. Recall that in `late_shipments` dataset, whether or not the shipment was late is stored in the `late` column. Freight costs are stored in the `freight_cost_group` column, and the categories are `"expensive"` and `"reasonable"`.
+
+We can form hypotheses to test.
+
+H0: lateexpensive−latereasonable=0
+
+HA: lateexpensive−latereasonable\>0
+
+`p_hats` contains the estimates of population proportions (sample proportions) for the "expensive" and "reasonable" groups. `ns` contains the sample sizes for these groups.
+
+-   Calculate the pooled sample proportion, p\^, as the mean of `p_hats` weighted by `ns`. *Use `weighted.mean()` or arithmetic with this equation.*
+
+![](images/chrome_oTKHjDDhv4.png)\
+
+```{r}
+ns <- c(expensive = 541, reasonable = 459)
+p_hats <- c(expensive = 0.09611830,  reasonable = 0.03267974 )
+
+p_hat <- weighted.mean((ns[1] * p_hats[1] + ns[2] * p_hats[2]) / (ns[1] + ns[2]))
+p_hat
+
+
+```
+
+Calculate the standard error of the sample. *Use this equation.*
+
+![](images/chrome_191l7amlul.png)
+
+-   Calculate the pooled sample proportion times one minus the pooled sample proportion.
+
+-   Divide `p_hat_times_not_p_hat` by the sample sizes.
+
+-   Calculate the square root of the sum of `p_hat_times_not_p_hat_over_ns`.
+
+```{r}
+# From previous step
+p_hat <- weighted.mean(p_hats, ns)
+
+# Calculate sample prop'n times one minus sample prop'n
+p_hat_times_not_p_hat <- p_hat * (1 - p_hat)
+
+# Divide this by the sample sizes
+p_hat_times_not_p_hat_over_ns <- p_hat_times_not_p_hat / ns
+
+# Calculate std. error
+std_error <- sqrt(sum(p_hat_times_not_p_hat_over_ns))
+
+# See the result
+std_error
+```
+
+-   Calculate the z-score. *Use the following equation. You'll need square bracket indexing to access elements of `p_hats`.*
+
+![](images/chrome_rf77py4h6o.png)
+
+```{r}
+# From previous steps
+p_hat <- weighted.mean(p_hats, ns)
+p_hat_times_not_p_hat <- p_hat * (1 - p_hat)
+p_hat_times_not_p_hat_over_ns <- p_hat_times_not_p_hat / ns
+std_error <- sqrt(sum(p_hat_times_not_p_hat_over_ns))
+
+# Calculate the z-score
+z_score <- (p_hats[1] - p_hats[2]) / std_error
+
+# See the result
+z_score
+```
+
+-   Calculate the p-value from the z-score.
+
+```{r}
+# From previous steps
+p_hat <- weighted.mean(p_hats, ns)
+p_hat_times_not_p_hat <- p_hat * (1 - p_hat)
+p_hat_times_not_p_hat_over_ns <- p_hat_times_not_p_hat / ns
+std_error <- sqrt(sum(p_hat_times_not_p_hat_over_ns))
+z_score <- (p_hats["expensive"] - p_hats["reasonable"]) / std_error
+
+# Calculate the p-value from the z-score
+p_value <- pnorm(z_score, lower.tail = FALSE)
+
+# See the result
+p_value
+```
+
+Mad props! You can calculate a p-value for a two sample proportion test using (a rather exhausting amount of) arithmetic.
+
+### 
+
+### **`04-prop_test() for two samples`**
+
+That took a lot of effort to calculate the p-value, so while it is useful to see how the calculations work, it isn't practical to do in real-world analyses. For daily usage, it's better to use the `infer` package.
+
+Recall the hypotheses.
+
+H0: lateexpensive−latereasonable=0
+
+HA: lateexpensive−latereasonable\>0
+
+`late_shipments` is available; `infer` is loaded.
+
+Using the `late_shipments` dataset, use `prop_test()` to perform a proportion test appropriate to the hypotheses.
+
+-   Specify a hypothesis of `late` versus `freight_cost_group`.
+
+-   Set the `order` of the freight cost groups.
+
+-   Specify the `success` value for `late` and the type of `alternative` hypothesis.
+
+-   Don't use Yates' continuity correction.
+
+```{r}
+
+file_path_2 <- file.path("..", "00_Datasets", "late_shipments_add_cols.txt")
+add_cols_late_shipments <- read.delim(file_path_2)[1]
+
+late_shipments <-cbind(late_shipments, add_cols_late_shipments)
+
+```
+
+```{r}
+library(infer)
+
+
+test_results <- late_shipments %>% 
+  prop_test(
+    late ~ freight_cost_group,
+    order = c("expensive", "reasonable"),
+    success = "Yes",
+    alternative = "greater",
+    correct = FALSE
+  )
+
+# See the results
+test_results
+```
+
+\
+
+\
+
+\
+
+\
