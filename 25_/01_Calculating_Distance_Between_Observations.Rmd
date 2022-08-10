@@ -1,0 +1,6 @@
+---
+title: "Calculating Distance Between Observations"
+author: "Mohamad Osman"
+date: '2022-08-10'
+output: rmarkdown::github_document
+---
