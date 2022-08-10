@@ -13,7 +13,7 @@ Some of the hypothesis tests in this course have used a z test statistic, and so
 
 Do tests of proportion(s) use a z or a t test statistic and why?
 
--   The test statistic for proportion(s) has only one estimate of a parameter instead of two. [✅](https://www.google.com/search?q=What+does+the+%E2%9C%85+mean%3F&sa=X&ved=2ahUKEwi-kuOUzbr5AhV6YPEDHX_CA8MQzmd6BAgiEAU)
+-   The test statistic for proportion(s) has only one estimate of a parameter instead of two. ✅
 
 -   t: There are two estimates used for unknown values in the test statistic for proportion(s).
 
@@ -111,8 +111,6 @@ p_value
 ```
 
 Well proportioned! While bootstrapping can be used to estimate the standard error of any statistic, it is computationally intensive. For proportions, using a simple equation of the hypothesized proportion and sample size is easier to compute, and the resulting p-value is almost identical (0.19 rather than 0.18).
-
-### 
 
 ### **`03-Test for two proportions`**
 
@@ -253,6 +251,255 @@ test_results <- late_shipments %>%
 # See the results
 test_results
 ```
+
+### **`05-The chi-square distribution`**
+
+Chi-square hypothesis tests rely on the chi-square distribution. Like the t-distribution, it has degrees of freedom and non-centrality parameters.
+
+The plots show the PDF and CDF for a chi-square distribution (solid black line), and for comparison show a normal distribution with the same mean and variance (gray dotted line).
+
+Which statement about the chi-square distribution is true?
+
+-   Like the normal distribution, the chi-square distribution is defined for x values from minus infinity to infinity.
+
+-   As you increase the degrees of freedom or the non-centrality, the chi-square distribution PDF and CDF curves get closer to those of a normal distribution. ✅
+
+-   As you decrease the degrees of freedom or the non-centrality, the chi-square distribution PDF and CDF curves get closer to those of a normal distribution.
+
+-   The chi-square distribution PDF is symmetric about its peak.
+
+    ### 
+    ![](images/chrome_lWtUqkiMkj.png){width="478"}
+
+    **`06-How many tails for chi-square tests?`**
+
+    Unlike `t.test()` and `prop_test()`, `chisq_test()` does not have an `"alternative"` argument to specify which tails are considered by the alternative hypothesis.
+
+    Which tail is almost always considered in chi-square tests?
+
+    -   Left-tailed
+
+    -   Right-tailed ✅
+
+    -   Two-tailed
+
+    -   Neither: chi-square tests depend on the peak, not the tails
+
+    -   It depends on the problem
+
+    Right on! The chi-square test statistic is a square number, so it is always non-negative, so only the right tail tends to be of interest.
+
+    ### 
+    **`06-Chi-square test of independence`**
+
+    The *chi-square independence test* compares proportions of successes of a categorical variable across categories of another categorical variable.
+
+    Trade deals often use a form of business shorthand in order to specify the exact details of their contract. These are International Chamber of Commerce (ICC) international commercial terms, or *incoterms* for short.
+
+    The `late_shipments` dataset includes a `vendor_inco_term` that describes the incoterms that applied to a given shipment. The choices are:
+
+    -   [**`EXW`**](https://www.investopedia.com/terms/e/exw.asp): "Ex works". The buyer pays for transportation of the goods.
+
+    -   [**`CIP`**](https://www.investopedia.com/terms/c/carriage-and-insurance-paid-cip.asp): "Carriage and insurance paid to". The seller pays for freight and insurance until the goods board a ship.
+
+    -   [**`DDP`**](https://www.investopedia.com/terms/d/delivery-duty-paid.asp): "Delivered duty paid". The seller pays for transportation of the goods until they reach a destination port.
+
+    -   [**`FCA`**](https://www.investopedia.com/terms/f/fca.asp): "Free carrier". The seller pays for transportation of the goods.
+
+    Perhaps the incoterms affect whether or not the freight costs are expensive. Test these hypotheses with a significance level of `0.01`.
+
+    H0: `vendor_inco_term` and `freight_cost_group` are independent.
+
+    HA: `vendor_inco_term` and `freight_cost_group` are associated.
+
+    `late_shipments` is available; `ggplot2` and `infer` are loaded.
+
+Using the `late_shipments` dataset, draw a proportional stacked bar plot of `vendor_inco_term` with fill color by `freight_cost_group`.
+
+```{r}
+# Plot vendor_inco_term filled by freight_cost_group.
+# Make it a proportional stacked bar plot.
+ggplot(late_shipments, aes(x = vendor_inco_term, fill = freight_cost_group)) + 
+    geom_bar(position = "fill") + 
+    ylab("proportion")
+```
+
+-   Using the `late_shipments` dataset, perform a chi-square test of independence on `freight_cost_group` and `vendor_inco_term`.
+
+```{r}
+# Perform a chi-square test of independence on freight_cost_group and vendor_inco_term
+test_results <- late_shipments %>%
+                chisq_test(vendor_inco_term ~ freight_cost_group)
+
+
+# See the results
+test_results
+```
+
+**Question**
+
+-   What should you conclude from the hypothesis test?
+
+Possible Answers
+
+-   Fail to reject the null hypothesis and conclude that `vendor_inco_term` and `freight_cost_group` are independent.
+
+-   Reject the null hypothesis and conclude that `vendor_inco_term` and `freight_cost_group` are independent.
+
+-   Fail to reject the null hypothesis and conclude that `vendor_inco_term` and `freight_cost_group` are associated.
+
+-   Reject the null hypothesis and conclude that `vendor_inco_term` and `freight_cost_group` are associated. ✅
+
+Independence insight! The test to compare proportions of successes in a categorical variable across groups of another categorical variable is called a chi-square test of independence.
+
+### **`06-Visualizing goodness of fit`**
+
+The *chi-square goodness of fit test* compares proportions of each level of a categorical variable to hypothesized values. Before running such a test, it can be helpful to visually compare the distribution in the sample to the hypothesized distribution.
+
+Recall the vendor incoterms in the `late_shipments` dataset. Let's hypothesize that the four values occur with these frequencies in the population of shipments.
+
+-   `EXW`: 0.75
+
+-   `CIP`: 0.05
+
+-   `DDP`: 0.1
+
+-   `FCA`: 0.1
+
+`late_shipments` is available; `tibble`, `dplyr`, `ggplot2`, and `infer` are loaded.
+
+-   Using the `late_shipments` dataset, count the `vendor_inco_term`s.
+
+-   Get the number of rows in `late_shipments`.
+
+-   Add a column, `n` to the tibble being defined, containing hypothesized counts for each category.
+
+```{r}
+library(tibble)
+
+# Using late_shipments, count the vendor incoterms
+vendor_inco_term_counts <- late_shipments %>%
+                        count(vendor_inco_term)
+
+
+# Get the number of rows in the whole sample
+n_total <- nrow(late_shipments)
+
+hypothesized <- tribble(
+  ~ vendor_inco_term, ~ prop,
+  "EXW", 0.75,
+  "CIP", 0.05,
+  "DDP", 0.1,
+  "FCA", 0.1
+) %>%
+  # Add a column of hypothesized counts for the incoterms
+  mutate(n = n_total)
+
+# See the results
+hypothesized
+```
+
+-   Using the `vendor_inco_term_counts` dataset, plot `n` versus `vendor_inco_term`.
+
+-   Make it a precalculated bar plot (a.k.a. col plot).
+
+-   Add points from the `hypothesized` dataset.
+
+```{r}
+# From previous step
+vendor_inco_term_counts <- late_shipments %>% 
+  count(vendor_inco_term)
+n_total <- nrow(late_shipments)
+hypothesized <- tribble(
+  ~ vendor_inco_term, ~ prop,
+  "EXW", 0.75,
+  "CIP", 0.05,
+  "DDP", 0.1,
+  "FCA", 0.1
+) %>%
+  mutate(n = prop * n_total)
+
+# Using vendor_inco_term_counts, plot n vs. vendor_inco_term 
+ggplot(vendor_inco_term_counts, aes(vendor_inco_term, n)) +
+  # Make it a (precalculated) bar plot
+  geom_col() +
+  # Add points from hypothesizedr
+  geom_point(data = hypothesized, color = "purple")
+```
+
+Beautiful bars! Two of the bars in the sample are very close to the hypothesized values, one is a little high, and one is a little low. We'll need a test to see if the differences are statistically significant.
+
+### 
+**`07-Chi-square test of goodness of fit`**
+
+The bar plot of `vendor_inco_term` suggested that its distribution across the four categories was quite close to the hypothesized distribution. You'll need to perform a *chi-square goodness of fit test* to see whether the differences are statistically significant.
+
+To decide which hypothesis to choose, we'll set a significance level of `0.1`.
+
+`late_shipments` is available; `tibble`, `dplyr`, `ggplot2`, and `infer` are loaded.
+
+-   Using the `late_shipments` dataset, perform a chi-square goodness of fit test on `vendor_inco_term`. The hypothesized proportions are given in `hypothesized_props`.
+
+```{r}
+hypothesized_props <- c(
+  EXW = 0.75, CIP = 0.05, DDP = 0.1, FCA = 0.1
+)
+
+# # Run chi-square goodness of fit test on vendor_inco_term
+# test_results <- late_shipments %>%
+#               chisq_test(
+#                 response = vendor_inco_term,
+#                 p = hypothesized_props
+# 
+#               )
+# 
+# # See the results
+# test_results
+```
+
+**Question**
+
+-   What should you conclude from the hypothesis test?
+
+**Possible Answers**
+
+-   Fail to reject the null hypothesis and conclude that `vendor_inco_term` follows the distribution specified by `hypothesized_props`. ✅
+
+-   Reject the null hypothesis and conclude that `vendor_inco_term` follows the distribution specified by `hypothesized_props`.
+
+-   Fail to reject the null hypothesis and conclude that `vendor_inco_term` does not follow the distribution specified by `hypothesized_props`.
+
+-   Reject the null hypothesis and conclude that `vendor_inco_term` does not follow the distribution specified by `hypothesized_props`.
+
+What a good goodness of fit! The test to compare the proportions of a categorical variable to a hypothesized distribution is called a chi-square independence test.
+
+###  `The End`
+
+
+
+ 
+
+\
+
+
+
+
+
+
+
+\
+
+
+
+\
+
+
+
+\
+
+
+
+
 
 \
 
