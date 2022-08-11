@@ -32,6 +32,6 @@ In this track, you’ll learn how this versatile language allows you to import, 
 | 22.     | [Supervised Learning in R: Classification](/22_Supervised_Learning_in_R_Classification)|✅| |
 | 23.     | [Supervised Learning in R: Regression](/23_Supervised_Learning_in_R_Regression)|✅| |
 | 24.     | [Unsupervised Learning in R](/24_Unsupervised_Learning_in_R)|✅| |
-| 25.     | [Cluster Analysis in R](/25_Cluster_Analysis_in_R)|⏳| |
+| 25.     | [Cluster Analysis in R](/25_Cluster_Analysis_in_R)|✅| |
 | 26.     | [Hypothesis Testing in R](/26_Hypothesis_Testing_in_R)|✅| |
 </div>
